@@ -1,0 +1,20 @@
+services:
+  db:
+    image: postgis/postgis:16-3.4
+    environment:
+      POSTGRES_USER: bharosa_admin
+      POSTGRES_PASSWORD: bharosa_admin
+      POSTGRES_DB: bharosa
+    ports:
+      - "5432:5432"
+    volumes:
+      - bharosa_pg_data:/var/lib/postgresql/data
+      - ./postgres-init.sql:/docker-entrypoint-initdb.d/10-init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bharosa_admin -d bharosa"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  bharosa_pg_data:
