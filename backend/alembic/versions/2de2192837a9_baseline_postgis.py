@@ -1,10 +1,3 @@
-"""baseline: verify postgis extension is present
-
-Revision ID: 2de2192837a9
-Revises:
-Create Date: 2026-08-14
-
-"""
 from typing import Sequence, Union
 
 from alembic import op

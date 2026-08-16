@@ -1,7 +1,7 @@
 [project]
 name = "bharosa-backend"
 version = "0.1.0"
-description = "Bharosa backend foundation"
+description = "Bharosa backend"
 requires-python = ">=3.12"
 dependencies = [
     "fastapi>=0.115,<0.116",
@@ -12,6 +12,7 @@ dependencies = [
     "pydantic>=2.12.5,<3.0",
     "pydantic-settings>=2.5,<3.0",
     "geoalchemy2>=0.15,<0.16",
+    "cryptography>=43,<44",
 ]
 
 [project.optional-dependencies]
@@ -22,6 +23,9 @@ dev = [
     "ruff>=0.6,<0.7",
     "detect-secrets>=1.5,<1.6",
 ]
+
+[tool.setuptools.packages.find]
+include = ["app*"]
 
 [tool.ruff]
 line-length = 100
@@ -34,6 +38,3 @@ ignore = ["B008"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["."]
-
-[tool.setuptools.packages.find]
-include = ["app*"]

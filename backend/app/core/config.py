@@ -12,7 +12,7 @@ class Settings(BaseSettings):
     api_v1_prefix: str = "/api/v1"
 
     database_url: str = Field(
-        default="postgresql+psycopg://bharosa:bharosa@localhost:5432/bharosa"
+        default="postgresql+psycopg://bharosa_app:bharosa_app@localhost:5432/bharosa"
     )
 
     log_level: str = Field(default="INFO")
