@@ -10,6 +10,7 @@ from app.domains.supply_chain import (
     record_return,
     record_transfer,
 )
+from tests.identity_fixtures import FULLY_AUTHORIZED_TEST_ACTOR
 from tests.supply_chain_fixtures import full_supply_chain_fixture, make_participant
 
 
@@ -26,6 +27,7 @@ def test_manufacturer_to_distributor_to_retailer_forward_flow(supply_chain_db_se
         identity=identity,
         occurred_at=_t(0),
         destination_participant=fx["depot"],
+        actor=FULLY_AUTHORIZED_TEST_ACTOR,
     )
     receipt = record_receipt(
         supply_chain_db_session,
@@ -33,6 +35,7 @@ def test_manufacturer_to_distributor_to_retailer_forward_flow(supply_chain_db_se
         occurred_at=_t(1),
         source_participant=fx["depot"],
         destination_participant=fx["distributor"],
+        actor=FULLY_AUTHORIZED_TEST_ACTOR,
     )
     transfer = record_transfer(
         supply_chain_db_session,
@@ -40,12 +43,14 @@ def test_manufacturer_to_distributor_to_retailer_forward_flow(supply_chain_db_se
         occurred_at=_t(2),
         source_participant=fx["distributor"],
         destination_participant=fx["retailer"],
+        actor=FULLY_AUTHORIZED_TEST_ACTOR,
     )
     placement = record_retail_placement(
         supply_chain_db_session,
         identity=identity,
         occurred_at=_t(3),
         source_participant=fx["retailer"],
+        actor=FULLY_AUTHORIZED_TEST_ACTOR,
     )
     supply_chain_db_session.commit()
 
@@ -72,6 +77,7 @@ def test_forward_flow_then_legitimate_return_backward(supply_chain_db_session):
         identity=identity,
         occurred_at=_t(0),
         destination_participant=fx["depot"],
+        actor=FULLY_AUTHORIZED_TEST_ACTOR,
     )
     record_receipt(
         supply_chain_db_session,
@@ -79,6 +85,7 @@ def test_forward_flow_then_legitimate_return_backward(supply_chain_db_session):
         occurred_at=_t(1),
         source_participant=fx["depot"],
         destination_participant=fx["distributor"],
+        actor=FULLY_AUTHORIZED_TEST_ACTOR,
     )
     record_transfer(
         supply_chain_db_session,
@@ -86,6 +93,7 @@ def test_forward_flow_then_legitimate_return_backward(supply_chain_db_session):
         occurred_at=_t(2),
         source_participant=fx["distributor"],
         destination_participant=fx["retailer"],
+        actor=FULLY_AUTHORIZED_TEST_ACTOR,
     )
     return_event = record_return(
         supply_chain_db_session,
@@ -94,6 +102,7 @@ def test_forward_flow_then_legitimate_return_backward(supply_chain_db_session):
         source_participant=fx["retailer"],
         destination_participant=fx["distributor"],
         reason="End-of-season unsold stock returned",
+        actor=FULLY_AUTHORIZED_TEST_ACTOR,
     )
     supply_chain_db_session.commit()
 
@@ -121,6 +130,7 @@ def test_lateral_reallocation_between_two_distributors(supply_chain_db_session):
         source_participant=fx["distributor"],
         destination_participant=distributor_b,
         reason="EMERGENCY_REDISTRIBUTION",
+        actor=FULLY_AUTHORIZED_TEST_ACTOR,
     )
     supply_chain_db_session.commit()
 
@@ -148,6 +158,7 @@ def test_lateral_reallocation_between_two_retailers(supply_chain_db_session):
         source_participant=fx["retailer"],
         destination_participant=retailer_b,
         reason="Authorized lateral stock-share between retailers",
+        actor=FULLY_AUTHORIZED_TEST_ACTOR,
     )
     supply_chain_db_session.commit()
 
@@ -164,6 +175,7 @@ def test_damage_correction_through_compensating_event(supply_chain_db_session):
         occurred_at=_t(2),
         source_participant=fx["distributor"],
         destination_participant=fx["retailer"],
+        actor=FULLY_AUTHORIZED_TEST_ACTOR,
     )
     supply_chain_db_session.commit()
 
@@ -173,6 +185,7 @@ def test_damage_correction_through_compensating_event(supply_chain_db_session):
         occurred_at=_t(3),
         reason="Quantity recorded on original transfer was incorrect; corrected here",
         related_event=transfer,
+        actor=FULLY_AUTHORIZED_TEST_ACTOR,
     )
     supply_chain_db_session.commit()
 
@@ -192,6 +205,7 @@ def test_multiple_legitimate_movements_for_same_identity_accumulate_as_history(
         identity=identity,
         occurred_at=_t(0),
         destination_participant=fx["depot"],
+        actor=FULLY_AUTHORIZED_TEST_ACTOR,
     )
     record_receipt(
         supply_chain_db_session,
@@ -199,6 +213,7 @@ def test_multiple_legitimate_movements_for_same_identity_accumulate_as_history(
         occurred_at=_t(1),
         source_participant=fx["depot"],
         destination_participant=fx["distributor"],
+        actor=FULLY_AUTHORIZED_TEST_ACTOR,
     )
     record_transfer(
         supply_chain_db_session,
@@ -206,6 +221,7 @@ def test_multiple_legitimate_movements_for_same_identity_accumulate_as_history(
         occurred_at=_t(2),
         source_participant=fx["distributor"],
         destination_participant=fx["retailer"],
+        actor=FULLY_AUTHORIZED_TEST_ACTOR,
     )
     record_return(
         supply_chain_db_session,
@@ -214,6 +230,7 @@ def test_multiple_legitimate_movements_for_same_identity_accumulate_as_history(
         source_participant=fx["retailer"],
         destination_participant=fx["distributor"],
         reason="Unsold stock return",
+        actor=FULLY_AUTHORIZED_TEST_ACTOR,
     )
     record_transfer(
         supply_chain_db_session,
@@ -222,12 +239,14 @@ def test_multiple_legitimate_movements_for_same_identity_accumulate_as_history(
         source_participant=fx["distributor"],
         destination_participant=fx["retailer"],
         reason="Redistributed after return",
+        actor=FULLY_AUTHORIZED_TEST_ACTOR,
     )
     record_retail_placement(
         supply_chain_db_session,
         identity=identity,
         occurred_at=_t(21),
         source_participant=fx["retailer"],
+        actor=FULLY_AUTHORIZED_TEST_ACTOR,
     )
     supply_chain_db_session.commit()
 
@@ -241,6 +260,7 @@ def test_unusual_but_legitimate_sequence_is_representable_without_error(supply_c
         identity=identity,
         occurred_at=_t(0),
         destination_participant=fx["depot"],
+        actor=FULLY_AUTHORIZED_TEST_ACTOR,
     )
     record_receipt(
         supply_chain_db_session,
@@ -248,6 +268,7 @@ def test_unusual_but_legitimate_sequence_is_representable_without_error(supply_c
         occurred_at=_t(1),
         source_participant=fx["depot"],
         destination_participant=fx["distributor"],
+        actor=FULLY_AUTHORIZED_TEST_ACTOR,
     )
     record_transfer(
         supply_chain_db_session,
@@ -255,12 +276,14 @@ def test_unusual_but_legitimate_sequence_is_representable_without_error(supply_c
         occurred_at=_t(2),
         source_participant=fx["distributor"],
         destination_participant=fx["retailer"],
+        actor=FULLY_AUTHORIZED_TEST_ACTOR,
     )
     record_retail_placement(
         supply_chain_db_session,
         identity=identity,
         occurred_at=_t(3),
         source_participant=fx["retailer"],
+        actor=FULLY_AUTHORIZED_TEST_ACTOR,
     )
     repeat_placement = record_retail_placement(
         supply_chain_db_session,
@@ -268,6 +291,7 @@ def test_unusual_but_legitimate_sequence_is_representable_without_error(supply_c
         occurred_at=_t(4),
         source_participant=fx["retailer"],
         reason="Repeat retailer stock-taking scan; legitimate re-check",
+        actor=FULLY_AUTHORIZED_TEST_ACTOR,
     )
     supply_chain_db_session.commit()
 

@@ -1,4 +1,4 @@
-from datetime import UTC, datetime
+﻿from datetime import UTC, datetime
 
 import pytest
 
@@ -11,6 +11,7 @@ from app.domains.supply_chain import (
     record_custody_adjustment,
 )
 from tests.identity_fixtures import (
+    FULLY_AUTHORIZED_TEST_ACTOR,
     make_batch,
     make_key,
     make_manufacturer,
@@ -18,6 +19,7 @@ from tests.identity_fixtures import (
     make_reserved_identity,
 )
 from tests.supply_chain_fixtures import full_supply_chain_fixture
+from tests.tenancy_helpers import scope_to
 
 
 def _now():
@@ -29,7 +31,7 @@ def test_replacement_identity_remains_a_distinct_product_identity(supply_chain_d
     original_identity = fx["identity"]
 
     replacement_identity = make_reserved_identity(
-        supply_chain_db_session, fx["batch"], serial="REPLACEMENT-SERIAL-001"
+        supply_chain_db_session, fx["batch"]
     )
     supply_chain_db_session.commit()
 
@@ -42,6 +44,7 @@ def test_replacement_identity_remains_a_distinct_product_identity(supply_chain_d
         occurred_at=_now(),
         reason="Damaged in transit; replaced by a new physical identity",
         related_identity=replacement_identity,
+        actor=FULLY_AUTHORIZED_TEST_ACTOR,
     )
     supply_chain_db_session.commit()
 
@@ -61,6 +64,7 @@ def test_replacement_identity_cannot_reference_itself(supply_chain_db_session):
             occurred_at=_now(),
             reason="Invalid self-reference attempt",
             related_identity=fx["identity"],
+            actor=FULLY_AUTHORIZED_TEST_ACTOR,
         )
 
 
@@ -73,10 +77,9 @@ def test_replacement_identity_from_different_manufacturer_is_rejected(supply_cha
     other_key = make_key(supply_chain_db_session, other_manufacturer, signer)
     other_product = make_product(supply_chain_db_session, other_manufacturer)
     other_batch = make_batch(supply_chain_db_session, other_product)
-    foreign_identity = make_reserved_identity(
-        supply_chain_db_session, other_batch, serial="FOREIGN-REPLACEMENT-001"
-    )
+    foreign_identity = make_reserved_identity(supply_chain_db_session, other_batch)
     supply_chain_db_session.commit()
+    scope_to(supply_chain_db_session, fx["manufacturer"].id)
     assert other_key is not None
 
     with pytest.raises(CrossManufacturerReferenceError):
@@ -86,4 +89,5 @@ def test_replacement_identity_from_different_manufacturer_is_rejected(supply_cha
             occurred_at=_now(),
             reason="Cross-manufacturer replacement attempt",
             related_identity=foreign_identity,
+            actor=FULLY_AUTHORIZED_TEST_ACTOR,
         )

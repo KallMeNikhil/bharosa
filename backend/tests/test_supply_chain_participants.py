@@ -1,5 +1,5 @@
 from app.domains.supply_chain import ParticipantRole, register_participant
-from tests.identity_fixtures import make_manufacturer
+from tests.identity_fixtures import FULLY_AUTHORIZED_TEST_ACTOR, make_manufacturer
 from tests.supply_chain_fixtures import make_participant
 
 
@@ -13,6 +13,7 @@ def test_register_participant_succeeds(supply_chain_db_session):
         participant_ref="DEPOT-A",
         name="Depot A",
         role=ParticipantRole.DEPOT,
+        actor=FULLY_AUTHORIZED_TEST_ACTOR,
     )
     supply_chain_db_session.commit()
 

@@ -1,12 +1,17 @@
 import pytest
 
 from app.domains.identity import (
+    ActorContext,
+    Capability,
     IdentityEventType,
     IllegalLifecycleTransitionError,
     LifecycleState,
     transition_identity,
 )
-from tests.identity_fixtures import full_signed_fixture
+from tests.identity_fixtures import (
+    FULLY_AUTHORIZED_TEST_ACTOR,
+    full_signed_fixture,
+)
 
 
 def test_reservation_creates_an_event(identity_db_session):
@@ -21,7 +26,12 @@ def test_reservation_creates_an_event(identity_db_session):
 def test_transition_creates_event_with_previous_and_new_state(identity_db_session):
     fx = full_signed_fixture(identity_db_session)
     identity = fx["identity"]
-    transition_identity(identity_db_session, identity=identity, new_state=LifecycleState.PRINTED)
+    transition_identity(
+        identity_db_session,
+        identity=identity,
+        new_state=LifecycleState.PRINTED,
+        actor=FULLY_AUTHORIZED_TEST_ACTOR,
+    )
     identity_db_session.commit()
 
     events = sorted(identity.events, key=lambda e: e.sequence)
@@ -40,7 +50,12 @@ def test_full_lifecycle_produces_one_event_per_transition(identity_db_session):
         LifecycleState.RECONCILED,
         LifecycleState.ACTIVATED,
     ]:
-        transition_identity(identity_db_session, identity=identity, new_state=state)
+        transition_identity(
+            identity_db_session,
+            identity=identity,
+            new_state=state,
+            actor=FULLY_AUTHORIZED_TEST_ACTOR,
+        )
     identity_db_session.commit()
 
     assert len(identity.events) == 6
@@ -51,9 +66,17 @@ def test_full_lifecycle_produces_one_event_per_transition(identity_db_session):
 def test_event_sequence_and_history_is_deterministic_and_ordered(identity_db_session):
     fx = full_signed_fixture(identity_db_session)
     identity = fx["identity"]
-    transition_identity(identity_db_session, identity=identity, new_state=LifecycleState.PRINTED)
     transition_identity(
-        identity_db_session, identity=identity, new_state=LifecycleState.PRINT_VERIFIED
+        identity_db_session,
+        identity=identity,
+        new_state=LifecycleState.PRINTED,
+        actor=FULLY_AUTHORIZED_TEST_ACTOR,
+    )
+    transition_identity(
+        identity_db_session,
+        identity=identity,
+        new_state=LifecycleState.PRINT_VERIFIED,
+        actor=FULLY_AUTHORIZED_TEST_ACTOR,
     )
     identity_db_session.commit()
 
@@ -72,7 +95,10 @@ def test_illegal_transition_does_not_create_an_event(identity_db_session):
     event_count_before = len(identity.events)
     with pytest.raises(IllegalLifecycleTransitionError):
         transition_identity(
-            identity_db_session, identity=identity, new_state=LifecycleState.ACTIVATED
+            identity_db_session,
+            identity=identity,
+            new_state=LifecycleState.ACTIVATED,
+            actor=FULLY_AUTHORIZED_TEST_ACTOR,
         )
     assert len(identity.events) == event_count_before
 
@@ -80,7 +106,12 @@ def test_illegal_transition_does_not_create_an_event(identity_db_session):
 def test_state_and_event_commit_atomically(identity_db_session):
     fx = full_signed_fixture(identity_db_session)
     identity = fx["identity"]
-    transition_identity(identity_db_session, identity=identity, new_state=LifecycleState.PRINTED)
+    transition_identity(
+        identity_db_session,
+        identity=identity,
+        new_state=LifecycleState.PRINTED,
+        actor=FULLY_AUTHORIZED_TEST_ACTOR,
+    )
     identity_db_session.commit()
 
     latest_event = sorted(identity.events, key=lambda e: e.sequence)[-1]
@@ -105,7 +136,10 @@ def test_event_records_actor_and_metadata_when_provided(identity_db_session):
         identity_db_session,
         identity=identity,
         new_state=LifecycleState.PRINTED,
-        actor="synthetic-test-operator",
+        actor=ActorContext(
+            actor_id="synthetic-test-operator",
+            capabilities=frozenset({Capability.AUTHORIZE_PRINT}),
+        ),
         event_metadata="printed via synthetic test fixture",
     )
     identity_db_session.commit()

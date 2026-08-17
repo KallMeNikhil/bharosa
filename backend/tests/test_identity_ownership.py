@@ -35,7 +35,7 @@ def test_same_manufacturer_key_and_product_succeeds(identity_db_session):
     signer, manufacturer_a, key_a, batch_a, _manufacturer_b, _key_b = _two_manufacturer_setup(
         identity_db_session
     )
-    reserved = make_reserved_identity(identity_db_session, batch_a, serial="AREAB-OK-SERIAL")
+    reserved = make_reserved_identity(identity_db_session, batch_a)
     identity_db_session.commit()
 
     signed = sign_identity(
@@ -57,7 +57,7 @@ def test_cross_manufacturer_key_and_product_fails(identity_db_session):
     signer, _manufacturer_a, _key_a, batch_a, _manufacturer_b, key_b = _two_manufacturer_setup(
         identity_db_session
     )
-    reserved = make_reserved_identity(identity_db_session, batch_a, serial="AREAB-FAIL-SERIAL")
+    reserved = make_reserved_identity(identity_db_session, batch_a)
     identity_db_session.commit()
 
     with pytest.raises(CrossManufacturerKeyMismatchError):
@@ -75,7 +75,7 @@ def test_cross_manufacturer_association_cannot_silently_persist(identity_db_sess
     signer, _manufacturer_a, _key_a, batch_a, _manufacturer_b, key_b = _two_manufacturer_setup(
         identity_db_session
     )
-    reserved = make_reserved_identity(identity_db_session, batch_a, serial="AREAB-NOPERSIST")
+    reserved = make_reserved_identity(identity_db_session, batch_a)
     identity_db_session.commit()
 
     with pytest.raises(CrossManufacturerKeyMismatchError):
@@ -98,7 +98,7 @@ def test_failed_cross_manufacturer_attempt_creates_no_invalid_event(identity_db_
     signer, _manufacturer_a, _key_a, batch_a, _manufacturer_b, key_b = _two_manufacturer_setup(
         identity_db_session
     )
-    reserved = make_reserved_identity(identity_db_session, batch_a, serial="AREAB-NOEVENT")
+    reserved = make_reserved_identity(identity_db_session, batch_a)
     identity_db_session.commit()
     event_count_before = len(reserved.events)
 
@@ -130,7 +130,7 @@ def test_database_level_backstop_rejects_forced_cross_manufacturer_key(identity_
     _signer, _manufacturer_a, _key_a, batch_a, _manufacturer_b, key_b = _two_manufacturer_setup(
         identity_db_session
     )
-    reserved = make_reserved_identity(identity_db_session, batch_a, serial="AREAB-DBLEVEL")
+    reserved = make_reserved_identity(identity_db_session, batch_a)
     identity_db_session.commit()
 
     reserved.manufacturer_key_id = key_b.manufacturer_key.id

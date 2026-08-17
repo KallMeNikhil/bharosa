@@ -27,7 +27,7 @@ def _setup(db):
 
 def test_production_order_authority_does_not_imply_signing_authority(identity_db_session):
     signer, key, batch = _setup(identity_db_session)
-    reserved = make_reserved_identity(identity_db_session, batch, serial="AREAD-SERIAL-1")
+    reserved = make_reserved_identity(identity_db_session, batch)
     identity_db_session.commit()
 
     production_only_actor = ActorContext(
@@ -48,7 +48,7 @@ def test_production_order_authority_does_not_imply_signing_authority(identity_db
 
 def test_explicit_signing_authority_succeeds(identity_db_session):
     signer, key, batch = _setup(identity_db_session)
-    reserved = make_reserved_identity(identity_db_session, batch, serial="AREAD-SERIAL-2")
+    reserved = make_reserved_identity(identity_db_session, batch)
     identity_db_session.commit()
 
     signing_actor = ActorContext(
@@ -70,7 +70,7 @@ def test_explicit_signing_authority_succeeds(identity_db_session):
 
 def test_actor_with_no_capabilities_fails(identity_db_session):
     signer, key, batch = _setup(identity_db_session)
-    reserved = make_reserved_identity(identity_db_session, batch, serial="AREAD-SERIAL-3")
+    reserved = make_reserved_identity(identity_db_session, batch)
     identity_db_session.commit()
 
     bare_actor = ActorContext(actor_id="no-capability-actor")
@@ -88,7 +88,7 @@ def test_actor_with_no_capabilities_fails(identity_db_session):
 
 def test_unauthorized_attempt_creates_no_event_or_mutation(identity_db_session):
     signer, key, batch = _setup(identity_db_session)
-    reserved = make_reserved_identity(identity_db_session, batch, serial="AREAD-SERIAL-4")
+    reserved = make_reserved_identity(identity_db_session, batch)
     identity_db_session.commit()
     event_count_before = len(reserved.events)
 
@@ -114,7 +114,7 @@ def test_unauthorized_attempt_creates_no_event_or_mutation(identity_db_session):
 
 def test_actor_holding_both_capabilities_can_still_sign(identity_db_session):
     signer, key, batch = _setup(identity_db_session)
-    reserved = make_reserved_identity(identity_db_session, batch, serial="AREAD-SERIAL-5")
+    reserved = make_reserved_identity(identity_db_session, batch)
     identity_db_session.commit()
 
     full_actor = ActorContext(
@@ -136,7 +136,7 @@ def test_actor_holding_both_capabilities_can_still_sign(identity_db_session):
 
 def test_signed_event_records_actor_id(identity_db_session):
     signer, key, batch = _setup(identity_db_session)
-    reserved = make_reserved_identity(identity_db_session, batch, serial="AREAD-SERIAL-6")
+    reserved = make_reserved_identity(identity_db_session, batch)
     identity_db_session.commit()
 
     signing_actor = ActorContext(

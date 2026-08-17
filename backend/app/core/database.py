@@ -9,7 +9,15 @@ settings = get_settings()
 
 engine = create_engine(settings.database_url, pool_pre_ping=True, future=True)
 
+verification_engine = create_engine(
+    settings.verification_database_url, pool_pre_ping=True, future=True
+)
+
 SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False, future=True)
+
+VerificationSessionLocal = sessionmaker(
+    bind=verification_engine, autoflush=False, autocommit=False, future=True
+)
 
 
 class Base(DeclarativeBase):
@@ -18,6 +26,14 @@ class Base(DeclarativeBase):
 
 def get_db() -> Generator[Session, None, None]:
     db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+
+def get_verification_db() -> Generator[Session, None, None]:
+    db = VerificationSessionLocal()
     try:
         yield db
     finally:

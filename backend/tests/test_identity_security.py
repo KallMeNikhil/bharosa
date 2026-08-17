@@ -55,7 +55,6 @@ def test_cross_manufacturer_key_cannot_validate_other_manufacturers_identity(ide
         key_a.manufacturer_key,
         signer,
         key_a.key_handle,
-        serial="A-SERIAL-1",
     )
 
     manufacturer_b = make_manufacturer(identity_db_session, name="Synthetic Manufacturer B")
