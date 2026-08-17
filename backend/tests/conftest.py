@@ -131,6 +131,28 @@ def supply_chain_db_session(postgres_db_session):
     return postgres_db_session
 
 
+@pytest.fixture()
+def api_client(postgres_db_session):
+    """A TestClient sharing the test transaction.
+
+    Both the tenant session and the public verification session are bound to
+    the same connection so that a request can see data the test just wrote and
+    the whole thing rolls back afterwards. The separation between the two
+    database roles is a property of deployment, and is asserted directly by
+    the privilege tests rather than through this client.
+    """
+    from app.core.database import get_verification_db
+
+    def _session():
+        yield postgres_db_session
+
+    app.dependency_overrides[get_db] = _session
+    app.dependency_overrides[get_verification_db] = _session
+    with TestClient(app) as client:
+        yield client
+    app.dependency_overrides.clear()
+
+
 @pytest.fixture(scope="session")
 def _verifier_engine(_postgres_engine):
     engine = create_engine(POSTGRES_TEST_VERIFICATION_DATABASE_URL, future=True)
