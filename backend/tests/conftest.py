@@ -6,6 +6,7 @@ from sqlalchemy import create_engine, event, inspect, text
 from sqlalchemy.orm import sessionmaker
 
 from app.core.database import Base, get_db
+from app.domains.detection import models as detection_models  # noqa: F401
 from app.domains.identity import models as identity_models  # noqa: F401
 from app.domains.supply_chain import models as supply_chain_models  # noqa: F401
 from app.domains.verification import models as verification_models  # noqa: F401
