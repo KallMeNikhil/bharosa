@@ -89,11 +89,31 @@ docs/       Product, architecture, and process documentation
 
 ## Status
 
-Bharosa is in its early engineering phase. The foundational architecture,
-security direction, database and geospatial foundation, and the initial
-identity domain — including its testing and infrastructure setup — are in
-place. Verification, detection, and investigation functionality are under
-active development and not yet complete.
+The backend is built through correlation and investigation. Cryptographic
+identity, the supply-chain custody log, public verification, the four
+fraud-family detectors, likelihood-ratio evidence correlation, and the
+investigation workflow all exist, along with the manufacturer-facing API the
+web client consumes. Simulation and production hardening are not yet started.
+
+Bharosa operates at whatever assurance level has actually been implemented,
+never one implied by its design. Today that is **Level 1 (cryptographic
+identity)** plus behavioural evidence collection. Physical binding, real
+KMS/HSM signing, tenant authentication, and external anchoring of evidence
+hashes are all designed and none are built, so no evidence-integrity or
+physical-authenticity claim should be made on the platform's behalf yet.
+
+### Running it
+
+```
+docker compose -f infra/docker-compose.yml up -d
+cd backend && pip install -e ".[dev]"
+alembic upgrade head
+uvicorn app.main:app --reload
+```
+
+The API surface is documented in [`docs/api-spec.md`](docs/api-spec.md), which
+is the authority the web client is written against. Interactive docs are at
+`/docs` once the server is running.
 
 ## Vision
 
