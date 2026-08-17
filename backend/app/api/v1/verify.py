@@ -8,6 +8,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
+from app.api.risk_signals import PLATFORM_RISK_SIGNALS
 from app.core.client_reference import client_reference_hash
 from app.core.config import Settings, get_settings
 from app.core.database import get_verification_db
@@ -115,7 +116,8 @@ def verify_product(
 
         result = verify(
             db,
-            VerificationRequest(
+            risk_signals=PLATFORM_RISK_SIGNALS,
+            request=VerificationRequest(
                 channel=body.channel,
                 occurred_at=checked_at,
                 serial=body.serial,
