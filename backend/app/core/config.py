@@ -14,6 +14,9 @@ class Settings(BaseSettings):
     database_url: str = Field(
         default="postgresql+psycopg://bharosa_app:bharosa_app@localhost:5432/bharosa"
     )
+    migration_database_url: str = Field(
+        default="postgresql+psycopg://bharosa_owner:bharosa_owner@localhost:5432/bharosa"
+    )
 
     log_level: str = Field(default="INFO")
 

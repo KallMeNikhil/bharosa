@@ -27,10 +27,11 @@ jobs:
         working-directory: backend
     env:
       DATABASE_URL: postgresql+psycopg://bharosa_app:bharosa_app@localhost:5432/bharosa
+      MIGRATION_DATABASE_URL: postgresql+psycopg://bharosa_owner:bharosa_owner@localhost:5432/bharosa
     steps:
       - uses: actions/checkout@v4
 
-      - name: Provision database (PostGIS + app role)
+      - name: Provision database (PostGIS + owner/app roles)
         run: |
           PGPASSWORD=bharosa_admin psql -h localhost -U bharosa_admin -d bharosa \
             -f ../infra/postgres-init.sql
@@ -45,15 +46,15 @@ jobs:
       - name: Lint
         run: ruff check app tests
 
-      - name: Tests
-        run: pytest -q
-
       - name: Migration upgrade / downgrade / upgrade
         run: |
           alembic upgrade head
           alembic downgrade base
           alembic upgrade head
           alembic current
+
+      - name: Tests
+        run: pytest -q
 
   frontend:
     runs-on: ubuntu-latest

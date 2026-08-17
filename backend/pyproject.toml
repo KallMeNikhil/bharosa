@@ -38,3 +38,6 @@ ignore = ["B008"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["."]
+markers = [
+    "db_privilege: requires a real PostgreSQL database with migrations applied",
+]

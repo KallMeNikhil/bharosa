@@ -6,6 +6,7 @@ from alembic import context
 from app.core.config import get_settings
 from app.core.database import Base
 from app.domains.identity import models as identity_models  # noqa: F401
+from app.domains.supply_chain import models as supply_chain_models  # noqa: F401
 
 config = context.config
 
@@ -13,7 +14,7 @@ if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
 settings = get_settings()
-config.set_main_option("sqlalchemy.url", settings.database_url)
+config.set_main_option("sqlalchemy.url", settings.migration_database_url)
 
 target_metadata = Base.metadata
 
