@@ -84,6 +84,7 @@ class FraudIncident(Base):
         back_populates="incident",
         cascade="all, delete-orphan",
         order_by="IncidentEvent.sequence",
+        foreign_keys="IncidentEvent.incident_id",
     )
 
 
@@ -127,7 +128,9 @@ class IncidentEvent(Base):
     )
 
     id: Mapped[uuid.UUID] = _uuid_pk()
-    incident_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
+    incident_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("investigation_fraud_incident.id"), nullable=False
+    )
     manufacturer_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("identity_manufacturer.id"), nullable=False
     )

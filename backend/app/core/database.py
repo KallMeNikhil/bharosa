@@ -13,10 +13,21 @@ verification_engine = create_engine(
     settings.verification_database_url, pool_pre_ping=True, future=True
 )
 
-SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False, future=True)
+# expire_on_commit is off because the tenant scope is a transaction-local
+# setting. A route that commits and then touches a returned object would
+# otherwise trigger a refresh SELECT after the scope had already been
+# discarded by the commit, and row-level security would correctly hide the
+# row the route had just written.
+SessionLocal = sessionmaker(
+    bind=engine, autoflush=False, autocommit=False, future=True, expire_on_commit=False
+)
 
 VerificationSessionLocal = sessionmaker(
-    bind=verification_engine, autoflush=False, autocommit=False, future=True
+    bind=verification_engine,
+    autoflush=False,
+    autocommit=False,
+    future=True,
+    expire_on_commit=False,
 )
 
 

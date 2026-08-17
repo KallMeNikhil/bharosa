@@ -246,7 +246,12 @@ def _create_investigation_tables() -> None:
     op.create_table(
         "investigation_incident_event",
         sa.Column("id", postgresql.UUID(as_uuid=True), primary_key=True),
-        sa.Column("incident_id", postgresql.UUID(as_uuid=True), nullable=False),
+        sa.Column(
+            "incident_id",
+            postgresql.UUID(as_uuid=True),
+            sa.ForeignKey("investigation_fraud_incident.id"),
+            nullable=False,
+        ),
         sa.Column(
             "manufacturer_id",
             postgresql.UUID(as_uuid=True),
