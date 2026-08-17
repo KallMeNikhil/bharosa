@@ -25,11 +25,11 @@ security by PostgreSQL's normal ownership rules, which is what allows
 migrations and backfills to run. FORCE ROW LEVEL SECURITY is deliberately
 not set for that reason.
 
-bharosa_verifier receives read access to exactly the identity tables the
-public verification path resolves against, under a separate policy. It is
-granted nothing on products, batches, participants, territories, channel
-authorizations or supply-chain events, so a compromise of the public
-endpoint cannot read manufacturer business data.
+bharosa_verifier receives read access to exactly two tables: the identity it
+resolves a scanned serial against, and the key registry it checks that
+identity's signature with. It is granted nothing on products, batches,
+participants, territories, channel authorizations or supply-chain events, so
+a compromise of the public endpoint cannot read manufacturer business data.
 """
 from __future__ import annotations
 
@@ -57,8 +57,6 @@ TENANT_SCOPED_TABLES = (
 
 VERIFIER_READABLE_TABLES = (
     "identity_manufacturer_key",
-    "identity_product",
-    "identity_batch",
     "identity_product_identity",
 )
 

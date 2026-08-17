@@ -27,6 +27,9 @@ class Settings(BaseSettings):
 
     verification_rate_limit_per_minute: int = Field(default=30)
     verification_rate_limit_burst: int = Field(default=10)
+    verification_min_response_seconds: float = Field(default=0.05)
+
+    client_reference_salt: str = Field(default="development-only-client-reference-salt")
 
     @property
     def is_production(self) -> bool:
