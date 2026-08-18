@@ -19,6 +19,7 @@ from app.core.authorization import ActorContext, Capability
 from app.core.config import Settings, get_settings
 from app.core.database import get_db
 from app.core.principal import Principal
+from app.core.tenancy import set_tenant_context
 from app.domains.identity import (
     Batch,
     IdentityIssuanceEvent,
@@ -64,11 +65,18 @@ def create_manufacturer(
     """Onboarding is a platform action, not a tenant action.
 
     It necessarily happens before any tenant context for the new manufacturer
-    can exist, so it takes no principal. Production onboarding belongs to the
-    administrative surface built during production hardening, and this
-    endpoint is unavailable there.
+    can exist, so it takes no principal. The scope is established here, from
+    the identifier the new manufacturer is about to be given, because
+    row-level security applies to the row this request reads back as much as
+    to the row it writes. Production onboarding belongs to the administrative
+    surface built during production hardening, and this endpoint is
+    unavailable there.
     """
-    manufacturer = register_manufacturer(db, name=body.name)
+    manufacturer_id = uuid.uuid4()
+    set_tenant_context(db, manufacturer_id)
+    manufacturer = register_manufacturer(
+        db, name=body.name, manufacturer_id=manufacturer_id
+    )
     db.commit()
     return schemas.ManufacturerView.model_validate(manufacturer)
 

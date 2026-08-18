@@ -23,6 +23,17 @@ def real_postgres_connection():
         conn.close()
 
 
+def _scope(cur, manufacturer_id) -> None:
+    """Establish the tenant scope for this connection.
+
+    These tests bypass the application entirely and write through raw SQL, so
+    nothing sets the scope for them. Row-level security applies to the row a
+    RETURNING clause reads back as much as to the row being written, and the
+    session setting is not transaction-local here because these helpers commit.
+    """
+    cur.execute("SELECT set_config('bharosa.manufacturer_id', %s, false)", (str(manufacturer_id),))
+
+
 def _seed_minimal_identity_and_participant(conn) -> tuple[uuid.UUID, uuid.UUID]:
     manufacturer_id = uuid.uuid4()
     product_id = uuid.uuid4()
@@ -31,6 +42,7 @@ def _seed_minimal_identity_and_participant(conn) -> tuple[uuid.UUID, uuid.UUID]:
     participant_id = uuid.uuid4()
 
     with conn.cursor() as cur:
+        _scope(cur, manufacturer_id)
         cur.execute(
             "INSERT INTO identity_manufacturer (id, name, status) VALUES (%s, %s, %s)",
             (manufacturer_id, "SC Privilege Test Manufacturer", "ACTIVE"),
@@ -47,9 +59,10 @@ def _seed_minimal_identity_and_participant(conn) -> tuple[uuid.UUID, uuid.UUID]:
             ),
         )
         cur.execute(
-            "INSERT INTO identity_batch (id, product_id, batch_ref, status) "
-            "VALUES (%s, %s, %s, %s)",
-            (batch_id, product_id, f"SC-PRIV-BATCH-{batch_id}", "OPEN"),
+            "INSERT INTO identity_batch "
+            "(id, manufacturer_id, product_id, batch_ref, status) "
+            "VALUES (%s, %s, %s, %s, %s)",
+            (batch_id, manufacturer_id, product_id, f"SC-PRIV-BATCH-{batch_id}", "OPEN"),
         )
         cur.execute(
             "INSERT INTO identity_product_identity "
@@ -85,15 +98,19 @@ def _insert_supply_chain_event(
         manufacturer_id = cur.fetchone()[0]
         cur.execute(
             "INSERT INTO supply_chain_event "
-            "(id, manufacturer_id, identity_id, event_type, destination_participant_id, "
-            "occurred_at) VALUES (%s, %s, %s, %s, %s, %s)",
+            "(id, manufacturer_id, identity_id, sequence, event_type, "
+            "destination_participant_id, occurred_at, previous_event_hash, event_hash) "
+            "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)",
             (
                 event_id,
                 manufacturer_id,
                 identity_id,
+                1,
                 "DISPATCH",
                 participant_id,
                 datetime.now(UTC),
+                bytes(32),
+                event_id.bytes * 2,
             ),
         )
     conn.commit()

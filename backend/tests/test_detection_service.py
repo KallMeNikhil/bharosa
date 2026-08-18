@@ -4,7 +4,6 @@ import pytest
 
 from app.core.authorization import ActorContext, Capability, CapabilityNotHeldError
 from app.domains.detection import (
-    DetectionEvidence,
     DetectionEvidenceSource,
     SignalType,
     identity_evidence,
@@ -109,36 +108,94 @@ def test_evidence_rows_form_an_unbroken_hash_chain(postgres_db_session):
     assert verify_chain(links) is True
 
 
-def test_evidence_without_any_source_is_rejected_at_the_database_level(postgres_db_session):
-    from sqlalchemy.exc import DatabaseError
+@pytest.mark.db_privilege
+def test_evidence_without_any_source_is_rejected_at_the_database_level():
+    """The uncited-evidence constraint is deferred, so it needs a real commit.
 
-    from app.core.event_chain import GENESIS_EVENT_HASH
-    from app.domains.detection.signals import FraudFamily
+    The rest of this module runs inside a savepoint that is never really
+    committed, and a deferred constraint trigger only fires at the end of an
+    actual transaction. Asserting it there would pass whether the trigger
+    existed or not, so this one test drives a real connection and commits for
+    real.
+    """
+    import os
+    import uuid as uuid_module
 
-    fx = activated_identity_fixture(postgres_db_session)
-    now = datetime.now(UTC)
+    import psycopg
 
-    postgres_db_session.add(
-        DetectionEvidence(
-            manufacturer_id=fx["manufacturer"].id,
-            identity_id=fx["identity"].id,
-            sequence=1,
-            detector_id="handwritten",
-            detector_version=1,
-            signal_type=SignalType.SCAN_VELOCITY,
-            fraud_family=FraudFamily.CODE_CLONING,
-            log_likelihood_ratio=1.0,
-            explanation="inserted without citing anything",
-            signal_fingerprint=b"\x00" * 32,
-            window_start=now - timedelta(days=1),
-            window_end=now,
-            previous_event_hash=GENESIS_EVENT_HASH,
-            event_hash=b"\x01" * 32,
-        )
+    owner_url = os.environ.get(
+        "TEST_MIGRATION_DATABASE_URL_PSYCOPG",
+        "postgresql://bharosa_owner:bharosa_owner@localhost:5432/bharosa",
     )
-    with pytest.raises(DatabaseError):
-        postgres_db_session.commit()
-    postgres_db_session.rollback()
+    manufacturer_id = uuid_module.uuid4()
+    product_id = uuid_module.uuid4()
+    batch_id = uuid_module.uuid4()
+    identity_id = uuid_module.uuid4()
+
+    with psycopg.connect(owner_url) as conn:
+        try:
+            with conn.cursor() as cur:
+                cur.execute(
+                    "INSERT INTO identity_manufacturer (id, name, status) "
+                    "VALUES (%s, 'Deferred Trigger Test', 'ACTIVE')",
+                    (manufacturer_id,),
+                )
+                cur.execute(
+                    "INSERT INTO identity_product "
+                    "(id, manufacturer_id, product_ref, name, status) "
+                    "VALUES (%s, %s, %s, 'Trigger Test', 'ACTIVE')",
+                    (product_id, manufacturer_id, f"TRG-{product_id}"),
+                )
+                cur.execute(
+                    "INSERT INTO identity_batch "
+                    "(id, manufacturer_id, product_id, batch_ref, status) "
+                    "VALUES (%s, %s, %s, %s, 'OPEN')",
+                    (batch_id, manufacturer_id, product_id, f"TRG-{batch_id}"),
+                )
+                cur.execute(
+                    "INSERT INTO identity_product_identity "
+                    "(id, batch_id, serial, manufacturer_id, lifecycle_state) "
+                    "VALUES (%s, %s, %s, %s, 'RESERVED')",
+                    (identity_id, batch_id, f"TRG{identity_id.hex[:22].upper()}", manufacturer_id),
+                )
+            conn.commit()
+
+            with pytest.raises(psycopg.errors.CheckViolation):
+                with conn.cursor() as cur:
+                    cur.execute(
+                        "INSERT INTO detection_evidence "
+                        "(id, manufacturer_id, identity_id, sequence, detector_id, "
+                        "detector_version, signal_type, fraud_family, log_likelihood_ratio, "
+                        "explanation, signal_fingerprint, window_start, window_end, "
+                        "previous_event_hash, event_hash) "
+                        "VALUES (%s, %s, %s, 1, 'handwritten', 1, 'SCAN_VELOCITY', "
+                        "'CODE_CLONING', 1.0, 'inserted without citing anything', %s, "
+                        "now(), now(), %s, %s)",
+                        (
+                            uuid_module.uuid4(),
+                            manufacturer_id,
+                            identity_id,
+                            bytes(32),
+                            bytes(32),
+                            bytes(31) + b"",
+                        ),
+                    )
+                conn.commit()
+            conn.rollback()
+        finally:
+            with conn.cursor() as cur:
+                cur.execute(
+                    "DELETE FROM identity_product_identity WHERE manufacturer_id = %s",
+                    (manufacturer_id,),
+                )
+                for table in ("identity_batch", "identity_product"):
+                    cur.execute(
+                        f"DELETE FROM {table} WHERE manufacturer_id = %s", (manufacturer_id,)
+                    )
+                cur.execute(
+                    "DELETE FROM identity_manufacturer WHERE id = %s", (manufacturer_id,)
+                )
+            conn.commit()
 
 
 def test_detection_uses_the_actor_capability_not_the_tenant_alone(postgres_db_session):

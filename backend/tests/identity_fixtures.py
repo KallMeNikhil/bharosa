@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import uuid
 from datetime import date
 
 from sqlalchemy.orm import Session
@@ -36,9 +37,9 @@ SIGNING_ONLY_TEST_ACTOR = ActorContext(
 
 
 def make_manufacturer(db: Session, name: str = "Synthetic Test Manufacturer") -> Manufacturer:
-    manufacturer = register_manufacturer(db, name=name)
-    scope_to(db, manufacturer.id)
-    return manufacturer
+    manufacturer_id = uuid.uuid4()
+    scope_to(db, manufacturer_id)
+    return register_manufacturer(db, name=name, manufacturer_id=manufacturer_id)
 
 
 def make_key(

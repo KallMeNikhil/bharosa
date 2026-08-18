@@ -42,6 +42,16 @@ _SCAN_TERRITORY_CONTAINMENT = text(
     "AND ve.occurred_at >= :window_start"
 )
 
+_HAS_AUTHORIZED_TERRITORY = text(
+    "SELECT EXISTS ("
+    "  SELECT 1 FROM supply_chain_territory t"
+    "  JOIN supply_chain_channel_authorization ca"
+    "    ON ca.territory_id = t.id AND ca.manufacturer_id = t.manufacturer_id"
+    "  WHERE t.manufacturer_id = :manufacturer_id"
+    "    AND (ca.valid_until IS NULL OR ca.valid_until > now())"
+    ")"
+)
+
 _CUSTODIAN_AUTHORIZATION = text(
     "SELECT e.id, EXISTS ("
     "  SELECT 1 FROM supply_chain_channel_authorization ca"
@@ -122,13 +132,25 @@ def build_context(
         row.id: (float(row.longitude), float(row.latitude))
         for row in db.execute(_SCAN_COORDINATES, parameters)
     }
-    inside_territory = {
-        row.id: bool(row.inside)
-        for row in db.execute(
-            _SCAN_TERRITORY_CONTAINMENT,
-            {**parameters, "manufacturer_id": identity.manufacturer_id},
-        )
-    }
+    # A manufacturer that has authorized no territory at all has not thereby
+    # declared every scan to be outside its distribution area. Leaving the map
+    # empty reports the containment of those scans as unknown rather than as
+    # false, so the diversion detector stays silent instead of firing on every
+    # located scan of every tenant that has not yet entered reference data.
+    has_territories = db.execute(
+        _HAS_AUTHORIZED_TERRITORY, {"manufacturer_id": identity.manufacturer_id}
+    ).scalar()
+    inside_territory = (
+        {
+            row.id: bool(row.inside)
+            for row in db.execute(
+                _SCAN_TERRITORY_CONTAINMENT,
+                {**parameters, "manufacturer_id": identity.manufacturer_id},
+            )
+        }
+        if has_territories
+        else {}
+    )
     custodian_authorized = {
         row.id: bool(row.authorized)
         for row in db.execute(

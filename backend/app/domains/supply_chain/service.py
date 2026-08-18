@@ -102,9 +102,18 @@ def define_territory(
 def territory_contains_point(
     db: Session, *, territory: Territory, longitude: float, latitude: float
 ) -> bool:
+    """Point-in-polygon, evaluated by PostGIS against the stored geometry.
+
+    The containment test is expressed against the column rather than against
+    the loaded attribute, because that attribute holds whatever the caller
+    last assigned to it -- plain WKT text on a freshly created territory -- and
+    only becomes a geometry once the row has been read back.
+    """
     point_wkt = f"POINT({longitude} {latitude})"
     result = db.execute(
-        select(func.ST_Contains(territory.boundary, func.ST_GeomFromText(point_wkt, 4326)))
+        select(
+            func.ST_Contains(Territory.boundary, func.ST_GeomFromText(point_wkt, 4326))
+        ).where(Territory.id == territory.id)
     ).scalar()
     return bool(result)
 

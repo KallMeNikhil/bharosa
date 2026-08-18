@@ -110,6 +110,7 @@ def _savepoint_session(engine):
         autoflush=False,
         autocommit=False,
         future=True,
+        expire_on_commit=False,
         join_transaction_mode="create_savepoint",
     )
     session = Session()

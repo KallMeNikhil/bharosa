@@ -198,8 +198,22 @@ def _record_key_event(
     return event
 
 
-def register_manufacturer(db: Session, *, name: str) -> Manufacturer:
-    manufacturer = Manufacturer(name=name, status=ManufacturerStatus.ACTIVE)
+def register_manufacturer(
+    db: Session, *, name: str, manufacturer_id: uuid.UUID | None = None
+) -> Manufacturer:
+    """Onboard a manufacturer.
+
+    The identifier is accepted rather than generated so that the caller can
+    establish the tenant scope before the row exists. Row-level security
+    filters the row a RETURNING clause reads back, so a session that inserts a
+    manufacturer it is not scoped to cannot read back even the row it just
+    wrote.
+    """
+    manufacturer = Manufacturer(
+        id=manufacturer_id or uuid.uuid4(),
+        name=name,
+        status=ManufacturerStatus.ACTIVE,
+    )
     db.add(manufacturer)
     db.flush()
     return manufacturer
