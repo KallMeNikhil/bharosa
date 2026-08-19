@@ -111,6 +111,24 @@ alembic upgrade head
 uvicorn app.main:app --reload
 ```
 
+Then the web client, in a second terminal:
+
+```
+cd frontend && npm install
+npm run dev
+```
+
+The console is at `http://localhost:5173` and proxies `/api` to the backend on
+port 8000, so nothing needs CORS. Copy `.env.example` to `.env` if the database
+is anywhere other than the defaults.
+
+Nothing in the console is reachable until a manufacturer exists, so start at
+**Tenant and actor** and run the demonstration scenario. It drives the whole
+platform through the public API — production, custody, four scans of a diverted
+pack seconds apart, detection, risk correlation and an investigation — and
+leaves every screen with real data on it. Every request the client makes is
+recorded in the **API console**, with the exact body sent and returned.
+
 The API surface is documented in [`docs/api-spec.md`](docs/api-spec.md), which
 is the authority the web client is written against. Interactive docs are at
 `/docs` once the server is running.
