@@ -1,4 +1,4 @@
-from datetime import UTC, datetime, timedelta
+﻿from datetime import UTC, datetime, timedelta
 
 import pytest
 
@@ -9,8 +9,9 @@ from app.domains.supply_chain import (
     is_authorization_active_at,
     revoke_channel_authorization,
 )
-from tests.identity_fixtures import make_manufacturer
+from tests.identity_fixtures import FULLY_AUTHORIZED_TEST_ACTOR, make_manufacturer
 from tests.supply_chain_fixtures import make_authorization, make_participant, make_territory
+from tests.tenancy_helpers import scope_to
 
 
 def _now():
@@ -98,6 +99,7 @@ def test_cross_manufacturer_participant_authorization_is_rejected(supply_chain_d
     supply_chain_db_session.commit()
 
     participant_b = make_participant(supply_chain_db_session, manufacturer_b.id)
+    scope_to(supply_chain_db_session, manufacturer_a.id)
     territory_a = make_territory(supply_chain_db_session, manufacturer_a.id)
     supply_chain_db_session.commit()
 
@@ -107,6 +109,7 @@ def test_cross_manufacturer_participant_authorization_is_rejected(supply_chain_d
             manufacturer_id=manufacturer_a.id,
             participant=participant_b,
             territory=territory_a,
+            actor=FULLY_AUTHORIZED_TEST_ACTOR,
         )
 
 
@@ -115,8 +118,9 @@ def test_cross_manufacturer_territory_authorization_is_rejected(supply_chain_db_
     manufacturer_b = make_manufacturer(supply_chain_db_session, name="Cross Auth Terr Mfr B")
     supply_chain_db_session.commit()
 
-    participant_a = make_participant(supply_chain_db_session, manufacturer_a.id)
     territory_b = make_territory(supply_chain_db_session, manufacturer_b.id)
+    scope_to(supply_chain_db_session, manufacturer_a.id)
+    participant_a = make_participant(supply_chain_db_session, manufacturer_a.id)
     supply_chain_db_session.commit()
 
     with pytest.raises(CrossManufacturerReferenceError):
@@ -125,6 +129,7 @@ def test_cross_manufacturer_territory_authorization_is_rejected(supply_chain_db_
             manufacturer_id=manufacturer_a.id,
             participant=participant_a,
             territory=territory_b,
+            actor=FULLY_AUTHORIZED_TEST_ACTOR,
         )
 
 
@@ -152,7 +157,11 @@ def test_revoke_channel_authorization_sets_valid_until(supply_chain_db_session):
     )
     supply_chain_db_session.commit()
 
-    revoke_channel_authorization(supply_chain_db_session, authorization=authorization)
+    revoke_channel_authorization(
+        supply_chain_db_session,
+        authorization=authorization,
+        actor=FULLY_AUTHORIZED_TEST_ACTOR,
+    )
     supply_chain_db_session.commit()
 
     assert authorization.valid_until is not None

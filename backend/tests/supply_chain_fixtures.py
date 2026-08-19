@@ -14,7 +14,7 @@ from app.domains.supply_chain import (
     grant_channel_authorization,
     register_participant,
 )
-from tests.identity_fixtures import full_signed_fixture
+from tests.identity_fixtures import FULLY_AUTHORIZED_TEST_ACTOR, full_signed_fixture
 
 VALID_SQUARE_WKT = "MULTIPOLYGON(((0 0, 0 1, 1 1, 1 0, 0 0)))"
 INVALID_BOWTIE_WKT = "MULTIPOLYGON(((0 0, 1 1, 1 0, 0 1, 0 0)))"
@@ -34,6 +34,7 @@ def make_participant(
         participant_ref=participant_ref,
         name=name,
         role=role,
+        actor=FULLY_AUTHORIZED_TEST_ACTOR,
     )
 
 
@@ -51,6 +52,7 @@ def make_territory(
         territory_ref=territory_ref,
         name=name,
         boundary_wkt=boundary_wkt,
+        actor=FULLY_AUTHORIZED_TEST_ACTOR,
     )
 
 
@@ -70,6 +72,7 @@ def make_authorization(
         territory=territory,
         valid_from=valid_from,
         valid_until=valid_until,
+        actor=FULLY_AUTHORIZED_TEST_ACTOR,
     )
 
 

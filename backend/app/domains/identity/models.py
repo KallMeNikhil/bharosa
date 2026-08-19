@@ -54,6 +54,13 @@ class KeyStatus(str, enum.Enum):
 TRUSTED_KEY_STATUSES = frozenset({KeyStatus.ACTIVE, KeyStatus.ROTATED})
 
 
+class KeyEventType(str, enum.Enum):
+    ISSUED = "ISSUED"
+    ROTATED = "ROTATED"
+    REVOKED = "REVOKED"
+    COMPROMISED = "COMPROMISED"
+
+
 class ProductStatus(str, enum.Enum):
     ACTIVE = "ACTIVE"
     RETIRED = "RETIRED"
@@ -132,10 +139,46 @@ class ManufacturerKey(Base):
     manufacturer: Mapped[Manufacturer] = relationship(back_populates="keys")
 
 
+class ManufacturerKeyEvent(Base):
+    __tablename__ = "identity_manufacturer_key_event"
+    __table_args__ = (
+        UniqueConstraint("key_id", "sequence", name="uq_key_event_key_sequence"),
+        UniqueConstraint("event_hash", name="uq_key_event_hash"),
+        ForeignKeyConstraint(
+            ["key_id", "manufacturer_id"],
+            ["identity_manufacturer_key.id", "identity_manufacturer_key.manufacturer_id"],
+            name="fk_key_event_key_belongs_to_manufacturer",
+        ),
+        Index("ix_key_event_key_id", "key_id"),
+        Index("ix_key_event_manufacturer_id", "manufacturer_id"),
+    )
+
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    manufacturer_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("identity_manufacturer.id"), nullable=False
+    )
+    key_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
+    sequence: Mapped[int] = mapped_column(Integer, nullable=False)
+    event_type: Mapped[KeyEventType] = mapped_column(_enum_column(KeyEventType), nullable=False)
+    previous_status: Mapped[KeyStatus | None] = mapped_column(
+        _enum_column(KeyStatus), nullable=True
+    )
+    new_status: Mapped[KeyStatus] = mapped_column(_enum_column(KeyStatus), nullable=False)
+    occurred_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=func.now()
+    )
+    actor: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    reason: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    previous_event_hash: Mapped[bytes] = mapped_column(LargeBinary, nullable=False)
+    event_hash: Mapped[bytes] = mapped_column(LargeBinary, nullable=False)
+
+
 class Product(Base):
     __tablename__ = "identity_product"
     __table_args__ = (
         UniqueConstraint("manufacturer_id", "product_ref", name="uq_product_manufacturer_ref"),
+        UniqueConstraint("id", "manufacturer_id", name="uq_product_id_manufacturer"),
+        Index("ix_product_manufacturer_id", "manufacturer_id"),
     )
 
     id: Mapped[uuid.UUID] = _uuid_pk()
@@ -144,6 +187,7 @@ class Product(Base):
     )
     product_ref: Mapped[str] = mapped_column(String(64), nullable=False)
     name: Mapped[str] = mapped_column(String(255), nullable=False)
+    gtin: Mapped[str | None] = mapped_column(String(14), nullable=True)
     status: Mapped[ProductStatus] = mapped_column(
         _enum_column(ProductStatus), nullable=False, default=ProductStatus.ACTIVE
     )
@@ -153,15 +197,29 @@ class Product(Base):
 
     manufacturer: Mapped[Manufacturer] = relationship(back_populates="products")
     batches: Mapped[list[Batch]] = relationship(
-        back_populates="product", cascade="all, delete-orphan"
+        back_populates="product",
+        cascade="all, delete-orphan",
+        foreign_keys="Batch.product_id",
     )
 
 
 class Batch(Base):
     __tablename__ = "identity_batch"
-    __table_args__ = (UniqueConstraint("product_id", "batch_ref", name="uq_batch_product_ref"),)
+    __table_args__ = (
+        UniqueConstraint("product_id", "batch_ref", name="uq_batch_product_ref"),
+        UniqueConstraint("id", "manufacturer_id", name="uq_batch_id_manufacturer"),
+        ForeignKeyConstraint(
+            ["product_id", "manufacturer_id"],
+            ["identity_product.id", "identity_product.manufacturer_id"],
+            name="fk_batch_product_belongs_to_manufacturer",
+        ),
+        Index("ix_batch_manufacturer_id", "manufacturer_id"),
+    )
 
     id: Mapped[uuid.UUID] = _uuid_pk()
+    manufacturer_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("identity_manufacturer.id"), nullable=False
+    )
     product_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("identity_product.id"), nullable=False
     )
@@ -175,9 +233,13 @@ class Batch(Base):
         DateTime(timezone=True), nullable=False, server_default=func.now()
     )
 
-    product: Mapped[Product] = relationship(back_populates="batches")
+    product: Mapped[Product] = relationship(
+        back_populates="batches", foreign_keys="Batch.product_id"
+    )
     identities: Mapped[list[ProductIdentity]] = relationship(
-        back_populates="batch", cascade="all, delete-orphan"
+        back_populates="batch",
+        cascade="all, delete-orphan",
+        foreign_keys="ProductIdentity.batch_id",
     )
 
 
@@ -185,6 +247,9 @@ class ProductIdentity(Base):
     __tablename__ = "identity_product_identity"
     __table_args__ = (
         UniqueConstraint("serial", name="uq_identity_serial"),
+        UniqueConstraint(
+            "id", "manufacturer_id", name="uq_identity_product_identity_id_manufacturer"
+        ),
         Index("ix_identity_batch_id", "batch_id"),
         Index("ix_identity_manufacturer_key_id", "manufacturer_key_id"),
         Index("ix_identity_manufacturer_id", "manufacturer_id"),
@@ -198,6 +263,11 @@ class ProductIdentity(Base):
             ["manufacturer_key_id", "manufacturer_id"],
             ["identity_manufacturer_key.id", "identity_manufacturer_key.manufacturer_id"],
             name="fk_identity_key_belongs_to_identity_manufacturer",
+        ),
+        ForeignKeyConstraint(
+            ["batch_id", "manufacturer_id"],
+            ["identity_batch.id", "identity_batch.manufacturer_id"],
+            name="fk_identity_batch_belongs_to_manufacturer",
         ),
     )
 
@@ -232,12 +302,15 @@ class ProductIdentity(Base):
     signed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     activated_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
-    batch: Mapped[Batch] = relationship(back_populates="identities")
+    batch: Mapped[Batch] = relationship(
+        back_populates="identities", foreign_keys="ProductIdentity.batch_id"
+    )
     manufacturer_key: Mapped[ManufacturerKey | None] = relationship()
     events: Mapped[list[IdentityIssuanceEvent]] = relationship(
         back_populates="identity",
         cascade="all, delete-orphan",
         order_by="IdentityIssuanceEvent.sequence",
+        foreign_keys="IdentityIssuanceEvent.identity_id",
     )
 
 
@@ -245,10 +318,20 @@ class IdentityIssuanceEvent(Base):
     __tablename__ = "identity_issuance_event"
     __table_args__ = (
         UniqueConstraint("identity_id", "sequence", name="uq_event_identity_sequence"),
+        UniqueConstraint("event_hash", name="uq_issuance_event_hash"),
+        ForeignKeyConstraint(
+            ["identity_id", "manufacturer_id"],
+            ["identity_product_identity.id", "identity_product_identity.manufacturer_id"],
+            name="fk_issuance_event_identity_belongs_to_manufacturer",
+        ),
         Index("ix_event_identity_id", "identity_id"),
+        Index("ix_event_manufacturer_id", "manufacturer_id"),
     )
 
     id: Mapped[uuid.UUID] = _uuid_pk()
+    manufacturer_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("identity_manufacturer.id"), nullable=False
+    )
     identity_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("identity_product_identity.id"), nullable=False
     )
@@ -267,5 +350,9 @@ class IdentityIssuanceEvent(Base):
     )
     actor: Mapped[str | None] = mapped_column(String(255), nullable=True)
     event_metadata: Mapped[str | None] = mapped_column(String(2000), nullable=True)
+    previous_event_hash: Mapped[bytes] = mapped_column(LargeBinary, nullable=False)
+    event_hash: Mapped[bytes] = mapped_column(LargeBinary, nullable=False)
 
-    identity: Mapped[ProductIdentity] = relationship(back_populates="events")
+    identity: Mapped[ProductIdentity] = relationship(
+        back_populates="events", foreign_keys="IdentityIssuanceEvent.identity_id"
+    )

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import uuid
 from datetime import date
 
 from sqlalchemy.orm import Session
@@ -22,30 +23,53 @@ from app.domains.identity import (
     sign_identity,
 )
 from app.domains.identity.signer import DevelopmentOnlySigner
+from tests.tenancy_helpers import scope_to
 
 FULLY_AUTHORIZED_TEST_ACTOR = ActorContext(
     actor_id="synthetic-test-actor",
-    capabilities=frozenset({Capability.CREATE_PRODUCTION_ORDER, Capability.AUTHORIZE_SIGNING}),
+    capabilities=frozenset(Capability),
+)
+
+SIGNING_ONLY_TEST_ACTOR = ActorContext(
+    actor_id="synthetic-signing-only-actor",
+    capabilities=frozenset({Capability.AUTHORIZE_SIGNING}),
 )
 
 
 def make_manufacturer(db: Session, name: str = "Synthetic Test Manufacturer") -> Manufacturer:
-    return register_manufacturer(db, name=name)
+    manufacturer_id = uuid.uuid4()
+    scope_to(db, manufacturer_id)
+    return register_manufacturer(db, name=name, manufacturer_id=manufacturer_id)
 
 
 def make_key(
-    db: Session, manufacturer: Manufacturer, signer: Signer, key_version: int = 1
+    db: Session,
+    manufacturer: Manufacturer,
+    signer: Signer,
+    key_version: int = 1,
+    actor: ActorContext | None = None,
 ) -> IssuedKey:
     return issue_manufacturer_key(
-        db, manufacturer_id=manufacturer.id, signer=signer, key_version=key_version
+        db,
+        manufacturer_id=manufacturer.id,
+        signer=signer,
+        key_version=key_version,
+        actor=actor or FULLY_AUTHORIZED_TEST_ACTOR,
     )
 
 
 def make_product(
-    db: Session, manufacturer: Manufacturer, product_ref: str = "SYN-PRODUCT-001"
+    db: Session,
+    manufacturer: Manufacturer,
+    product_ref: str = "SYN-PRODUCT-001",
+    gtin: str | None = "09520123456788",
 ) -> Product:
     return register_product(
-        db, manufacturer_id=manufacturer.id, product_ref=product_ref, name="Synthetic Test Product"
+        db,
+        manufacturer_id=manufacturer.id,
+        product_ref=product_ref,
+        name="Synthetic Test Product",
+        gtin=gtin,
     )
 
 
@@ -60,7 +84,7 @@ def make_batch(db: Session, product: Product, batch_ref: str = "SYN-BATCH-001") 
 
 
 def make_reserved_identity(
-    db: Session, batch: Batch, serial: str = "SYN-SERIAL-000001"
+    db: Session, batch: Batch, serial: str | None = None
 ) -> ProductIdentity:
     return reserve_identity(db, batch_id=batch.id, serial=serial)
 
@@ -71,7 +95,7 @@ def make_signed_identity(
     manufacturer_key: ManufacturerKey,
     signer: Signer,
     key_handle: str,
-    serial: str = "SYN-SERIAL-000001",
+    serial: str | None = None,
     actor: ActorContext | None = None,
 ) -> ProductIdentity:
     identity = make_reserved_identity(db, batch, serial=serial)

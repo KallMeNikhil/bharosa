@@ -1,6 +1,7 @@
 from app.domains.supply_chain import ParticipantRole, register_participant
-from tests.identity_fixtures import make_manufacturer
+from tests.identity_fixtures import FULLY_AUTHORIZED_TEST_ACTOR, make_manufacturer
 from tests.supply_chain_fixtures import make_participant
+from tests.tenancy_helpers import scope_to
 
 
 def test_register_participant_succeeds(supply_chain_db_session):
@@ -13,6 +14,7 @@ def test_register_participant_succeeds(supply_chain_db_session):
         participant_ref="DEPOT-A",
         name="Depot A",
         role=ParticipantRole.DEPOT,
+        actor=FULLY_AUTHORIZED_TEST_ACTOR,
     )
     supply_chain_db_session.commit()
 
@@ -70,6 +72,8 @@ def test_same_participant_ref_allowed_across_different_manufacturers(supply_chai
     manufacturer_b = make_manufacturer(supply_chain_db_session, name="Cross Ref Mfr B")
     supply_chain_db_session.commit()
 
+    scope_to(supply_chain_db_session, manufacturer_a.id)
     make_participant(supply_chain_db_session, manufacturer_a.id, participant_ref="SHARED-REF")
+    scope_to(supply_chain_db_session, manufacturer_b.id)
     make_participant(supply_chain_db_session, manufacturer_b.id, participant_ref="SHARED-REF")
     supply_chain_db_session.commit()

@@ -1,4 +1,4 @@
-from datetime import UTC, datetime
+﻿from datetime import UTC, datetime
 
 import pytest
 
@@ -14,8 +14,9 @@ from app.domains.supply_chain import (
     record_return,
     record_transfer,
 )
-from tests.identity_fixtures import make_manufacturer
+from tests.identity_fixtures import FULLY_AUTHORIZED_TEST_ACTOR, make_manufacturer
 from tests.supply_chain_fixtures import full_supply_chain_fixture, make_participant
+from tests.tenancy_helpers import scope_to
 
 
 def _now():
@@ -30,6 +31,7 @@ def test_record_dispatch_from_manufacturer_origin(supply_chain_db_session):
         identity=fx["identity"],
         occurred_at=_now(),
         destination_participant=fx["depot"],
+        actor=FULLY_AUTHORIZED_TEST_ACTOR,
     )
     supply_chain_db_session.commit()
 
@@ -48,6 +50,7 @@ def test_record_dispatch_requires_destination(supply_chain_db_session):
             identity=fx["identity"],
             occurred_at=_now(),
             destination_participant=None,
+            actor=FULLY_AUTHORIZED_TEST_ACTOR,
         )
 
 
@@ -61,6 +64,7 @@ def test_record_receipt_requires_both_participants(supply_chain_db_session):
             occurred_at=_now(),
             source_participant=fx["depot"],
             destination_participant=None,
+            actor=FULLY_AUTHORIZED_TEST_ACTOR,
         )
 
 
@@ -73,6 +77,7 @@ def test_record_receipt_succeeds(supply_chain_db_session):
         occurred_at=_now(),
         source_participant=fx["depot"],
         destination_participant=fx["distributor"],
+        actor=FULLY_AUTHORIZED_TEST_ACTOR,
     )
     supply_chain_db_session.commit()
 
@@ -90,6 +95,7 @@ def test_record_transfer_succeeds(supply_chain_db_session):
         occurred_at=_now(),
         source_participant=fx["distributor"],
         destination_participant=fx["retailer"],
+        actor=FULLY_AUTHORIZED_TEST_ACTOR,
     )
     supply_chain_db_session.commit()
 
@@ -106,6 +112,7 @@ def test_record_return_succeeds(supply_chain_db_session):
         source_participant=fx["retailer"],
         destination_participant=fx["distributor"],
         reason="End-of-season unsold stock",
+        actor=FULLY_AUTHORIZED_TEST_ACTOR,
     )
     supply_chain_db_session.commit()
 
@@ -131,6 +138,7 @@ def test_record_reallocation_succeeds(supply_chain_db_session):
         source_participant=fx["distributor"],
         destination_participant=other_distributor,
         reason="SEASONAL_REDISTRIBUTION",
+        actor=FULLY_AUTHORIZED_TEST_ACTOR,
     )
     supply_chain_db_session.commit()
 
@@ -146,6 +154,7 @@ def test_record_retail_placement_succeeds(supply_chain_db_session):
         identity=fx["identity"],
         occurred_at=_now(),
         source_participant=fx["retailer"],
+        actor=FULLY_AUTHORIZED_TEST_ACTOR,
     )
     supply_chain_db_session.commit()
 
@@ -162,6 +171,7 @@ def test_record_retail_placement_requires_source(supply_chain_db_session):
             identity=fx["identity"],
             occurred_at=_now(),
             source_participant=None,
+            actor=FULLY_AUTHORIZED_TEST_ACTOR,
         )
 
 
@@ -175,6 +185,7 @@ def test_record_custody_adjustment_requires_reason(supply_chain_db_session):
             occurred_at=_now(),
             reason="",
             source_participant=fx["depot"],
+            actor=FULLY_AUTHORIZED_TEST_ACTOR,
         )
 
 
@@ -187,6 +198,7 @@ def test_record_custody_adjustment_requires_contextual_reference(supply_chain_db
             identity=fx["identity"],
             occurred_at=_now(),
             reason="Damaged in transit",
+            actor=FULLY_AUTHORIZED_TEST_ACTOR,
         )
 
 
@@ -199,6 +211,7 @@ def test_record_custody_adjustment_referencing_participant_succeeds(supply_chain
         occurred_at=_now(),
         reason="Count correction after physical audit",
         source_participant=fx["depot"],
+        actor=FULLY_AUTHORIZED_TEST_ACTOR,
     )
     supply_chain_db_session.commit()
 
@@ -213,6 +226,7 @@ def test_record_custody_adjustment_referencing_prior_event_succeeds(supply_chain
         identity=fx["identity"],
         occurred_at=_now(),
         destination_participant=fx["depot"],
+        actor=FULLY_AUTHORIZED_TEST_ACTOR,
     )
     supply_chain_db_session.commit()
 
@@ -222,6 +236,7 @@ def test_record_custody_adjustment_referencing_prior_event_succeeds(supply_chain
         occurred_at=_now(),
         reason="Corrects dispatch quantity recorded in error",
         related_event=original,
+        actor=FULLY_AUTHORIZED_TEST_ACTOR,
     )
     supply_chain_db_session.commit()
 
@@ -234,6 +249,7 @@ def test_participant_from_different_manufacturer_is_rejected(supply_chain_db_ses
     supply_chain_db_session.commit()
     foreign_participant = make_participant(supply_chain_db_session, other_manufacturer.id)
     supply_chain_db_session.commit()
+    scope_to(supply_chain_db_session, fx["manufacturer"].id)
 
     with pytest.raises(CrossManufacturerReferenceError):
         record_dispatch(
@@ -241,4 +257,5 @@ def test_participant_from_different_manufacturer_is_rejected(supply_chain_db_ses
             identity=fx["identity"],
             occurred_at=_now(),
             destination_participant=foreign_participant,
+            actor=FULLY_AUTHORIZED_TEST_ACTOR,
         )

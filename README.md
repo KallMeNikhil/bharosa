@@ -89,11 +89,49 @@ docs/       Product, architecture, and process documentation
 
 ## Status
 
-Bharosa is in its early engineering phase. The foundational architecture,
-security direction, database and geospatial foundation, and the initial
-identity domain — including its testing and infrastructure setup — are in
-place. Verification, detection, and investigation functionality are under
-active development and not yet complete.
+The backend is built through correlation and investigation. Cryptographic
+identity, the supply-chain custody log, public verification, the four
+fraud-family detectors, likelihood-ratio evidence correlation, and the
+investigation workflow all exist, along with the manufacturer-facing API the
+web client consumes. Simulation and production hardening are not yet started.
+
+Bharosa operates at whatever assurance level has actually been implemented,
+never one implied by its design. Today that is **Level 1 (cryptographic
+identity)** plus behavioural evidence collection. Physical binding, real
+KMS/HSM signing, tenant authentication, and external anchoring of evidence
+hashes are all designed and none are built, so no evidence-integrity or
+physical-authenticity claim should be made on the platform's behalf yet.
+
+### Running it
+
+```
+docker compose -f infra/docker-compose.yml up -d
+cd backend && pip install -e ".[dev]"
+alembic upgrade head
+uvicorn app.main:app --reload
+```
+
+Then the web client, in a second terminal:
+
+```
+cd frontend && npm install
+npm run dev
+```
+
+The console is at `http://localhost:5173` and proxies `/api` to the backend on
+port 8000, so nothing needs CORS. Copy `.env.example` to `.env` if the database
+is anywhere other than the defaults.
+
+Nothing in the console is reachable until a manufacturer exists, so start at
+**Tenant and actor** and run the demonstration scenario. It drives the whole
+platform through the public API — production, custody, four scans of a diverted
+pack seconds apart, detection, risk correlation and an investigation — and
+leaves every screen with real data on it. Every request the client makes is
+recorded in the **API console**, with the exact body sent and returned.
+
+The API surface is documented in [`docs/api-spec.md`](docs/api-spec.md), which
+is the authority the web client is written against. Interactive docs are at
+`/docs` once the server is running.
 
 ## Vision
 

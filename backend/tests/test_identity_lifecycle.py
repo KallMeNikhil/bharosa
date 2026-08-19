@@ -8,7 +8,10 @@ from app.domains.identity import (
     transition_identity,
 )
 from app.domains.identity.lifecycle import assert_legal_transition
-from tests.identity_fixtures import full_signed_fixture
+from tests.identity_fixtures import (
+    FULLY_AUTHORIZED_TEST_ACTOR,
+    full_signed_fixture,
+)
 
 LEGAL_PAIRS = [
     (LifecycleState.RESERVED, LifecycleState.SIGNED),
@@ -71,14 +74,30 @@ def test_full_happy_path_reaches_activated(identity_db_session):
     identity = fx["identity"]
     assert identity.lifecycle_state == LifecycleState.SIGNED
 
-    transition_identity(identity_db_session, identity=identity, new_state=LifecycleState.PRINTED)
     transition_identity(
-        identity_db_session, identity=identity, new_state=LifecycleState.PRINT_VERIFIED
+        identity_db_session,
+        identity=identity,
+        new_state=LifecycleState.PRINTED,
+        actor=FULLY_AUTHORIZED_TEST_ACTOR,
     )
     transition_identity(
-        identity_db_session, identity=identity, new_state=LifecycleState.RECONCILED
+        identity_db_session,
+        identity=identity,
+        new_state=LifecycleState.PRINT_VERIFIED,
+        actor=FULLY_AUTHORIZED_TEST_ACTOR,
     )
-    transition_identity(identity_db_session, identity=identity, new_state=LifecycleState.ACTIVATED)
+    transition_identity(
+        identity_db_session,
+        identity=identity,
+        new_state=LifecycleState.RECONCILED,
+        actor=FULLY_AUTHORIZED_TEST_ACTOR,
+    )
+    transition_identity(
+        identity_db_session,
+        identity=identity,
+        new_state=LifecycleState.ACTIVATED,
+        actor=FULLY_AUTHORIZED_TEST_ACTOR,
+    )
     identity_db_session.commit()
 
     assert identity.lifecycle_state == LifecycleState.ACTIVATED
@@ -89,20 +108,34 @@ def test_print_rejected_is_terminal_and_cannot_reach_activated(identity_db_sessi
     fx = full_signed_fixture(identity_db_session)
     identity = fx["identity"]
 
-    transition_identity(identity_db_session, identity=identity, new_state=LifecycleState.PRINTED)
     transition_identity(
-        identity_db_session, identity=identity, new_state=LifecycleState.PRINT_REJECTED
+        identity_db_session,
+        identity=identity,
+        new_state=LifecycleState.PRINTED,
+        actor=FULLY_AUTHORIZED_TEST_ACTOR,
+    )
+    transition_identity(
+        identity_db_session,
+        identity=identity,
+        new_state=LifecycleState.PRINT_REJECTED,
+        actor=FULLY_AUTHORIZED_TEST_ACTOR,
     )
     identity_db_session.commit()
 
     assert identity.lifecycle_state == LifecycleState.PRINT_REJECTED
     with pytest.raises(IllegalLifecycleTransitionError):
         transition_identity(
-            identity_db_session, identity=identity, new_state=LifecycleState.ACTIVATED
+            identity_db_session,
+            identity=identity,
+            new_state=LifecycleState.ACTIVATED,
+            actor=FULLY_AUTHORIZED_TEST_ACTOR,
         )
     with pytest.raises(IllegalLifecycleTransitionError):
         transition_identity(
-            identity_db_session, identity=identity, new_state=LifecycleState.RESERVED
+            identity_db_session,
+            identity=identity,
+            new_state=LifecycleState.RESERVED,
+            actor=FULLY_AUTHORIZED_TEST_ACTOR,
         )
 
 
@@ -111,6 +144,9 @@ def test_activation_only_through_legal_path(identity_db_session):
     identity = fx["identity"]
     with pytest.raises(IllegalLifecycleTransitionError):
         transition_identity(
-            identity_db_session, identity=identity, new_state=LifecycleState.ACTIVATED
+            identity_db_session,
+            identity=identity,
+            new_state=LifecycleState.ACTIVATED,
+            actor=FULLY_AUTHORIZED_TEST_ACTOR,
         )
     assert identity.lifecycle_state == LifecycleState.SIGNED

@@ -6,7 +6,7 @@ from app.domains.identity import (
     revoke_manufacturer_key,
     verify_cryptographic_authenticity,
 )
-from tests.identity_fixtures import full_signed_fixture
+from tests.identity_fixtures import FULLY_AUTHORIZED_TEST_ACTOR, full_signed_fixture
 
 
 def test_compromised_is_a_distinct_key_status_from_revoked():
@@ -19,7 +19,7 @@ def test_revoke_manufacturer_key_sets_status(identity_db_session):
     key = fx["issued_key"].manufacturer_key
     assert key.status == KeyStatus.ACTIVE
 
-    revoke_manufacturer_key(identity_db_session, key=key)
+    revoke_manufacturer_key(identity_db_session, key=key, actor=FULLY_AUTHORIZED_TEST_ACTOR)
     identity_db_session.commit()
     assert key.status == KeyStatus.REVOKED
 
@@ -29,7 +29,9 @@ def test_mark_manufacturer_key_compromised_sets_status(identity_db_session):
     key = fx["issued_key"].manufacturer_key
     assert key.status == KeyStatus.ACTIVE
 
-    mark_manufacturer_key_compromised(identity_db_session, key=key)
+    mark_manufacturer_key_compromised(
+        identity_db_session, key=key, actor=FULLY_AUTHORIZED_TEST_ACTOR
+    )
     identity_db_session.commit()
     assert key.status == KeyStatus.COMPROMISED
 
@@ -40,7 +42,11 @@ def test_revoking_a_key_does_not_touch_already_signed_identity(identity_db_sessi
     payload_before = identity_.canonical_payload
     signature_before = identity_.signature
 
-    revoke_manufacturer_key(identity_db_session, key=fx["issued_key"].manufacturer_key)
+    revoke_manufacturer_key(
+        identity_db_session,
+        key=fx["issued_key"].manufacturer_key,
+        actor=FULLY_AUTHORIZED_TEST_ACTOR,
+    )
     identity_db_session.commit()
 
     assert identity_.canonical_payload == payload_before
@@ -74,7 +80,11 @@ def test_revoked_key_mathematically_valid_signature_is_not_currently_trusted(
 ):
     fx = full_signed_fixture(identity_db_session)
     identity_ = fx["identity"]
-    revoke_manufacturer_key(identity_db_session, key=fx["issued_key"].manufacturer_key)
+    revoke_manufacturer_key(
+        identity_db_session,
+        key=fx["issued_key"].manufacturer_key,
+        actor=FULLY_AUTHORIZED_TEST_ACTOR,
+    )
     identity_db_session.commit()
 
     result = verify_cryptographic_authenticity(identity_)
@@ -88,7 +98,11 @@ def test_compromised_key_mathematically_valid_signature_is_not_currently_trusted
 ):
     fx = full_signed_fixture(identity_db_session)
     identity_ = fx["identity"]
-    mark_manufacturer_key_compromised(identity_db_session, key=fx["issued_key"].manufacturer_key)
+    mark_manufacturer_key_compromised(
+        identity_db_session,
+        key=fx["issued_key"].manufacturer_key,
+        actor=FULLY_AUTHORIZED_TEST_ACTOR,
+    )
     identity_db_session.commit()
 
     result = verify_cryptographic_authenticity(identity_)

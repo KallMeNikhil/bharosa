@@ -6,6 +6,8 @@ from datetime import UTC, datetime
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
+from app.core.authorization import ActorContext, Capability
+from app.core.event_chain import compute_event_hash, next_chain_link
 from app.domains.identity import ProductIdentity
 from app.domains.supply_chain.models import (
     ChannelAuthorization,
@@ -50,7 +52,10 @@ def register_participant(
     participant_ref: str,
     name: str,
     role: ParticipantRole,
+    actor: ActorContext,
 ) -> SupplyChainParticipant:
+    actor.require(Capability.MANAGE_SUPPLY_CHAIN_REFERENCE_DATA)
+
     participant = SupplyChainParticipant(
         manufacturer_id=manufacturer_id,
         participant_ref=participant_ref,
@@ -74,7 +79,10 @@ def define_territory(
     territory_ref: str,
     name: str,
     boundary_wkt: str,
+    actor: ActorContext,
 ) -> Territory:
+    actor.require(Capability.MANAGE_SUPPLY_CHAIN_REFERENCE_DATA)
+
     if not _boundary_is_valid_geometry(db, boundary_wkt):
         raise InvalidTerritoryGeometryError(
             f"Territory boundary WKT is not a valid geometry: {boundary_wkt!r}"
@@ -94,9 +102,18 @@ def define_territory(
 def territory_contains_point(
     db: Session, *, territory: Territory, longitude: float, latitude: float
 ) -> bool:
+    """Point-in-polygon, evaluated by PostGIS against the stored geometry.
+
+    The containment test is expressed against the column rather than against
+    the loaded attribute, because that attribute holds whatever the caller
+    last assigned to it -- plain WKT text on a freshly created territory -- and
+    only becomes a geometry once the row has been read back.
+    """
     point_wkt = f"POINT({longitude} {latitude})"
     result = db.execute(
-        select(func.ST_Contains(territory.boundary, func.ST_GeomFromText(point_wkt, 4326)))
+        select(
+            func.ST_Contains(Territory.boundary, func.ST_GeomFromText(point_wkt, 4326))
+        ).where(Territory.id == territory.id)
     ).scalar()
     return bool(result)
 
@@ -107,9 +124,12 @@ def grant_channel_authorization(
     manufacturer_id: uuid.UUID,
     participant: SupplyChainParticipant,
     territory: Territory,
+    actor: ActorContext,
     valid_from: datetime | None = None,
     valid_until: datetime | None = None,
 ) -> ChannelAuthorization:
+    actor.require(Capability.MANAGE_SUPPLY_CHAIN_REFERENCE_DATA)
+
     if participant.manufacturer_id != manufacturer_id:
         raise CrossManufacturerReferenceError(
             entity="SupplyChainParticipant",
@@ -143,8 +163,11 @@ def revoke_channel_authorization(
     db: Session,
     *,
     authorization: ChannelAuthorization,
+    actor: ActorContext,
     revoked_at: datetime | None = None,
 ) -> ChannelAuthorization:
+    actor.require(Capability.MANAGE_SUPPLY_CHAIN_REFERENCE_DATA)
+
     effective_revoked_at = revoked_at or datetime.now(UTC)
     if effective_revoked_at <= authorization.valid_from:
         raise InvalidAuthorizationValidityError(
@@ -219,12 +242,22 @@ def _create_event(
     identity: ProductIdentity,
     event_type: SupplyChainEventType,
     occurred_at: datetime,
+    actor: ActorContext,
     source_participant: SupplyChainParticipant | None = None,
     destination_participant: SupplyChainParticipant | None = None,
     reason: str | None = None,
     related_event: SupplyChainEvent | None = None,
     related_identity: ProductIdentity | None = None,
 ) -> SupplyChainEvent:
+    actor.require(Capability.RECORD_SUPPLY_CHAIN_EVENT)
+
+    if occurred_at.tzinfo is None:
+        raise SupplyChainEventValidationError(
+            "occurred_at must be timezone-aware; a naive timestamp cannot be "
+            "placed on the event hash chain unambiguously."
+        )
+    occurred_at = occurred_at.astimezone(UTC)
+
     manufacturer_id = identity.manufacturer_id
     source_id = _validate_participant(source_participant, manufacturer_id=manufacturer_id)
     destination_id = _validate_participant(
@@ -235,9 +268,33 @@ def _create_event(
         related_identity, manufacturer_id=manufacturer_id, identity_id=identity.id
     )
 
+    sequence, previous_event_hash = next_chain_link(
+        db,
+        sequence_column=SupplyChainEvent.sequence,
+        event_hash_column=SupplyChainEvent.event_hash,
+        scope_clause=SupplyChainEvent.identity_id == identity.id,
+    )
+    event_hash = compute_event_hash(
+        previous_event_hash=previous_event_hash,
+        event_kind="supply_chain_event",
+        fields=[
+            str(manufacturer_id),
+            str(identity.id),
+            str(sequence),
+            event_type.value,
+            str(source_id) if source_id else None,
+            str(destination_id) if destination_id else None,
+            str(related_event_id) if related_event_id else None,
+            str(related_identity_id) if related_identity_id else None,
+            reason,
+            occurred_at.isoformat(),
+        ],
+    )
+
     event = SupplyChainEvent(
         manufacturer_id=manufacturer_id,
         identity_id=identity.id,
+        sequence=sequence,
         event_type=event_type,
         source_participant_id=source_id,
         destination_participant_id=destination_id,
@@ -245,6 +302,8 @@ def _create_event(
         related_identity_id=related_identity_id,
         reason=reason,
         occurred_at=occurred_at,
+        previous_event_hash=previous_event_hash,
+        event_hash=event_hash,
     )
     db.add(event)
     db.flush()
@@ -256,6 +315,7 @@ def record_dispatch(
     *,
     identity: ProductIdentity,
     occurred_at: datetime,
+    actor: ActorContext,
     destination_participant: SupplyChainParticipant,
     source_participant: SupplyChainParticipant | None = None,
     reason: str | None = None,
@@ -265,6 +325,7 @@ def record_dispatch(
     return _create_event(
         db,
         identity=identity,
+        actor=actor,
         event_type=SupplyChainEventType.DISPATCH,
         occurred_at=occurred_at,
         source_participant=source_participant,
@@ -278,6 +339,7 @@ def record_receipt(
     *,
     identity: ProductIdentity,
     occurred_at: datetime,
+    actor: ActorContext,
     source_participant: SupplyChainParticipant,
     destination_participant: SupplyChainParticipant,
     reason: str | None = None,
@@ -289,6 +351,7 @@ def record_receipt(
     return _create_event(
         db,
         identity=identity,
+        actor=actor,
         event_type=SupplyChainEventType.RECEIPT,
         occurred_at=occurred_at,
         source_participant=source_participant,
@@ -302,6 +365,7 @@ def record_transfer(
     *,
     identity: ProductIdentity,
     occurred_at: datetime,
+    actor: ActorContext,
     source_participant: SupplyChainParticipant,
     destination_participant: SupplyChainParticipant,
     reason: str | None = None,
@@ -313,6 +377,7 @@ def record_transfer(
     return _create_event(
         db,
         identity=identity,
+        actor=actor,
         event_type=SupplyChainEventType.TRANSFER,
         occurred_at=occurred_at,
         source_participant=source_participant,
@@ -326,6 +391,7 @@ def record_return(
     *,
     identity: ProductIdentity,
     occurred_at: datetime,
+    actor: ActorContext,
     source_participant: SupplyChainParticipant,
     destination_participant: SupplyChainParticipant,
     reason: str | None = None,
@@ -337,6 +403,7 @@ def record_return(
     return _create_event(
         db,
         identity=identity,
+        actor=actor,
         event_type=SupplyChainEventType.RETURN,
         occurred_at=occurred_at,
         source_participant=source_participant,
@@ -350,6 +417,7 @@ def record_reallocation(
     *,
     identity: ProductIdentity,
     occurred_at: datetime,
+    actor: ActorContext,
     source_participant: SupplyChainParticipant,
     destination_participant: SupplyChainParticipant,
     reason: str | None = None,
@@ -361,6 +429,7 @@ def record_reallocation(
     return _create_event(
         db,
         identity=identity,
+        actor=actor,
         event_type=SupplyChainEventType.REALLOCATION,
         occurred_at=occurred_at,
         source_participant=source_participant,
@@ -374,6 +443,7 @@ def record_retail_placement(
     *,
     identity: ProductIdentity,
     occurred_at: datetime,
+    actor: ActorContext,
     source_participant: SupplyChainParticipant,
     reason: str | None = None,
 ) -> SupplyChainEvent:
@@ -382,6 +452,7 @@ def record_retail_placement(
     return _create_event(
         db,
         identity=identity,
+        actor=actor,
         event_type=SupplyChainEventType.RETAIL_PLACEMENT,
         occurred_at=occurred_at,
         source_participant=source_participant,
@@ -395,6 +466,7 @@ def record_custody_adjustment(
     *,
     identity: ProductIdentity,
     occurred_at: datetime,
+    actor: ActorContext,
     reason: str,
     source_participant: SupplyChainParticipant | None = None,
     destination_participant: SupplyChainParticipant | None = None,
@@ -412,6 +484,7 @@ def record_custody_adjustment(
     return _create_event(
         db,
         identity=identity,
+        actor=actor,
         event_type=SupplyChainEventType.CUSTODY_ADJUSTMENT,
         occurred_at=occurred_at,
         source_participant=source_participant,
@@ -420,3 +493,53 @@ def record_custody_adjustment(
         related_event=related_event,
         related_identity=related_identity,
     )
+
+
+def identity_event_history(
+    db: Session, *, identity_id: uuid.UUID
+) -> list[SupplyChainEvent]:
+    return list(
+        db.execute(
+            select(SupplyChainEvent)
+            .where(SupplyChainEvent.identity_id == identity_id)
+            .order_by(SupplyChainEvent.sequence)
+        )
+        .scalars()
+        .all()
+    )
+
+
+_CUSTODY_HANDOVER_TYPES = frozenset(
+    {
+        SupplyChainEventType.DISPATCH,
+        SupplyChainEventType.RECEIPT,
+        SupplyChainEventType.TRANSFER,
+        SupplyChainEventType.RETURN,
+        SupplyChainEventType.REALLOCATION,
+        SupplyChainEventType.CUSTODY_ADJUSTMENT,
+    }
+)
+
+
+def current_custodian_id(db: Session, *, identity_id: uuid.UUID) -> uuid.UUID | None:
+    for event in reversed(identity_event_history(db, identity_id=identity_id)):
+        if event.event_type is SupplyChainEventType.RETAIL_PLACEMENT:
+            return event.source_participant_id
+        if event.event_type in _CUSTODY_HANDOVER_TYPES and event.destination_participant_id:
+            return event.destination_participant_id
+    return None
+
+
+def active_authorizations_at(
+    db: Session, *, participant_id: uuid.UUID, at: datetime
+) -> list[ChannelAuthorization]:
+    authorizations = (
+        db.execute(
+            select(ChannelAuthorization).where(
+                ChannelAuthorization.participant_id == participant_id
+            )
+        )
+        .scalars()
+        .all()
+    )
+    return [a for a in authorizations if is_authorization_active_at(a, at)]

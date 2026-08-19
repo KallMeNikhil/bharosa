@@ -11,6 +11,8 @@ from sqlalchemy import (
     ForeignKey,
     ForeignKeyConstraint,
     Index,
+    Integer,
+    LargeBinary,
     String,
     UniqueConstraint,
     func,
@@ -142,6 +144,8 @@ class SupplyChainEvent(Base):
     __tablename__ = "supply_chain_event"
     __table_args__ = (
         UniqueConstraint("id", "manufacturer_id", name="uq_event_id_manufacturer"),
+        UniqueConstraint("identity_id", "sequence", name="uq_supply_chain_event_sequence"),
+        UniqueConstraint("event_hash", name="uq_supply_chain_event_hash"),
         ForeignKeyConstraint(
             ["identity_id", "manufacturer_id"],
             ["identity_product_identity.id", "identity_product_identity.manufacturer_id"],
@@ -182,6 +186,7 @@ class SupplyChainEvent(Base):
         UUID(as_uuid=True), ForeignKey("identity_manufacturer.id"), nullable=False
     )
     identity_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
+    sequence: Mapped[int] = mapped_column(Integer, nullable=False)
     event_type: Mapped[SupplyChainEventType] = mapped_column(
         _enum_column(SupplyChainEventType), nullable=False
     )
@@ -200,3 +205,5 @@ class SupplyChainEvent(Base):
     recorded_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now()
     )
+    previous_event_hash: Mapped[bytes] = mapped_column(LargeBinary, nullable=False)
+    event_hash: Mapped[bytes] = mapped_column(LargeBinary, nullable=False)

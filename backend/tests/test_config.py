@@ -3,6 +3,7 @@ from app.core.config import Settings, get_settings
 
 def test_settings_load_defaults(monkeypatch):
     monkeypatch.delenv("DATABASE_URL", raising=False)
+    monkeypatch.delenv("ENVIRONMENT", raising=False)
     get_settings.cache_clear()
     settings = Settings(_env_file=None)
     assert settings.app_name == "bharosa-backend"

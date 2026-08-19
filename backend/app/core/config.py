@@ -17,8 +17,19 @@ class Settings(BaseSettings):
     migration_database_url: str = Field(
         default="postgresql+psycopg://bharosa_owner:bharosa_owner@localhost:5432/bharosa"
     )
+    verification_database_url: str = Field(
+        default="postgresql+psycopg://bharosa_verifier:bharosa_verifier@localhost:5432/bharosa"
+    )
 
     log_level: str = Field(default="INFO")
+
+    digital_link_host: str = Field(default="id.bharosa.example")
+
+    verification_rate_limit_per_minute: int = Field(default=30)
+    verification_rate_limit_burst: int = Field(default=10)
+    verification_min_response_seconds: float = Field(default=0.05)
+
+    client_reference_salt: str = Field(default="development-only-client-reference-salt")
 
     @property
     def is_production(self) -> bool:

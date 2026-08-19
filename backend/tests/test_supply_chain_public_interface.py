@@ -1,7 +1,7 @@
 from datetime import UTC, datetime
 
 import app.domains.supply_chain as supply_chain
-from tests.identity_fixtures import make_manufacturer
+from tests.identity_fixtures import FULLY_AUTHORIZED_TEST_ACTOR, make_manufacturer
 from tests.supply_chain_fixtures import VALID_SQUARE_WKT
 
 
@@ -44,6 +44,7 @@ def test_full_workflow_using_only_the_public_interface(supply_chain_db_session):
         participant_ref="PI-DEPOT",
         name="Public Interface Depot",
         role=supply_chain.ParticipantRole.DEPOT,
+        actor=FULLY_AUTHORIZED_TEST_ACTOR,
     )
     distributor = supply_chain.register_participant(
         supply_chain_db_session,
@@ -51,6 +52,7 @@ def test_full_workflow_using_only_the_public_interface(supply_chain_db_session):
         participant_ref="PI-DIST",
         name="Public Interface Distributor",
         role=supply_chain.ParticipantRole.DISTRIBUTOR,
+        actor=FULLY_AUTHORIZED_TEST_ACTOR,
     )
     territory = supply_chain.define_territory(
         supply_chain_db_session,
@@ -58,12 +60,14 @@ def test_full_workflow_using_only_the_public_interface(supply_chain_db_session):
         territory_ref="PI-TERR",
         name="Public Interface Territory",
         boundary_wkt=VALID_SQUARE_WKT,
+        actor=FULLY_AUTHORIZED_TEST_ACTOR,
     )
     authorization = supply_chain.grant_channel_authorization(
         supply_chain_db_session,
         manufacturer_id=manufacturer.id,
         participant=distributor,
         territory=territory,
+        actor=FULLY_AUTHORIZED_TEST_ACTOR,
     )
     supply_chain_db_session.commit()
 

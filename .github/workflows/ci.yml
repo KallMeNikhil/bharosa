@@ -28,6 +28,8 @@ jobs:
     env:
       DATABASE_URL: postgresql+psycopg://bharosa_app:bharosa_app@localhost:5432/bharosa
       MIGRATION_DATABASE_URL: postgresql+psycopg://bharosa_owner:bharosa_owner@localhost:5432/bharosa
+      VERIFICATION_DATABASE_URL: postgresql+psycopg://bharosa_verifier:bharosa_verifier@localhost:5432/bharosa
+      ENVIRONMENT: test
     steps:
       - uses: actions/checkout@v4
 
@@ -55,6 +57,9 @@ jobs:
 
       - name: Tests
         run: pytest -q
+
+      - name: Architecture invariant checks
+        run: pytest -q -m db_privilege
 
   frontend:
     runs-on: ubuntu-latest

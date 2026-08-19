@@ -22,6 +22,17 @@ def real_postgres_connection():
         conn.close()
 
 
+def _scope(cur, manufacturer_id) -> None:
+    """Establish the tenant scope for this connection.
+
+    These tests bypass the application entirely and write through raw SQL, so
+    nothing sets the scope for them. Row-level security applies to the row a
+    RETURNING clause reads back as much as to the row being written, and the
+    session setting is not transaction-local here because these helpers commit.
+    """
+    cur.execute("SELECT set_config('bharosa.manufacturer_id', %s, false)", (str(manufacturer_id),))
+
+
 def _seed_minimal_identity_chain(conn) -> uuid.UUID:
     manufacturer_id = uuid.uuid4()
     product_id = uuid.uuid4()
@@ -29,6 +40,7 @@ def _seed_minimal_identity_chain(conn) -> uuid.UUID:
     identity_id = uuid.uuid4()
 
     with conn.cursor() as cur:
+        _scope(cur, manufacturer_id)
         cur.execute(
             "INSERT INTO identity_manufacturer (id, name, status) VALUES (%s, %s, %s)",
             (manufacturer_id, "Privilege Test Manufacturer", "ACTIVE"),
@@ -45,9 +57,10 @@ def _seed_minimal_identity_chain(conn) -> uuid.UUID:
             ),
         )
         cur.execute(
-            "INSERT INTO identity_batch (id, product_id, batch_ref, status) "
-            "VALUES (%s, %s, %s, %s)",
-            (batch_id, product_id, f"PRIV-TEST-BATCH-{batch_id}", "OPEN"),
+            "INSERT INTO identity_batch "
+            "(id, manufacturer_id, product_id, batch_ref, status) "
+            "VALUES (%s, %s, %s, %s, %s)",
+            (batch_id, manufacturer_id, product_id, f"PRIV-TEST-BATCH-{batch_id}", "OPEN"),
         )
         cur.execute(
             "INSERT INTO identity_product_identity "
@@ -63,10 +76,26 @@ def _insert_issuance_event(conn, identity_id: uuid.UUID) -> uuid.UUID:
     event_id = uuid.uuid4()
     with conn.cursor() as cur:
         cur.execute(
+            "SELECT manufacturer_id FROM identity_product_identity WHERE id = %s",
+            (identity_id,),
+        )
+        manufacturer_id = cur.fetchone()[0]
+        cur.execute(
             "INSERT INTO identity_issuance_event "
-            "(id, identity_id, sequence, event_type, previous_state, new_state) "
-            "VALUES (%s, %s, %s, %s, %s, %s)",
-            (event_id, identity_id, 1, "RESERVED", None, "RESERVED"),
+            "(id, manufacturer_id, identity_id, sequence, event_type, previous_state, "
+            "new_state, previous_event_hash, event_hash) "
+            "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)",
+            (
+                event_id,
+                manufacturer_id,
+                identity_id,
+                1,
+                "RESERVED",
+                None,
+                "RESERVED",
+                bytes(32),
+                event_id.bytes * 2,
+            ),
         )
     conn.commit()
     return event_id

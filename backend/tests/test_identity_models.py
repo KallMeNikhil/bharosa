@@ -77,10 +77,10 @@ def test_identity_serial_uniqueness(identity_db_session):
     m = make_manufacturer(identity_db_session)
     p = make_product(identity_db_session, m)
     b = make_batch(identity_db_session, p)
-    make_reserved_identity(identity_db_session, b, serial="DUP-SERIAL")
+    make_reserved_identity(identity_db_session, b)
     identity_db_session.commit()
 
-    dup = ProductIdentity(batch_id=b.id, serial="DUP-SERIAL")
+    dup = ProductIdentity(batch_id=b.id)
     identity_db_session.add(dup)
     with pytest.raises(IntegrityError):
         identity_db_session.commit()
