@@ -15,6 +15,7 @@ class Capability(str, enum.Enum):
     RUN_DETECTION = "RUN_DETECTION"
     REVIEW_RISK = "REVIEW_RISK"
     MANAGE_INVESTIGATION = "MANAGE_INVESTIGATION"
+    RUN_SIMULATION = "RUN_SIMULATION"
 
 
 class CapabilityNotHeldError(PermissionError):

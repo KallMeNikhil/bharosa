@@ -8,6 +8,7 @@ export const CAPABILITIES = [
   "RUN_DETECTION",
   "REVIEW_RISK",
   "MANAGE_INVESTIGATION",
+  "RUN_SIMULATION",
 ] as const;
 
 export type Capability = (typeof CAPABILITIES)[number];
@@ -327,4 +328,71 @@ export interface VerifyResponse {
   state: VerificationState;
   message: string;
   checked_at: string;
+}
+
+export type ScenarioType =
+  | "LEGITIMATE_BASELINE"
+  | "FULL_COUNTERFEIT"
+  | "CODE_CLONING"
+  | "REFILLING"
+  | "DIVERSION"
+  | "COMBINED_MULTI_SIGNAL"
+  | "BENIGN_ANOMALY";
+
+export type SimulationRunStatus = "PENDING" | "RUNNING" | "COMPLETED" | "FAILED";
+
+export type GroundTruthClassification = "LEGITIMATE" | "INJECTED_FRAUD";
+
+export interface ScenarioCatalogueEntryView {
+  scenario_type: ScenarioType;
+  label: string;
+  summary: string;
+  injects_fraud: boolean;
+}
+
+export interface SimulationRunView {
+  id: string;
+  manufacturer_id: string;
+  scenario_type: ScenarioType;
+  seed: number;
+  identity_count: number;
+  status: SimulationRunStatus;
+  triggered_by: string;
+  error_message: string | null;
+  created_at: string;
+  started_at: string | null;
+  completed_at: string | null;
+}
+
+export interface GroundTruthEntryView {
+  id: string;
+  identity_id: string;
+  sequence: number;
+  classification: GroundTruthClassification;
+  injection_type: string | null;
+  expected_signal_types: string;
+  notes: string;
+}
+
+export interface SimulationEvaluationView {
+  id: string;
+  simulation_run_id: string;
+  sequence: number;
+  true_positive_count: number;
+  false_positive_count: number;
+  true_negative_count: number;
+  false_negative_count: number;
+  precision: number | null;
+  recall: number | null;
+  detection_rate: number | null;
+  missed_fraud_rate: number | null;
+  investigation_true_positive_count: number;
+  investigation_false_positive_count: number;
+  per_detector_breakdown: Record<string, Record<string, number>>;
+  generated_at: string;
+}
+
+export interface SimulationRunDetailView extends SimulationRunView {
+  ground_truth: GroundTruthEntryView[];
+  latest_evaluation: SimulationEvaluationView | null;
 }

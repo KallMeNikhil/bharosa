@@ -11,6 +11,7 @@ import { IncidentDetail } from "./routes/IncidentDetail";
 import { Investigations } from "./routes/Investigations";
 import { Keys } from "./routes/Keys";
 import { SessionRoute } from "./routes/SessionRoute";
+import { Simulation } from "./routes/Simulation";
 import { SupplyChainRoute } from "./routes/SupplyChainRoute";
 import { Verify } from "./routes/Verify";
 import { SessionProvider } from "./session/SessionContext";
@@ -31,6 +32,7 @@ function App() {
           <Route path="custody-graph" element={<CustodyGraph />} />
           <Route path="investigations" element={<Investigations />} />
           <Route path="investigations/:incidentId" element={<IncidentDetail />} />
+          <Route path="simulation" element={<Simulation />} />
           <Route path="console" element={<ApiConsole />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>

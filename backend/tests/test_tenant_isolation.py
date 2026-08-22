@@ -33,6 +33,9 @@ TENANT_TABLES = [
     "detection_evidence",
     "risk_assessment",
     "investigation_fraud_incident",
+    "simulation_run",
+    "simulation_ground_truth_entry",
+    "simulation_evaluation",
 ]
 
 VERIFIER_FORBIDDEN_TABLES = [
@@ -44,6 +47,9 @@ VERIFIER_FORBIDDEN_TABLES = [
     "detection_evidence",
     "risk_assessment",
     "investigation_fraud_incident",
+    "simulation_run",
+    "simulation_ground_truth_entry",
+    "simulation_evaluation",
 ]
 
 
@@ -194,6 +200,8 @@ def test_the_public_verification_role_cannot_modify_verification_history(
         "detection_evidence",
         "risk_assessment",
         "investigation_incident_event",
+        "simulation_ground_truth_entry",
+        "simulation_evaluation",
     ],
 )
 def test_the_application_role_cannot_rewrite_any_event_table(app_connection, table):

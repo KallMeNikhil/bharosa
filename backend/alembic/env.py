@@ -11,6 +11,7 @@ from app.domains.verification import models as verification_models  # noqa: F401
 from app.domains.detection import models as detection_models  # noqa: F401
 from app.domains.investigation import models as investigation_models  # noqa: F401
 from app.domains.risk import models as risk_models  # noqa: F401
+from app.domains.simulation import models as simulation_models  # noqa: F401
 
 config = context.config
 

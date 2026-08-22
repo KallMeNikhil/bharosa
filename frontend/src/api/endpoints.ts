@@ -8,6 +8,7 @@ import type {
   DigitalLinkView,
   DivergenceView,
   EvidenceView,
+  GroundTruthEntryView,
   IdentityEventView,
   IdentityView,
   IncidentDetailView,
@@ -21,6 +22,11 @@ import type {
   ParticipantView,
   ProductView,
   RiskAssessmentView,
+  ScenarioCatalogueEntryView,
+  ScenarioType,
+  SimulationEvaluationView,
+  SimulationRunDetailView,
+  SimulationRunView,
   SupplyChainEventType,
   SupplyChainEventView,
   TerritoryView,
@@ -184,4 +190,24 @@ export const intelligence = {
 
   custodyGraph: (identityIds: string[]) =>
     request<CustodyGraphView>("/custody-graph", { query: { identity_ids: identityIds } }),
+};
+
+export const simulation = {
+  catalogue: () => request<ScenarioCatalogueEntryView[]>("/simulations/catalogue"),
+
+  list: () => request<SimulationRunView[]>("/simulations"),
+
+  create: (body: { scenario_type: ScenarioType; seed?: number | null; identity_count?: number }) =>
+    request<SimulationRunDetailView>("/simulations", { method: "POST", body }),
+
+  get: (runId: string) => request<SimulationRunDetailView>(`/simulations/${runId}`),
+
+  groundTruth: (runId: string) =>
+    request<GroundTruthEntryView[]>(`/simulations/${runId}/ground-truth`),
+
+  evaluation: (runId: string) =>
+    request<SimulationEvaluationView>(`/simulations/${runId}/evaluation`),
+
+  recomputeEvaluation: (runId: string) =>
+    request<SimulationEvaluationView>(`/simulations/${runId}/evaluation`, { method: "POST" }),
 };

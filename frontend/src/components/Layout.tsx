@@ -33,6 +33,7 @@ const NAV_GROUPS: { label: string; links: { to: string; label: string }[] }[] = 
     links: [
       { to: "/verify", label: "Public verification" },
       { to: "/investigations", label: "Investigations" },
+      { to: "/simulation", label: "Simulation" },
     ],
   },
   {

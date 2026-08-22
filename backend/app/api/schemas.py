@@ -10,6 +10,7 @@ from app.domains.detection import FraudFamily, SignalType
 from app.domains.identity import BatchStatus, KeyStatus, LifecycleState, ProductStatus
 from app.domains.investigation import IncidentStatus
 from app.domains.risk import ConfidenceLevel
+from app.domains.simulation import GroundTruthClassification, ScenarioType, SimulationRunStatus
 from app.domains.supply_chain import ParticipantRole, SupplyChainEventType
 
 
@@ -302,3 +303,63 @@ class DivergenceView(BaseModel):
 class CustodyGraphView(BaseModel):
     edges: list[CustodyEdgeView]
     common_divergence_point: str | None
+
+
+class ScenarioCatalogueEntryView(BaseModel):
+    scenario_type: ScenarioType
+    label: str
+    summary: str
+    injects_fraud: bool
+
+
+class SimulationRunCreate(BaseModel):
+    scenario_type: ScenarioType
+    seed: int | None = Field(default=None)
+    identity_count: int = Field(default=6, ge=1, le=30)
+
+
+class SimulationRunView(ORMModel):
+    id: uuid.UUID
+    manufacturer_id: uuid.UUID
+    scenario_type: ScenarioType
+    seed: int
+    identity_count: int
+    status: SimulationRunStatus
+    triggered_by: str
+    error_message: str | None
+    created_at: datetime
+    started_at: datetime | None
+    completed_at: datetime | None
+
+
+class GroundTruthEntryView(ORMModel):
+    id: uuid.UUID
+    identity_id: uuid.UUID
+    sequence: int
+    classification: GroundTruthClassification
+    injection_type: str | None
+    expected_signal_types: str
+    notes: str
+
+
+class SimulationEvaluationView(ORMModel):
+    id: uuid.UUID
+    simulation_run_id: uuid.UUID
+    sequence: int
+    true_positive_count: int
+    false_positive_count: int
+    true_negative_count: int
+    false_negative_count: int
+    precision: float | None
+    recall: float | None
+    detection_rate: float | None
+    missed_fraud_rate: float | None
+    investigation_true_positive_count: int
+    investigation_false_positive_count: int
+    per_detector_breakdown: dict
+    generated_at: datetime
+
+
+class SimulationRunDetailView(SimulationRunView):
+    ground_truth: list[GroundTruthEntryView]
+    latest_evaluation: SimulationEvaluationView | None
