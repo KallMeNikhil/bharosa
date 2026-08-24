@@ -118,7 +118,7 @@ docker compose -f infra/docker-compose.yml up
 The console is then at `http://localhost:5173` and proxies `/api` to the backend
 on port 8000, so nothing needs CORS.
 
-[`docs/docker-setup.md`](docs/docker-setup.md) covers what each service does,
+[`docs/how_to_setup_on_docker.md`](docs/how_to_setup_on_docker.md) covers what each service does,
 how to run the tests and a psql shell, how to reset the database, and how to
 point the mobile apps at the API. It also describes running the backend
 directly on your machine if you prefer that to a container.
