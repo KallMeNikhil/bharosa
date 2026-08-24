@@ -13,6 +13,15 @@ dist/
 dist-ssr/
 *.local
 
+# Expo / React Native
+.expo/
+web-build/
+*.jks
+*.p8
+*.p12
+*.mobileprovision
+.metro-health-check*
+
 .env
 .env.*
 !.env.example

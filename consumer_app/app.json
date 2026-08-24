@@ -1,0 +1,66 @@
+{
+  "expo": {
+    "name": "Bharosa",
+    "slug": "bharosa-consumer",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "scheme": "bharosa",
+    "userInterfaceStyle": "light",
+    "backgroundColor": "#F4F6F1",
+    "icon": "./assets/icon.png",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#123D31"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "example.bharosa.consumer"
+    },
+    "android": {
+      "package": "example.bharosa.consumer",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#123D31"
+      },
+      "edgeToEdgeEnabled": true,
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": false,
+          "data": [
+            {
+              "scheme": "https",
+              "host": "id.bharosa.example"
+            }
+          ],
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
+        }
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
+    },
+    "plugins": [
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Bharosa uses the camera to read the code printed on a pack."
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Location makes a check more accurate. Bharosa works without it."
+        }
+      ]
+    ]
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "expo": {
+    "name": "Bharosa Consign",
+    "slug": "bharosa-distributor",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "scheme": "bharosaconsign",
+    "userInterfaceStyle": "light",
+    "backgroundColor": "#E8EDEE",
+    "icon": "./assets/icon.png",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0E3A45"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "example.bharosa.distributor"
+    },
+    "android": {
+      "package": "example.bharosa.distributor",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#0E3A45"
+      },
+      "edgeToEdgeEnabled": true
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
+    },
+    "plugins": [
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Bharosa Consign uses the camera to read the code on each pack as stock moves."
+        }
+      ]
+    ]
+  }
+}

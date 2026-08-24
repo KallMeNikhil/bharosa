@@ -80,20 +80,24 @@ movement. Detailed engineering and security documentation is maintained
 separately and will be published as the project matures.
 
 ```
-backend/    Application, domain logic, and data layer
-frontend/   Web client
-infra/      Local infrastructure configuration
-docs/       Product, architecture, and process documentation
-.github/    Continuous integration
+backend/          Application, domain logic, and data layer
+frontend/         Web console for manufacturers
+consumer_app/     Mobile app for the person holding the pack
+distributor_app/  Mobile scanner for depots, distributors and retailers
+infra/            Local infrastructure configuration
+docs/             Product, architecture, and process documentation
+.github/          Continuous integration
 ```
 
 ## Status
 
-The backend is built through correlation and investigation. Cryptographic
-identity, the supply-chain custody log, public verification, the four
-fraud-family detectors, likelihood-ratio evidence correlation, and the
-investigation workflow all exist, along with the manufacturer-facing API the
-web client consumes. Simulation and production hardening are not yet started.
+The backend is built through simulation. Cryptographic identity, the
+supply-chain custody log, public verification, the four fraud-family detectors,
+likelihood-ratio evidence correlation, the investigation workflow and
+deterministic simulation all exist, along with the manufacturer-facing API the
+clients consume. Three clients are built: the manufacturer console, the
+consumer verification app, and the distributor custody scanner. Production
+hardening is not yet started.
 
 Bharosa operates at whatever assurance level has actually been implemented,
 never one implied by its design. Today that is **Level 1 (cryptographic
@@ -104,23 +108,20 @@ physical-authenticity claim should be made on the platform's behalf yet.
 
 ### Running it
 
-```
-docker compose -f infra/docker-compose.yml up -d
-cd backend && pip install -e ".[dev]"
-alembic upgrade head
-uvicorn app.main:app --reload
-```
-
-Then the web client, in a second terminal:
+Everything — database, schema, API and console — comes up with one command, and
+needs nothing installed beyond Docker:
 
 ```
-cd frontend && npm install
-npm run dev
+docker compose -f infra/docker-compose.yml up
 ```
 
-The console is at `http://localhost:5173` and proxies `/api` to the backend on
-port 8000, so nothing needs CORS. Copy `.env.example` to `.env` if the database
-is anywhere other than the defaults.
+The console is then at `http://localhost:5173` and proxies `/api` to the backend
+on port 8000, so nothing needs CORS.
+
+[`docs/docker-setup.md`](docs/docker-setup.md) covers what each service does,
+how to run the tests and a psql shell, how to reset the database, and how to
+point the mobile apps at the API. It also describes running the backend
+directly on your machine if you prefer that to a container.
 
 Nothing in the console is reachable until a manufacturer exists, so start at
 **Tenant and actor** and run the demonstration scenario. It drives the whole
