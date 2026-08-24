@@ -282,14 +282,24 @@ def transition(
 @router.get("/identities", response_model=list[schemas.IdentityView])
 def list_identities(
     batch_id: uuid.UUID | None = None,
+    serial: str | None = None,
     limit: int = 100,
     db: Session = Depends(tenant_db),
 ) -> list[ProductIdentity]:
+    """Identities in the caller's tenant, optionally narrowed to one serial.
+
+    The serial filter exists because a scanner reads a serial off a pack but
+    every custody route is keyed by identity id. It is an exact match rather
+    than a search: a partial serial that matched several packs would let a
+    mistyped code be recorded against the wrong one.
+    """
     statement = select(ProductIdentity).order_by(ProductIdentity.created_at).limit(
         min(limit, 500)
     )
     if batch_id is not None:
         statement = statement.where(ProductIdentity.batch_id == batch_id)
+    if serial is not None:
+        statement = statement.where(ProductIdentity.serial == serial.strip().upper())
     return list(db.execute(statement).scalars().all())
 
 
