@@ -24,14 +24,6 @@ interface ResultScreenProps {
   onHelp: () => void;
 }
 
-/**
- * The answer takes the whole screen.
- *
- * A farmer reads this at arm's length, outdoors, possibly in a hurry, so the
- * verdict is one word at the largest size in the app and the colour fills the
- * display rather than sitting inside a card. Everything explanatory is below
- * it, in reading order, for whoever wants it.
- */
 export function ResultScreen({
   state,
   message,

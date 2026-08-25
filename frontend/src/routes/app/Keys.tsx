@@ -1,17 +1,16 @@
 import { useState } from "react";
 
-import { identity } from "../api/endpoints";
-import { Badge, Button, Card, Empty, ErrorNote, Field, InfoNote, Loading, Mono, Row, Table, Timestamp } from "../components/ui";
-import { useAction, useResource } from "../hooks/useResource";
-import { rememberKeyHandle } from "../session/keyHandles";
-import { useSession } from "../session/SessionContext";
-import { NoTenant } from "./NoTenant";
+import { identity } from "../../api/endpoints";
+import { Badge, Button, Card, Empty, ErrorNote, Field, InfoNote, Loading, Mono, PageHeader, Row, Table, Timestamp } from "../../components/ui";
+import { useAction, useResource } from "../../hooks/useResource";
+import { rememberKeyHandle } from "../../session/keyHandles";
+import { useSession } from "../../session/SessionContext";
 
 export function Keys() {
-  const { credential, isConfigured, can } = useSession();
+  const { credential, can } = useSession();
   const manageKeys = can("MANAGE_KEYS");
 
-  const keys = useResource(() => identity.listKeys(), [credential], { enabled: isConfigured });
+  const keys = useResource(() => identity.listKeys(), [credential]);
   const [keyVersion, setKeyVersion] = useState(1);
   const [reason, setReason] = useState("");
 
@@ -38,22 +37,15 @@ export function Keys() {
     keys.reload();
   });
 
-  if (!isConfigured) return <NoTenant />;
-
   const rows = keys.data ?? [];
 
   return (
     <>
-      <div className="page-head">
-        <div>
-          <h1>Signing keys</h1>
-          <p>
-            Only an ACTIVE key can sign. Rotating a key issues its successor and moves the old
-            one to ROTATED; marking one compromised makes every pack it signed verify as CAUTION
-            rather than silently continuing to pass.
-          </p>
-        </div>
-      </div>
+      <PageHeader
+        eyebrow="Settings"
+        title="Signing keys"
+        description="Only an ACTIVE key can sign. Rotating a key issues its successor and moves the old one to ROTATED; marking one compromised makes every pack it signed verify as CAUTION rather than silently continuing to pass."
+      />
 
       <Card
         title="Issue a key"

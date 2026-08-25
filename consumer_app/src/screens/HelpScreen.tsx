@@ -30,14 +30,6 @@ const MEANING: Record<VerificationState, string> = {
     "connection at once.",
 };
 
-/**
- * Written to be read by someone deciding whether to spray a field today.
- *
- * The honesty here is deliberate: a registered code is not a laboratory test
- * of the liquid, and an unconfirmed one is not an accusation. Saying so
- * plainly is the difference between a tool people trust and one they learn to
- * ignore.
- */
 export function HelpScreen({ onBack }: { onBack: () => void }) {
   const insets = useSafeAreaInsets();
 

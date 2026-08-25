@@ -14,15 +14,6 @@ import { looksLikeSerial } from "../lib/code";
 import { color, font, space, type } from "../theme";
 import type { ScanOutcome } from "./ScanScreen";
 
-/**
- * Typing a code the camera cannot read.
- *
- * Labels get torn, soaked and scuffed in a way that a code printed on a
- * datasheet never does, and a pack whose QR will not decode is still a pack
- * that physically moved. Refusing to record it would put a hole in the
- * custody chain exactly where the damage is, which is where the chain matters
- * most.
- */
 export function ManualEntryScreen({
   onSubmit,
   onBack,

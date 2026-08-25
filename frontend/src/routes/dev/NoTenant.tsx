@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 
-import { Card } from "../components/ui";
+import { Card } from "../../components/ui";
 
 export function NoTenant() {
   return (

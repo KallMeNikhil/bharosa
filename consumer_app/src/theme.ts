@@ -1,15 +1,3 @@
-/**
- * Design tokens.
- *
- * The governing constraint is not taste, it is sunlight. This app is used
- * standing in a field or a shop doorway on a cheap phone at full brightness,
- * so every pairing here is chosen for contrast first. That rules out the
- * low-contrast greys and hairline weights that read well on a desk monitor.
- *
- * Neutrals carry a slight green bias rather than being pure grey, so the
- * paper reads as chosen rather than inherited.
- */
-
 export const color = {
   ink: "#0B1410",
   inkSoft: "#33453D",
@@ -55,7 +43,6 @@ export const font = {
   medium: "PlusJakartaSans_500Medium",
 } as const;
 
-/** One scale, used everywhere. `verdict` is reserved for the result word. */
 export const type = {
   caption: 13,
   body: 15,
@@ -73,19 +60,13 @@ export type VerificationState =
   | "UNAVAILABLE";
 
 export interface StatePresentation {
-  /** The single word a farmer reads from arm's length. */
   verdict: string;
-  /** What to do next, in the imperative. */
   action: string;
   field: string;
   onField: string;
   chip: string;
 }
 
-/**
- * Every state is distinguished by glyph and wording as well as colour, so the
- * screen still answers the question in monochrome or to a colour-blind reader.
- */
 export const STATE: Record<VerificationState, StatePresentation> = {
   GENUINE: {
     verdict: "Registered",

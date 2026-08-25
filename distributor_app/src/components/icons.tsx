@@ -2,13 +2,6 @@ import Svg, { Circle, Path } from "react-native-svg";
 
 import { color, type PackStatus } from "../theme";
 
-/**
- * Every status has its own silhouette, not just its own colour.
- *
- * A depot phone is a cheap one with a scratched screen under a sodium lamp,
- * and roughly one storeman in twelve cannot separate the amber from the red.
- * The shapes carry the meaning; the colour only reinforces it.
- */
 export function StatusGlyph({
   status,
   size = 20,
@@ -54,7 +47,6 @@ export function StatusGlyph({
   );
 }
 
-/** Which way stock is travelling: in to this place, out of it, or staying. */
 export function DirectionIcon({
   direction,
   size = 24,
@@ -150,13 +142,6 @@ export function KeypadIcon({ tint = color.ledger, size = 24 }: { tint?: string; 
   );
 }
 
-/**
- * The viewfinder frame.
- *
- * Four corners rather than a closed rectangle, because a closed box invites
- * the storeman to line the pack up inside it and the decoder does not care
- * where in the frame the code sits.
- */
 export function ScanFrame({ size, tint = "#FFFFFF" }: { size: number; tint?: string }) {
   const stroke = {
     stroke: tint,

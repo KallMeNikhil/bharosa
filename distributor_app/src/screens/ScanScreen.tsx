@@ -21,20 +21,6 @@ import { MOVEMENT, PACK, color, font, radius, space, type } from "../theme";
 
 export type ScanOutcome = "added" | "duplicate" | "unreadable";
 
-/**
- * The screen a shift is spent on.
- *
- * The consumer app opens on a verdict because it answers one question. This
- * one opens on a tally because it answers the same question forty times and
- * the only thing that matters at the end is whether the count is right. So the
- * camera never closes between packs, the newest line lands at the top where
- * the storeman is already looking, and the running count is the largest thing
- * on the screen.
- *
- * Nothing here blocks. An unregistered pack still gets a line, because the
- * lorry is still being unloaded and a scanner that argues is a scanner that
- * gets put in a pocket.
- */
 export function ScanScreen({
   consignment,
   onCode,
@@ -90,9 +76,6 @@ export function ScanScreen({
 
   const handleBarcode = useCallback(
     async ({ data }: { data: string }) => {
-      // The decoder fires continuously while a code is in view. The first read
-      // wins; the rest are dropped until the pack is out of frame long enough
-      // for a storeman to have physically moved on to the next one.
       if (claimed.current) return;
       claimed.current = true;
 

@@ -1,28 +1,25 @@
 import { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 
-import { identity } from "../api/endpoints";
-import { LIFECYCLE_PATH } from "../api/types";
-import { Badge, Button, Card, Empty, ErrorNote, Field, InfoNote, Loading, Mono, Row, Table, Timestamp } from "../components/ui";
-import { useAction, useResource } from "../hooks/useResource";
-import { recallKeyHandle } from "../session/keyHandles";
-import { useSession } from "../session/SessionContext";
-import { NoTenant } from "./NoTenant";
+import { identity } from "../../api/endpoints";
+import { LIFECYCLE_PATH } from "../../api/types";
+import { LifecycleTrack } from "../../components/LifecycleTrack";
+import { Button, Card, Empty, ErrorNote, Field, InfoNote, Loading, Mono, PageHeader, Row, Table, Timestamp } from "../../components/ui";
+import { useAction, useResource } from "../../hooks/useResource";
+import { recallKeyHandle } from "../../session/keyHandles";
+import { useSession } from "../../session/SessionContext";
 
 export function Identities() {
-  const { credential, isConfigured, can } = useSession();
+  const { credential, can } = useSession();
   const [searchParams, setSearchParams] = useSearchParams();
   const batchFilter = searchParams.get("batch") ?? "";
 
-  const batches = useResource(() => identity.listBatches(), [credential], {
-    enabled: isConfigured,
-  });
+  const batches = useResource(() => identity.listBatches(), [credential]);
   const identities = useResource(
     () => identity.listIdentities({ batchId: batchFilter || undefined, limit: 200 }),
     [credential, batchFilter],
-    { enabled: isConfigured },
   );
-  const keys = useResource(() => identity.listKeys(), [credential], { enabled: isConfigured });
+  const keys = useResource(() => identity.listKeys(), [credential]);
 
   const [count, setCount] = useState(3);
   const [reserveBatch, setReserveBatch] = useState("");
@@ -53,23 +50,17 @@ export function Identities() {
     identities.reload();
   });
 
-  if (!isConfigured) return <NoTenant />;
-
   const rows = identities.data ?? [];
   const activeKeys = (keys.data ?? []).filter((key) => key.status === "ACTIVE");
   const advanceable = rows.filter((row) => row.lifecycle_state !== "ACTIVATED" && row.lifecycle_state !== "PRINT_REJECTED");
 
   return (
     <>
-      <div className="page-head">
-        <div>
-          <h1>Identities</h1>
-          <p>
-            Serials are never supplied by a caller. Reservation asks only for a count, and the
-            server generates 128 bits of randomness per pack.
-          </p>
-        </div>
-      </div>
+      <PageHeader
+        eyebrow="Products"
+        title="Identities"
+        description="Serials are never supplied by a caller. Reservation asks only for a count, and the server generates 128 bits of randomness per pack."
+      />
 
       <div className="grid-2">
         <Card title="Reserve identities">
@@ -197,7 +188,7 @@ export function Identities() {
                   <Mono value={row.serial} />
                 </td>
                 <td>
-                  <Badge>{row.lifecycle_state}</Badge>
+                  <LifecycleTrack state={row.lifecycle_state} />
                 </td>
                 <td>
                   <Timestamp value={row.signed_at} />
@@ -206,7 +197,7 @@ export function Identities() {
                   <Timestamp value={row.activated_at} />
                 </td>
                 <td>
-                  <Link to={`/identities/${row.id}`}>Open</Link>
+                  <Link to={`/app/identities/${row.id}`}>Open</Link>
                 </td>
               </tr>
             ))}

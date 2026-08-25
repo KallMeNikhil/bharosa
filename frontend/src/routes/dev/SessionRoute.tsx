@@ -1,14 +1,14 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { identity } from "../api/endpoints";
-import { CAPABILITIES } from "../api/types";
-import type { Capability } from "../api/types";
-import { Button, Card, ErrorNote, Field, InfoNote, Mono, Row } from "../components/ui";
-import { useAction, useResource } from "../hooks/useResource";
-import { runDemoScenario, scenarioFailure } from "../scenario/demo";
-import type { ScenarioLine } from "../scenario/demo";
-import { useSession } from "../session/SessionContext";
+import { identity } from "../../api/endpoints";
+import { CAPABILITIES } from "../../api/types";
+import type { Capability } from "../../api/types";
+import { Button, Card, ErrorNote, Field, InfoNote, Mono, Row } from "../../components/ui";
+import { useAction, useResource } from "../../hooks/useResource";
+import { runDemoScenario, scenarioFailure } from "../../scenario/demo";
+import type { ScenarioLine } from "../../scenario/demo";
+import { useSession } from "../../session/SessionContext";
 
 function CapabilityPicker({
   selected,

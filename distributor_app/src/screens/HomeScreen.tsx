@@ -14,14 +14,6 @@ const ROLE_LABEL = {
   RETAILER: "Retailer",
 } as const;
 
-/**
- * The place a shift starts.
- *
- * Every movement is one tap from here and nothing else competes for the
- * screen. The outbox strip appears only when something is actually waiting,
- * because a permanent "0 pending" row trains people to stop reading the one
- * place that matters when it is not zero.
- */
 export function HomeScreen({
   device,
   pending,

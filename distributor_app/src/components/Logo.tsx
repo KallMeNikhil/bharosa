@@ -3,15 +3,6 @@ import Svg, { Path } from "react-native-svg";
 
 import { color, font, type } from "../theme";
 
-/**
- * The mark: the Bharosa frame with stock passing through it.
- *
- * The consumer app's mark puts a check inside the same four corner brackets,
- * because that app answers a question. This one puts an arrow through them,
- * because this app records a handoff. The shared frame is the family
- * resemblance; what sits inside it is the difference between asking and
- * recording.
- */
 export function Mark({
   size = 64,
   tint = color.ledger,

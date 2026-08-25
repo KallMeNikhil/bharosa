@@ -118,14 +118,6 @@ function OptionRow({
   );
 }
 
-/**
- * The app opens here, not on the camera.
- *
- * Launching straight into a viewfinder is disorienting: the camera turns on
- * before the person has decided anything, and there is no obvious way back to
- * the code they typed yesterday. This screen costs one tap and makes every
- * route visible.
- */
 export function HomeScreen({
   history,
   onScan,

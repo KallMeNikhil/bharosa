@@ -1,11 +1,11 @@
 import { useState } from "react";
 
-import { supplyChain } from "../api/endpoints";
-import { PARTICIPANT_ROLES } from "../api/types";
-import type { ParticipantRole } from "../api/types";
-import { Badge, Button, Card, Empty, ErrorNote, Field, InfoNote, Loading, Mono, Row, Table, Timestamp } from "../components/ui";
-import { useAction, useResource } from "../hooks/useResource";
-import { useSession } from "../session/SessionContext";
+import { supplyChain } from "../../api/endpoints";
+import { PARTICIPANT_ROLES } from "../../api/types";
+import type { ParticipantRole } from "../../api/types";
+import { Badge, Button, Card, Empty, ErrorNote, Field, InfoNote, Loading, Mono, Row, Table, Timestamp } from "../../components/ui";
+import { useAction, useResource } from "../../hooks/useResource";
+import { useSession } from "../../session/SessionContext";
 import { NoTenant } from "./NoTenant";
 
 const EXAMPLE_BOUNDARY =

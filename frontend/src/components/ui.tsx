@@ -1,6 +1,79 @@
 import { useState } from "react";
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 
+export function Container({ children }: { children: ReactNode }) {
+  return <div className="container">{children}</div>;
+}
+
+export function BrandMark({ size = 26 }: { size?: number }) {
+  return (
+    <img
+      src="/bharosa.png"
+      alt="Bharosa"
+      width={size}
+      height={size}
+      className="brand-mark"
+    />
+  );
+}
+
+export function Section({
+  children,
+  tight,
+}: {
+  children: ReactNode;
+  tight?: boolean;
+}) {
+  return <section className={tight ? "section section--tight" : "section"}>{children}</section>;
+}
+
+export function PageHeader({
+  eyebrow,
+  title,
+  description,
+  actions,
+}: {
+  eyebrow?: ReactNode;
+  title: ReactNode;
+  description?: ReactNode;
+  actions?: ReactNode;
+}) {
+  return (
+    <div className="page-header">
+      <div>
+        {eyebrow && <span className="eyebrow">{eyebrow}</span>}
+        <h1>{title}</h1>
+        {description && <p>{description}</p>}
+      </div>
+      {actions && <div className="button-row">{actions}</div>}
+    </div>
+  );
+}
+
+export function TechnicalDisclosure({
+  label = "Technical detail",
+  children,
+}: {
+  label?: string;
+  children: ReactNode;
+}) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="disclosure">
+      <button
+        type="button"
+        className="disclosure__trigger"
+        onClick={() => setOpen((value) => !value)}
+        aria-expanded={open}
+      >
+        {label}
+        <span aria-hidden="true">{open ? "\u2212" : "+"}</span>
+      </button>
+      {open && <div className="disclosure__body">{children}</div>}
+    </div>
+  );
+}
+
 export type Tone = "neutral" | "info" | "good" | "warn" | "bad";
 
 const TONE_BY_VALUE: Record<string, Tone> = {

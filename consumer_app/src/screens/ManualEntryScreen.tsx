@@ -23,11 +23,6 @@ interface ManualEntryScreenProps {
 
 const SERIAL_LENGTH = 26;
 
-/**
- * The way in when the camera cannot help: a torn label, a scratched code, a
- * phone whose camera has given up. Typing 26 characters is unpleasant, so the
- * field shows progress and never rejects what has been typed.
- */
 export function ManualEntryScreen({
   onCheck,
   onBack,

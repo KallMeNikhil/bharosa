@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 
-import { identity } from "../api/endpoints";
-import { Badge, Button, Card, Empty, ErrorNote, Field, InfoNote, Loading, Mono, Row, Table } from "../components/ui";
-import { useAction, useResource } from "../hooks/useResource";
-import { useSession } from "../session/SessionContext";
+import { identity } from "../../api/endpoints";
+import { Badge, Button, Card, Empty, ErrorNote, Field, InfoNote, Loading, Mono, Row, Table } from "../../components/ui";
+import { useAction, useResource } from "../../hooks/useResource";
+import { useSession } from "../../session/SessionContext";
 import { NoTenant } from "./NoTenant";
 
 function today(offsetDays = 0): string {

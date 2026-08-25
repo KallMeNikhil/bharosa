@@ -1,11 +1,11 @@
 import { useState } from "react";
 
-import { identity, intelligence, supplyChain } from "../api/endpoints";
-import { Badge, Button, Card, Empty, ErrorNote, InfoNote, Loading, Mono, Table } from "../components/ui";
-import { useAction, useResource } from "../hooks/useResource";
-import { useSession } from "../session/SessionContext";
+import { identity, intelligence, supplyChain } from "../../api/endpoints";
+import { Badge, Button, Card, Empty, ErrorNote, InfoNote, Loading, Mono, Table } from "../../components/ui";
+import { useAction, useResource } from "../../hooks/useResource";
+import { useSession } from "../../session/SessionContext";
 import { NoTenant } from "./NoTenant";
-import type { CustodyGraphView } from "../api/types";
+import type { CustodyGraphView } from "../../api/types";
 
 export function CustodyGraph() {
   const { credential, isConfigured } = useSession();

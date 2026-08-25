@@ -4,14 +4,6 @@ import { Animated, Easing, StyleSheet, Text, View } from "react-native";
 import { Mark } from "../components/Logo";
 import { color, space, type } from "../theme";
 
-/**
- * Shown while the typefaces load.
- *
- * It uses no custom font itself, because the whole reason this screen exists
- * is that the fonts are not ready yet. The mark carries the identity instead,
- * and the one animation is a settle rather than a spinner: a spinner says
- * "waiting", a settle says "arriving".
- */
 export function BootScreen() {
   const enter = useRef(new Animated.Value(0)).current;
   const pulse = useRef(new Animated.Value(0)).current;

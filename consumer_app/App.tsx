@@ -34,13 +34,6 @@ interface Outcome {
   checkedAt: string;
 }
 
-/**
- * Best-effort location for one check.
- *
- * Deliberately never blocks: a cached fix is used if one exists, permission is
- * asked for once, and every failure path returns nothing rather than stalling
- * the answer the person is waiting for.
- */
 async function currentLocation(): Promise<ScanLocation | null> {
   try {
     const { granted } = await Location.requestForegroundPermissionsAsync();
@@ -124,8 +117,6 @@ export default function App() {
     }
   }, []);
 
-  // A pack's QR code is an ordinary https URL, so scanning it with the phone's
-  // own camera can open this app directly. Treat that exactly like a scan.
   const deepLink = Linking.useURL();
   useEffect(() => {
     if (deepLink && deepLink.includes("bhs=")) {

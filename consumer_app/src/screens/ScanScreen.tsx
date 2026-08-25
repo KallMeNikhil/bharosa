@@ -23,13 +23,6 @@ interface ScanScreenProps {
   busy: boolean;
 }
 
-/**
- * The camera is the whole screen.
- *
- * There is no menu to cross, because the app has exactly one job and the
- * person is already holding the bottle. Everything else is a link at the
- * edges.
- */
 export function ScanScreen({
   onCode,
   onBack,

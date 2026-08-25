@@ -5,14 +5,6 @@ import { Button, Card, Eyebrow, Header, Mono, Notice, Rule } from "../components
 import type { Device } from "../lib/session";
 import { color, font, space, type } from "../theme";
 
-/**
- * What this device is, and how to unbind it.
- *
- * Unbinding is deliberately not destructive: anything the scanner has
- * recorded but not sent stays on it. Handing a phone to another branch must
- * never be a way to make a shift's movements disappear, so the outbox has to
- * be emptied on purpose before the binding can be cleared.
- */
 export function SettingsScreen({
   device,
   pending,

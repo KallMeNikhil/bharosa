@@ -76,11 +76,28 @@ export function EvidenceList({
   );
 }
 
+const CONFIDENCE_TONE: Record<string, string> = {
+  NEGLIGIBLE: "var(--color-neutral)",
+  LOW: "var(--color-accent)",
+  MODERATE: "var(--color-caution)",
+  HIGH: "var(--color-invalid)",
+};
+
+function confidenceFill(posteriorLogOdds: number): number {
+  const probability = 1 / (1 + Math.exp(-posteriorLogOdds));
+  return Math.round(probability * 100);
+}
+
 export function AssessmentSummary({ assessment }: { assessment: RiskAssessmentView }) {
+  const fill = confidenceFill(assessment.posterior_log_odds);
+  const color = CONFIDENCE_TONE[assessment.confidence] ?? "var(--color-neutral)";
+
   return (
     <div className="evidence">
       <header className="evidence__head">
-        <Badge>{assessment.confidence}</Badge>
+        <Badge tone={assessment.confidence === "HIGH" ? "bad" : assessment.confidence === "MODERATE" ? "warn" : assessment.confidence === "LOW" ? "info" : "neutral"}>
+          {assessment.confidence}
+        </Badge>
         <span className="muted">ruleset v{assessment.ruleset_version}</span>
         <span className="muted">
           prior {assessment.prior_log_odds.toFixed(2)} → posterior{" "}
@@ -90,6 +107,17 @@ export function AssessmentSummary({ assessment }: { assessment: RiskAssessmentVi
           <Timestamp value={assessment.generated_at} />
         </span>
       </header>
+      <div className="severity-rail">
+        <span className="severity-rail__bar">
+          <span
+            className="severity-rail__fill"
+            style={{ width: `${fill}%`, background: color }}
+          />
+        </span>
+        <span className="muted" style={{ fontSize: "0.8rem" }}>
+          {fill}% implied likelihood
+        </span>
+      </div>
       <p className="empty">
         Graded confidence over accumulated evidence, for a human reviewer to weigh. It is not a
         finding, and re-assessing appends a new one rather than rewriting this.

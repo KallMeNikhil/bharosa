@@ -1,13 +1,5 @@
 import type { MovementKind, PackStatus } from "../theme";
 
-/**
- * A consignment being built.
- *
- * This is the unit of work at a loading bay: one lorry, one shelf run, one
- * return. Packs accumulate into it while the camera stays open and nothing
- * reaches the platform until it is committed, so a half-scanned pallet that
- * gets interrupted leaves no partial record behind.
- */
 export interface ScannedPack {
   serial: string;
   identityId: string | null;
@@ -18,7 +10,6 @@ export interface ScannedPack {
 export interface Consignment {
   id: string;
   kind: MovementKind;
-  /** The participant this device belongs to. */
   selfId: string;
   counterpartyId: string | null;
   counterpartyName: string | null;
@@ -31,14 +22,6 @@ export interface Endpoints {
   destinationId: string | null;
 }
 
-/**
- * Which participant sits on each end of the event, by movement.
- *
- * Receiving is the one movement where this device is the destination; in
- * every other case stock is leaving, so the device is the source. Getting
- * this backwards would invert the custody chain, so it lives in one place
- * rather than being decided at each call site.
- */
 export function endpointsFor(consignment: Consignment): Endpoints {
   const { kind, selfId, counterpartyId } = consignment;
   if (kind === "RECEIPT") {
@@ -50,15 +33,6 @@ export function endpointsFor(consignment: Consignment): Endpoints {
   return { sourceId: selfId, destinationId: counterpartyId };
 }
 
-/**
- * Who the record says should be holding a pack immediately before this
- * movement.
- *
- * Stock you are receiving should be held by whoever sent it; stock you are
- * sending should be held by you. A mismatch is not proof of anything -- a
- * depot that forgot to scan an inbound load produces the same signal as a
- * diverted pack -- so this only ever raises a flag for a human.
- */
 export function expectedHolderFor(consignment: Consignment): string | null {
   return consignment.kind === "RECEIPT"
     ? consignment.counterpartyId
@@ -71,8 +45,6 @@ export function statusFor(
 ): PackStatus {
   const expected = expectedHolderFor(consignment);
   if (custodianId === expected) return "known";
-  // A pack with no custodian has never left the plant. Receiving one straight
-  // from the manufacturer is ordinary; sending one you never received is not.
   if (custodianId === null && consignment.kind === "RECEIPT") return "known";
   return "held";
 }

@@ -12,13 +12,6 @@ export interface HistoryEntry {
   checkedAt: string;
 }
 
-/**
- * Scan history is kept on the device and never uploaded.
- *
- * The platform already records a verification event server-side when a code
- * resolves; this copy exists so a person can look back at what they checked
- * without the app needing to ask the server anything about them.
- */
 export async function readHistory(): Promise<HistoryEntry[]> {
   try {
     const raw = await AsyncStorage.getItem(STORAGE_KEY);

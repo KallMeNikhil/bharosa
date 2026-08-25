@@ -1,13 +1,5 @@
 import type { VerificationState } from "../theme";
 
-/**
- * The address of the Bharosa API.
- *
- * On a physical phone `localhost` is the phone itself, so a development build
- * has to name the machine running the backend by its address on the local
- * network. Override it without editing this file by setting
- * EXPO_PUBLIC_API_BASE_URL in `.env`.
- */
 export const API_BASE_URL =
   process.env.EXPO_PUBLIC_API_BASE_URL ?? "http://192.168.1.3:8000/api/v1";
 
@@ -27,14 +19,6 @@ export class NetworkUnavailableError extends Error {}
 
 const REQUEST_TIMEOUT_MS = 12_000;
 
-/**
- * Verifies one code against the public endpoint.
- *
- * Location is optional and its absence never blocks a check, because a farmer
- * who declines to share where they are is not a suspect. The endpoint answers
- * in the same shape every time, including for codes it cannot resolve, so
- * there is no error branch to model here beyond the network failing.
- */
 export async function verify(
   code: string,
   location?: ScanLocation | null,

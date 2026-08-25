@@ -1,44 +1,44 @@
 import { NavLink, Outlet } from "react-router-dom";
 
-import { system } from "../api/endpoints";
-import { useResource } from "../hooks/useResource";
-import { useSession } from "../session/SessionContext";
-import { Badge, Mono } from "./ui";
+import { system } from "../../api/endpoints";
+import { useResource } from "../../hooks/useResource";
+import { useSession } from "../../session/SessionContext";
+import { Badge, Mono } from "../../components/ui";
 
 const NAV_GROUPS: { label: string; links: { to: string; label: string }[] }[] = [
   {
     label: "Overview",
     links: [
-      { to: "/", label: "Dashboard" },
-      { to: "/session", label: "Tenant & actor" },
+      { to: "/dev", label: "Dashboard" },
+      { to: "/dev/session", label: "Tenant & actor" },
     ],
   },
   {
     label: "Manufacturing",
     links: [
-      { to: "/keys", label: "Signing keys" },
-      { to: "/catalogue", label: "Products & batches" },
-      { to: "/identities", label: "Identities" },
+      { to: "/dev/keys", label: "Signing keys" },
+      { to: "/dev/catalogue", label: "Products & batches" },
+      { to: "/dev/identities", label: "Identities" },
     ],
   },
   {
     label: "Distribution",
     links: [
-      { to: "/supply-chain", label: "Supply chain" },
-      { to: "/custody-graph", label: "Custody graph" },
+      { to: "/dev/supply-chain", label: "Supply chain" },
+      { to: "/dev/custody-graph", label: "Custody graph" },
     ],
   },
   {
     label: "Integrity",
     links: [
       { to: "/verify", label: "Public verification" },
-      { to: "/investigations", label: "Investigations" },
-      { to: "/simulation", label: "Simulation" },
+      { to: "/dev/investigations", label: "Investigations" },
+      { to: "/dev/simulation", label: "Simulation" },
     ],
   },
   {
     label: "Tooling",
-    links: [{ to: "/console", label: "API console" }],
+    links: [{ to: "/dev/console", label: "API console" }],
   },
 ];
 
@@ -54,7 +54,7 @@ function HealthIndicator() {
   );
 }
 
-export function Layout() {
+export function DevLayout() {
   const { session, isConfigured } = useSession();
 
   return (
@@ -62,7 +62,7 @@ export function Layout() {
       <aside className="sidebar">
         <div className="brand">
           <span className="brand__name">Bharosa</span>
-          <span className="brand__tag">console</span>
+          <span className="brand__tag">internal test console</span>
         </div>
 
         <nav className="nav">
@@ -73,7 +73,7 @@ export function Layout() {
                 <NavLink
                   key={link.to}
                   to={link.to}
-                  end={link.to === "/"}
+                  end={link.to === "/dev"}
                   className={({ isActive }) => `nav__link${isActive ? " is-active" : ""}`}
                 >
                   {link.label}
@@ -85,7 +85,7 @@ export function Layout() {
 
         <div className="sidebar__foot">
           <HealthIndicator />
-          <span>Development credentials. Not authentication.</span>
+          <span>Development credentials. Not authentication. Not the product UI.</span>
         </div>
       </aside>
 

@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 
-import { clearLog, readLog, subscribeToLog } from "../api/client";
-import type { ApiLogEntry } from "../api/client";
-import { Badge, Button, Card, Empty } from "../components/ui";
+import { clearLog, readLog, subscribeToLog } from "../../api/client";
+import type { ApiLogEntry } from "../../api/client";
+import { Badge, Button, Card, Empty } from "../../components/ui";
 
 function statusTone(entry: ApiLogEntry) {
   if (entry.status === null) return "bad" as const;

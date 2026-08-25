@@ -1,19 +1,3 @@
-/**
- * Design tokens.
- *
- * The consumer app answers one question once, so it is built around a single
- * large verdict. This app is the opposite: a storeman at a loading bay scans
- * forty packs in a row and needs to know the count is right. The governing
- * constraint here is throughput and accountability, not reassurance.
- *
- * So the surface it borrows from is the delivery challan, the ruled docket
- * that already travels with every consignment: a cool paper ground, ink-blue
- * neutrals, ruled separators, and counts set in a monospaced face because a
- * challan is fundamentally a tally. The semantic three -- green, amber, red --
- * are shared verbatim with the consumer app, because a pack that reads amber
- * in a depot must read amber in a field.
- */
-
 export const color = {
   ink: "#101A1E",
   inkSoft: "#34464D",
@@ -54,11 +38,6 @@ export const radius = {
   pill: 999,
 } as const;
 
-/**
- * One family in two roles. Plex Sans carries the interface and Plex Mono
- * carries every number, serial and reference, so a count and its label sit on
- * the same skeleton instead of looking borrowed from different documents.
- */
 export const font = {
   display: "IBMPlexSans_700Bold",
   semi: "IBMPlexSans_600SemiBold",
@@ -76,18 +55,9 @@ export const type = {
   bodyLarge: 17,
   title: 21,
   headline: 28,
-  /** Reserved for the running count. Nothing else is set this large. */
   tally: 46,
 } as const;
 
-/**
- * What a movement is called on this device.
- *
- * The event names in the platform are schema words. A storeman receives a
- * load, sends a load, or puts stock on a shelf, and the interface says that.
- * `needs` records which counterparties a movement has to name before scanning
- * can start, which is what drives the setup screen.
- */
 export type MovementKind =
   | "RECEIPT"
   | "DISPATCH"
@@ -96,12 +66,9 @@ export type MovementKind =
   | "RETAIL_PLACEMENT";
 
 export interface MovementPresentation {
-  /** Imperative, as it appears on the button that starts it. */
   label: string;
-  /** Present participle, used while a consignment is open. */
   running: string;
   detail: string;
-  /** The word for the other party, in this movement's direction. */
   counterparty: string | null;
   needs: "source" | "destination" | "none";
   direction: "in" | "out" | "flat";
@@ -150,7 +117,6 @@ export const MOVEMENT: Record<MovementKind, MovementPresentation> = {
   },
 };
 
-/** The order movements appear on the home screen: commonest first. */
 export const MOVEMENT_ORDER: MovementKind[] = [
   "RECEIPT",
   "DISPATCH",
@@ -159,14 +125,6 @@ export const MOVEMENT_ORDER: MovementKind[] = [
   "RETURN",
 ];
 
-/**
- * What the platform knows about a pack the moment it is scanned.
- *
- * This is not a verdict. A pack that reads `unknown` is not condemned and a
- * pack that reads `held` is not stolen -- both are recorded either way, and
- * the platform decides later. The status exists so the storeman can set a
- * carton aside now rather than discovering the problem a week later.
- */
 export type PackStatus = "known" | "held" | "unknown" | "pending";
 
 export interface PackPresentation {

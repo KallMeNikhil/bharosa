@@ -7,15 +7,6 @@ import { groupSerial } from "../lib/code";
 import { pendingCount, rejectedCount, type OutboxEntry } from "../lib/outbox";
 import { MOVEMENT, color, font, radius, space, type } from "../theme";
 
-/**
- * What the device is still holding.
- *
- * A rejection is not a failure to send, it is the platform declining to
- * believe something, and the difference matters to the person reading this
- * screen. Queued packs need patience; rejected ones need a supervisor. They
- * are therefore counted separately and worded differently, and a rejected
- * entry stays here until somebody actively dismisses it.
- */
 export function OutboxScreen({
   entries,
   busy,

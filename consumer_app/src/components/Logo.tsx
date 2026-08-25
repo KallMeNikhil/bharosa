@@ -3,14 +3,6 @@ import Svg, { Path } from "react-native-svg";
 import { color, font, type } from "../theme";
 import { Text, View, StyleSheet } from "react-native";
 
-/**
- * The mark is the scan frame with a check inside it.
- *
- * The corner brackets are the same shape the viewfinder draws around a pack,
- * so the logo is a picture of the one thing this app does rather than an
- * arbitrary emblem. It holds up at 24px in a header and at 200px on the boot
- * screen because it is four strokes and a tick.
- */
 export function Mark({
   size = 64,
   tint = color.pine,

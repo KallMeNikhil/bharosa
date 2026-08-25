@@ -12,14 +12,6 @@ const ROLE_LABEL: Record<Participant["role"], string> = {
   RETAILER: "Retailer",
 };
 
-/**
- * Which place this scanner belongs to.
- *
- * Every movement the device records names this participant on one end, so
- * getting it wrong quietly poisons the custody chain for as long as nobody
- * notices. It is therefore a deliberate, one-time choice on its own screen
- * rather than a dropdown buried in settings.
- */
 export function IdentifyScreen({
   participants,
   onChoose,

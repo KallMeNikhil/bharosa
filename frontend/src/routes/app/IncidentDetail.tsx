@@ -1,19 +1,18 @@
 import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 
-import { intelligence } from "../api/endpoints";
-import { LEGAL_INCIDENT_TRANSITIONS } from "../api/types";
-import type { IncidentStatus } from "../api/types";
-import { AssessmentSummary, EvidenceList, contributionsByEvidence } from "../components/Evidence";
-import { Badge, Button, Card, Empty, ErrorNote, Field, InfoNote, Loading, Mono, Table, Timestamp } from "../components/ui";
-import { useAction, useResource } from "../hooks/useResource";
-import { useSession } from "../session/SessionContext";
-import { NoTenant } from "./NoTenant";
+import { intelligence } from "../../api/endpoints";
+import { LEGAL_INCIDENT_TRANSITIONS } from "../../api/types";
+import type { IncidentStatus } from "../../api/types";
+import { AssessmentSummary, EvidenceList, contributionsByEvidence } from "../../components/Evidence";
+import { Badge, Button, Card, Empty, ErrorNote, Field, InfoNote, Loading, Mono, PageHeader, Table, Timestamp } from "../../components/ui";
+import { useAction, useResource } from "../../hooks/useResource";
+import { useSession } from "../../session/SessionContext";
 
 export function IncidentDetail() {
   const { incidentId = "" } = useParams();
-  const { credential, isConfigured, can } = useSession();
-  const enabled = isConfigured && Boolean(incidentId);
+  const { credential, can } = useSession();
+  const enabled = Boolean(incidentId);
 
   const incident = useResource(
     () => intelligence.getInvestigation(incidentId),
@@ -40,7 +39,6 @@ export function IncidentDetail() {
     incident.reload();
   });
 
-  if (!isConfigured) return <NoTenant />;
   if (incident.loading) return <Loading />;
   if (incident.error) return <ErrorNote>{incident.error}</ErrorNote>;
   if (!incident.data) return <Empty>Incident not found.</Empty>;
@@ -53,16 +51,17 @@ export function IncidentDetail() {
 
   return (
     <>
-      <div className="page-head">
-        <div>
-          <h1>Incident review</h1>
-          <p>
-            <Badge>{detail.status}</Badge> · opened by {detail.opened_by} ·{" "}
-            <Timestamp value={detail.opened_at} /> ·{" "}
-            <Link to={`/identities/${detail.identity_id}`}>the identity</Link>
-          </p>
-        </div>
-      </div>
+      <PageHeader
+        eyebrow="Intelligence"
+        title="Incident review"
+        description={
+          <>
+            <Badge>{detail.status}</Badge> opened by {detail.opened_by}{" "}
+            <Timestamp value={detail.opened_at} />{" "}
+            <Link to={`/app/identities/${detail.identity_id}`}>the identity</Link>
+          </>
+        }
+      />
 
       <Card title="Summary">
         <p>{detail.summary}</p>
@@ -114,33 +113,26 @@ export function IncidentDetail() {
       </Card>
 
       <Card title="Case history" subtitle="Append-only. A status is never edited, only added to.">
-        <Table
-          head={
-            <tr>
-              <th>#</th>
-              <th>From</th>
-              <th>To</th>
-              <th>Note</th>
-              <th>Actor</th>
-              <th>When</th>
-            </tr>
-          }
-        >
-          {detail.events.map((event) => (
-            <tr key={event.sequence}>
-              <td>{event.sequence}</td>
-              <td>{event.previous_status ?? <span className="muted">—</span>}</td>
-              <td>
-                <Badge>{event.new_status}</Badge>
-              </td>
-              <td>{event.note ?? <span className="muted">—</span>}</td>
-              <td>{event.actor}</td>
-              <td>
-                <Timestamp value={event.occurred_at} />
-              </td>
-            </tr>
+        <div className="timeline">
+          {detail.events.map((event, index, array) => (
+            <div className="timeline__item" key={event.sequence}>
+              <span className="timeline__rail">
+                <span className="timeline__dot timeline__dot--good" />
+                {index < array.length - 1 && <span className="timeline__line" />}
+              </span>
+              <div className="timeline__body">
+                <div className="cluster">
+                  {event.previous_status && <span className="muted">{event.previous_status} →</span>}
+                  <Badge>{event.new_status}</Badge>
+                </div>
+                {event.note && <p style={{ margin: "4px 0 0" }}>{event.note}</p>}
+                <div className="timeline__meta">
+                  {event.actor} · <Timestamp value={event.occurred_at} />
+                </div>
+              </div>
+            </div>
           ))}
-        </Table>
+        </div>
       </Card>
 
       <Card title="Move this case on">

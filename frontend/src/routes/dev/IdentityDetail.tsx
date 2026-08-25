@@ -1,14 +1,14 @@
 import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
-import { identity, intelligence, supplyChain } from "../api/endpoints";
-import { LEGAL_TRANSITIONS, LIFECYCLE_PATH, SUPPLY_CHAIN_EVENT_TYPES } from "../api/types";
-import type { LifecycleState, SupplyChainEventType } from "../api/types";
-import { AssessmentSummary, EvidenceList, contributionsByEvidence } from "../components/Evidence";
-import { Badge, Button, Card, Empty, ErrorNote, Field, InfoNote, Loading, Mono, Row, Table, Timestamp } from "../components/ui";
-import { useAction, useResource } from "../hooks/useResource";
-import { recallKeyHandle } from "../session/keyHandles";
-import { useSession } from "../session/SessionContext";
+import { identity, intelligence, supplyChain } from "../../api/endpoints";
+import { LEGAL_TRANSITIONS, LIFECYCLE_PATH, SUPPLY_CHAIN_EVENT_TYPES } from "../../api/types";
+import type { LifecycleState, SupplyChainEventType } from "../../api/types";
+import { AssessmentSummary, EvidenceList, contributionsByEvidence } from "../../components/Evidence";
+import { Badge, Button, Card, Empty, ErrorNote, Field, InfoNote, Loading, Mono, Row, Table, Timestamp } from "../../components/ui";
+import { useAction, useResource } from "../../hooks/useResource";
+import { recallKeyHandle } from "../../session/keyHandles";
+import { useSession } from "../../session/SessionContext";
 import { NoTenant } from "./NoTenant";
 
 function Pipeline({ state }: { state: LifecycleState }) {

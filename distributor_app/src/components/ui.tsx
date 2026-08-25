@@ -13,10 +13,6 @@ import {
 
 import { color, font, radius, space, type } from "../theme";
 
-/**
- * Targets are sized for a gloved thumb against the side of a lorry, which is
- * a harder case than the 44pt guideline was written for.
- */
 const MIN_TARGET = 56;
 
 export function Button({
@@ -33,7 +29,6 @@ export function Button({
   tone?: "primary" | "onDark" | "quiet" | "danger";
   busy?: boolean;
   disabled?: boolean;
-  /** Rendered as a monospaced badge, for actions that commit a known number. */
   count?: number;
   style?: StyleProp<ViewStyle>;
 }) {
@@ -227,7 +222,6 @@ export function Rule({ inset = 0 }: { inset?: number }) {
   return <View style={[styles.rule, { marginLeft: inset }]} />;
 }
 
-/** A screen header with a back affordance and an optional trailing control. */
 export function Header({
   title,
   caption,

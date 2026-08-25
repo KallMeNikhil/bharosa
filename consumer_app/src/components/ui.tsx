@@ -12,10 +12,6 @@ import {
 
 import { color, font, radius, space, type } from "../theme";
 
-/**
- * Controls are sized for a thumb on a phone held one-handed in a shop, so the
- * minimum target is well above the 44pt floor rather than at it.
- */
 const MIN_TARGET = 58;
 
 interface ButtonProps {

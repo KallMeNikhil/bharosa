@@ -4,14 +4,6 @@ import { Animated, Easing, StyleSheet, Text, View } from "react-native";
 import { Mark } from "../components/Logo";
 import { color, space, type } from "../theme";
 
-/**
- * Shown while the typefaces load.
- *
- * It sets no custom font itself, because the reason this screen exists is
- * that the fonts are not ready; naming one here would render a fallback and
- * then visibly swap. The arrow sweeps once through the frame rather than
- * looping, so the screen reads as a handoff completing rather than a wait.
- */
 export function BootScreen() {
   const enter = useRef(new Animated.Value(0)).current;
   const sweep = useRef(new Animated.Value(0)).current;

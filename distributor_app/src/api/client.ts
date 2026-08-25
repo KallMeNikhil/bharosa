@@ -1,14 +1,3 @@
-/**
- * The Bharosa API, as this device talks to it.
- *
- * Unlike the consumer app, which calls one public endpoint anonymously, this
- * device is an actor inside a manufacturer's tenant and every call carries a
- * credential. Nothing here is authentication: the backend's development
- * resolver reads the actor straight out of the credential string. Real tenant
- * authentication replaces `Connection.credential` without changing any call
- * site here, which is the point of keeping it a single opaque field.
- */
-
 export const DEFAULT_BASE_URL =
   process.env.EXPO_PUBLIC_API_BASE_URL ?? "http://192.168.1.3:8000/api/v1";
 
@@ -68,7 +57,6 @@ export interface Connection {
   credential: string;
 }
 
-/** The network was unreachable. Distinct from the server refusing a request. */
 export class OfflineError extends Error {
   constructor() {
     super("Could not reach the server.");
@@ -111,8 +99,7 @@ async function request<T>(
   }
 
   if (!response.ok) {
-    // FastAPI returns `detail` as either a string or a list of validation
-    // objects. Only the string form is worth showing to a storeman.
+
     let detail = `The server refused that (${response.status}).`;
     try {
       const body = (await response.json()) as { detail?: unknown };
@@ -127,13 +114,6 @@ async function request<T>(
   return (await response.json()) as T;
 }
 
-/**
- * Builds the credential the backend's development resolver expects.
- *
- * The device is issued exactly one capability. A scanner that could also mint
- * identities or rotate keys would be a far more valuable thing to steal from a
- * loading bay than one that can only say "this pack moved".
- */
 export function buildCredential(manufacturerId: string, actorId: string): string {
   return `dev:${manufacturerId.trim()}:${actorId.trim()}:RECORD_SUPPLY_CHAIN_EVENT`;
 }
@@ -146,13 +126,6 @@ export function listParticipants(connection: Connection): Promise<Participant[]>
   return request<Participant[]>(connection, "/supply-chain/participants");
 }
 
-/**
- * Finds the identity a scanned serial belongs to.
- *
- * Resolves to null when nothing matches, which is an ordinary outcome rather
- * than an error: an unregistered code is exactly the thing this app exists to
- * surface at the loading bay.
- */
 export async function resolveSerial(
   connection: Connection,
   serial: string,

@@ -61,8 +61,6 @@ const SessionContext = createContext<SessionContextValue | null>(null);
 export function SessionProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session>(readStoredSession);
 
-  // Applied during render rather than in an effect because child effects run
-  // first, and a route's initial fetch would otherwise go out unauthenticated.
   const credential = useMemo(() => {
     const value = buildCredential(session);
     setCredential(value);

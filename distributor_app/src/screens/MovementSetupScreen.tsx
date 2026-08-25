@@ -13,14 +13,6 @@ const ROLE_LABEL = {
   RETAILER: "Retailer",
 } as const;
 
-/**
- * Naming the other end of the movement.
- *
- * The device's own place is filtered out of the list: a movement from a depot
- * to itself is not a movement, and offering it as a choice only creates a way
- * to record nonsense. The filter is on identity rather than on name, so two
- * branches that happen to share a name stay distinct.
- */
 export function MovementSetupScreen({
   kind,
   participants,

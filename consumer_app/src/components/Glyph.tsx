@@ -9,13 +9,6 @@ interface GlyphProps {
   strokeWidth?: number;
 }
 
-/**
- * The mark that carries the result.
- *
- * Each state has a distinct silhouette, not just a distinct colour, so the
- * answer survives a colour-blind reader, a monochrome screenshot, and a phone
- * with the brightness crushed by direct sun.
- */
 export function Glyph({ state, size = 96, color, strokeWidth = 6 }: GlyphProps) {
   const common = {
     stroke: color,
@@ -67,7 +60,6 @@ export function Glyph({ state, size = 96, color, strokeWidth = 6 }: GlyphProps) 
   );
 }
 
-/** The viewfinder frame. Corners only, so the pack stays visible inside it. */
 export function ScanFrame({ size, color }: { size: number; color: string }) {
   const arm = size * 0.22;
   const inset = 3;

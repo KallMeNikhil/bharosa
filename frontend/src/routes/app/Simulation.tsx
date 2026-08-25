@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 
-import { simulation } from "../api/endpoints";
-import type { ScenarioType, SimulationRunDetailView } from "../api/types";
+import { simulation } from "../../api/endpoints";
+import type { ScenarioType, SimulationRunDetailView } from "../../api/types";
 import {
   Badge,
   Button,
@@ -12,14 +12,14 @@ import {
   Field,
   Loading,
   Mono,
+  PageHeader,
   Row,
   Stat,
   Table,
   Timestamp,
-} from "../components/ui";
-import { useAction, useResource } from "../hooks/useResource";
-import { useSession } from "../session/SessionContext";
-import { NoTenant } from "./NoTenant";
+} from "../../components/ui";
+import { useAction, useResource } from "../../hooks/useResource";
+import { useSession } from "../../session/SessionContext";
 
 function formatRate(value: number | null): string {
   return value === null ? "—" : `${(value * 100).toFixed(0)}%`;
@@ -83,16 +83,40 @@ function RunResult({
 
       {evaluation && (
         <>
-          <Row>
-            <Stat label="True positives" value={evaluation.true_positive_count} />
-            <Stat label="False positives" value={evaluation.false_positive_count} tone="bad" />
-            <Stat label="True negatives" value={evaluation.true_negative_count} />
-            <Stat label="False negatives" value={evaluation.false_negative_count} tone="bad" />
-          </Row>
+          <div className="confusion-matrix">
+            <div className="stat stat--good">
+              <span className="stat__label">Predicted fraud · actually fraud</span>
+              <span className="stat__value">{evaluation.true_positive_count}</span>
+              <span className="muted" style={{ fontSize: "0.72rem" }}>
+                True positive
+              </span>
+            </div>
+            <div className="stat stat--bad">
+              <span className="stat__label">Predicted fraud · actually clean</span>
+              <span className="stat__value">{evaluation.false_positive_count}</span>
+              <span className="muted" style={{ fontSize: "0.72rem" }}>
+                False positive
+              </span>
+            </div>
+            <div className="stat stat--bad">
+              <span className="stat__label">Predicted clean · actually fraud</span>
+              <span className="stat__value">{evaluation.false_negative_count}</span>
+              <span className="muted" style={{ fontSize: "0.72rem" }}>
+                False negative — missed fraud
+              </span>
+            </div>
+            <div className="stat stat--good">
+              <span className="stat__label">Predicted clean · actually clean</span>
+              <span className="stat__value">{evaluation.true_negative_count}</span>
+              <span className="muted" style={{ fontSize: "0.72rem" }}>
+                True negative
+              </span>
+            </div>
+          </div>
           <Row>
             <Stat label="Precision" value={formatRate(evaluation.precision)} />
             <Stat label="Recall / detection rate" value={formatRate(evaluation.recall)} />
-            <Stat label="Missed-fraud rate" value={formatRate(evaluation.missed_fraud_rate)} />
+            <Stat label="Missed-fraud rate" value={formatRate(evaluation.missed_fraud_rate)} tone="bad" />
             <Stat
               label="Investigation TP / FP"
               value={`${evaluation.investigation_true_positive_count} / ${evaluation.investigation_false_positive_count}`}
@@ -115,7 +139,7 @@ function RunResult({
         {run.ground_truth.map((entry) => (
           <tr key={entry.id}>
             <td>
-              <Link to={`/identities/${entry.identity_id}`}>
+              <Link to={`/app/identities/${entry.identity_id}`}>
                 <Mono value={entry.identity_id} short />
               </Link>
             </td>
@@ -134,11 +158,11 @@ function RunResult({
 }
 
 export function Simulation() {
-  const { credential, isConfigured, can } = useSession();
+  const { credential, can } = useSession();
   const runSimulation = can("RUN_SIMULATION");
 
-  const catalogue = useResource(() => simulation.catalogue(), [], { enabled: isConfigured });
-  const runs = useResource(() => simulation.list(), [credential], { enabled: isConfigured });
+  const catalogue = useResource(() => simulation.catalogue(), []);
+  const runs = useResource(() => simulation.list(), [credential]);
 
   const [scenarioType, setScenarioType] = useState<ScenarioType>("LEGITIMATE_BASELINE");
   const [identityCount, setIdentityCount] = useState(6);
@@ -160,23 +184,16 @@ export function Simulation() {
     setSelectedRun(detail);
   });
 
-  if (!isConfigured) return <NoTenant />;
-
   const scenarios = catalogue.data ?? [];
   const rows = runs.data ?? [];
 
   return (
     <>
-      <div className="page-head">
-        <div>
-          <h1>Simulation</h1>
-          <p>
-            Runs a deterministic synthetic scenario through the real verification, detection,
-            risk and investigation pipeline, then compares the result against ground truth the
-            simulator recorded independently, before any detector ran.
-          </p>
-        </div>
-      </div>
+      <PageHeader
+        eyebrow="Simulation"
+        title="Simulation"
+        description="Runs a deterministic synthetic scenario through the real verification, detection, risk and investigation pipeline, then compares the result against ground truth the simulator recorded independently, before any detector ran."
+      />
 
       <Card
         title="Run a scenario"

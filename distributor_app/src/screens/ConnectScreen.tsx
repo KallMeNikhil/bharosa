@@ -26,15 +26,6 @@ export interface Draft {
   actorId: string;
 }
 
-/**
- * First run: binding this scanner to a manufacturer.
- *
- * The device is named rather than the person holding it, because a scanner
- * lives at a loading bay and is used by whoever is on shift. An audit trail
- * that pointed at a name would be pointing at whoever last had the phone,
- * which is worse than useless; one that points at "Bay 2 scanner" points at
- * something a supervisor can walk over to.
- */
 export function ConnectScreen({
   onConnected,
 }: {

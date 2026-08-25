@@ -16,15 +16,6 @@ export interface RecordedSummary {
   rejected: number;
 }
 
-/**
- * The receipt.
- *
- * A storeman who has just scanned forty packs needs to know the count landed
- * before they walk away from the bay, and needs it in the same units they
- * were counting in. Queued packs are stated plainly rather than dressed up as
- * success: the device is holding them, that is normal, and saying so is what
- * makes the outbox understandable later.
- */
 export function RecordedScreen({
   summary,
   onDone,

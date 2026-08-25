@@ -1,9 +1,9 @@
 import { Link } from "react-router-dom";
 
-import { identity, intelligence, supplyChain } from "../api/endpoints";
-import { Badge, Card, Empty, ErrorNote, Loading, Mono, Stat, Table, Timestamp } from "../components/ui";
-import { useResource } from "../hooks/useResource";
-import { useSession } from "../session/SessionContext";
+import { identity, intelligence, supplyChain } from "../../api/endpoints";
+import { Badge, Card, Empty, ErrorNote, Loading, Mono, Stat, Table, Timestamp } from "../../components/ui";
+import { useResource } from "../../hooks/useResource";
+import { useSession } from "../../session/SessionContext";
 import { NoTenant } from "./NoTenant";
 
 export function Dashboard() {

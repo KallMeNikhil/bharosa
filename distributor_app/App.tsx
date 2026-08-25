@@ -151,14 +151,6 @@ export default function App() {
     [],
   );
 
-  /**
-   * Adds one scanned pack, then works out what the platform knows about it.
-   *
-   * The line appears immediately and is corrected a moment later, rather than
-   * the storeman waiting on two round trips per pack with a lorry running. A
-   * device with no signal simply never gets past the first state, which is
-   * why `pending` is a status a pack can legitimately be recorded in.
-   */
   const handleCode = useCallback(
     async (raw: string): Promise<ScanOutcome> => {
       const open = consignmentRef.current;
@@ -199,8 +191,7 @@ export default function App() {
         updatePack(serial, { identityId: identity.id, status });
         if (status === "held") notify(Haptics.NotificationFeedbackType.Warning);
       } catch {
-        // Offline, or the server refused the lookup. The pack stays pending
-        // and is resolved again when the outbox drains.
+        // Offline, or the server refused the lookup. The pack stays pending and is resolved again when the outbox drains.
       }
 
       return "added";

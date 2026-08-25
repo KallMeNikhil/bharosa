@@ -6,19 +6,6 @@ import { groupSerial } from "../lib/code";
 import { PACK, color, font, radius, space, type } from "../theme";
 import type { PackStatus } from "../theme";
 
-/**
- * One line of the tally.
- *
- * A delivery challan numbers its line items, and so does this: the numbers
- * are not decoration but the count itself, growing downward as the lorry is
- * unloaded. They run in the gutter on the left behind a ruled edge, exactly
- * where they sit on the paper docket this replaces, so a storeman comparing
- * the two documents is reading the same column in both.
- *
- * Numbering ascends with the scan order and is never renumbered when a line
- * is removed, because the number is a record of what happened rather than a
- * position in a list.
- */
 export function TallyRow({
   index,
   serial,
@@ -30,7 +17,6 @@ export function TallyRow({
   serial: string;
   status: PackStatus;
   onPress?: () => void;
-  /** Animates in. Set only on the line the last scan produced. */
   fresh?: boolean;
 }) {
   const enter = useRef(new Animated.Value(fresh ? 0 : 1)).current;

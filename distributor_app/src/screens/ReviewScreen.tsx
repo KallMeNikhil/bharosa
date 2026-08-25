@@ -7,15 +7,6 @@ import { Button, Card, Eyebrow, Header, Rule } from "../components/ui";
 import { countByStatus, type Consignment } from "../lib/consignment";
 import { MOVEMENT, PACK, color, font, radius, space, type } from "../theme";
 
-/**
- * The last look before the count becomes a record.
- *
- * Committing writes one append-only event per pack onto a hash chain, and
- * nothing on this device can take one back afterwards. That is worth one
- * deliberate screen. Packs that are not on record are surfaced here rather
- * than buried in the list, because setting a carton aside is something to do
- * while the lorry is still at the bay.
- */
 export function ReviewScreen({
   consignment,
   busy,

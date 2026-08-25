@@ -34,14 +34,6 @@ function isoDate(offsetDays: number): string {
   return new Date(Date.now() + offsetDays * 86_400_000).toISOString().slice(0, 10);
 }
 
-/**
- * Drives the documented API surface end to end so that every screen has
- * something real to show: one pack that behaves, one that is diverted and
- * scanned in four cities, and one scanned before it was ever activated.
- *
- * It calls the same endpoints a browser would, in the same order a real
- * operator would. Nothing here reaches past the API into the database.
- */
 export async function runDemoScenario(
   report: (line: ScenarioLine) => void,
 ): Promise<DemoOutcome> {

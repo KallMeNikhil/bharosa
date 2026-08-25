@@ -1,33 +1,23 @@
 import { Link } from "react-router-dom";
 
-import { intelligence } from "../api/endpoints";
-import { Badge, Button, Card, Empty, ErrorNote, Loading, Mono, Table, Timestamp } from "../components/ui";
-import { useResource } from "../hooks/useResource";
-import { useSession } from "../session/SessionContext";
-import { NoTenant } from "./NoTenant";
+import { intelligence } from "../../api/endpoints";
+import { Badge, Button, Card, Empty, ErrorNote, Loading, Mono, PageHeader, Table, Timestamp } from "../../components/ui";
+import { useResource } from "../../hooks/useResource";
+import { useSession } from "../../session/SessionContext";
 
 export function Investigations() {
-  const { credential, isConfigured } = useSession();
-  const incidents = useResource(() => intelligence.listInvestigations(), [credential], {
-    enabled: isConfigured,
-  });
-
-  if (!isConfigured) return <NoTenant />;
+  const { credential } = useSession();
+  const incidents = useResource(() => intelligence.listInvestigations(), [credential]);
 
   const rows = incidents.data ?? [];
 
   return (
     <>
-      <div className="page-head">
-        <div>
-          <h1>Investigations</h1>
-          <p>
-            Each incident cites the evidence it rests on and can be read on the terms it was
-            decided under, because detector output is versioned and never reinterpreted after
-            the fact.
-          </p>
-        </div>
-      </div>
+      <PageHeader
+        eyebrow="Intelligence"
+        title="Investigations"
+        description="Each incident cites the evidence it rests on and can be read on the terms it was decided under, because detector output is versioned and never reinterpreted after the fact."
+      />
 
       <Card title="All incidents" actions={<Button onClick={incidents.reload}>Refresh</Button>}>
         <ErrorNote>{incidents.error}</ErrorNote>
@@ -58,7 +48,7 @@ export function Investigations() {
                 </td>
                 <td>{incident.summary}</td>
                 <td>
-                  <Link to={`/identities/${incident.identity_id}`}>
+                  <Link to={`/app/identities/${incident.identity_id}`}>
                     <Mono value={incident.identity_id} short />
                   </Link>
                 </td>
@@ -70,7 +60,7 @@ export function Investigations() {
                   <Timestamp value={incident.resolved_at} />
                 </td>
                 <td>
-                  <Link to={`/investigations/${incident.id}`}>Review</Link>
+                  <Link to={`/app/investigations/${incident.id}`}>Review</Link>
                 </td>
               </tr>
             ))}
