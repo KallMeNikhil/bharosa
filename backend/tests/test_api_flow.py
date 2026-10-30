@@ -36,6 +36,19 @@ def test_me_reports_the_resolved_actor(api_client, manufacturer):
     assert response.json()["capabilities"] == ["AUTHORIZE_SIGNING"]
 
 
+def test_the_callers_own_manufacturer_can_be_read(api_client, manufacturer):
+    response = api_client.get("/api/v1/manufacturer", headers=_auth(manufacturer["id"]))
+    assert response.status_code == 200
+    assert response.json()["id"] == manufacturer["id"]
+    assert response.json()["name"] == "API Test Co"
+
+
+def test_an_unknown_manufacturer_is_reported_as_missing(api_client, manufacturer):
+    unknown = "00000000-0000-4000-8000-000000000000"
+    response = api_client.get("/api/v1/manufacturer", headers=_auth(unknown))
+    assert response.status_code == 404
+
+
 def test_production_order_authority_does_not_grant_signing(api_client, manufacturer):
     headers = _auth(manufacturer["id"], "CREATE_PRODUCTION_ORDER")
     product = api_client.post(

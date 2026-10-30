@@ -23,6 +23,7 @@ from app.core.tenancy import set_tenant_context
 from app.domains.identity import (
     Batch,
     IdentityIssuanceEvent,
+    Manufacturer,
     ManufacturerKey,
     Product,
     ProductIdentity,
@@ -50,6 +51,25 @@ def whoami(principal: Principal = Depends(current_principal)) -> schemas.ActorVi
         manufacturer_id=principal.manufacturer_id,
         capabilities=sorted(principal.capabilities, key=lambda c: c.value),
     )
+
+
+@router.get("/manufacturer", response_model=schemas.ManufacturerView)
+def own_manufacturer(db: Session = Depends(tenant_db)) -> schemas.ManufacturerView:
+    """The caller's own manufacturer, or 404 if the credential names one that
+    does not exist.
+
+    The development resolver accepts any manufacturer identifier, so this is
+    how a client confirms the tenant is real before writing to it; a write
+    against a missing tenant would otherwise fail on a foreign key. Row-level
+    security limits the read to the caller's own row.
+    """
+    manufacturer = db.execute(select(Manufacturer)).scalar_one_or_none()
+    if manufacturer is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No manufacturer exists with this identifier.",
+        )
+    return schemas.ManufacturerView.model_validate(manufacturer)
 
 
 @router.post(
