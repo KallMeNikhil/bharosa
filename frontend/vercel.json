@@ -6,7 +6,7 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://__BHAROSA_RENDER_BACKEND_HOST__/api/:path*"
+      "destination": "https://bharosa-api-po50.onrender.com/api/:path*"
     },
     {
       "source": "/(.*)",
