@@ -1095,3 +1095,13 @@
   font: var(--text-small);
   animation: drop-in var(--motion-layout) var(--motion-ease-out);
 }
+
+.auth-form__switch {
+  text-align: center;
+  font: var(--text-small);
+  color: var(--color-text-muted);
+}
+
+.auth-form__switch a {
+  font-weight: 650;
+}

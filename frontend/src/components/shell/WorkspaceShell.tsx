@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
 
-import { identity, system } from "../../api/endpoints";
+import { auth, identity, system } from "../../api/endpoints";
 import { useResource } from "../../hooks/useResource";
 import { useSession } from "../../session/SessionContext";
 import { Icon } from "../icons";
@@ -14,6 +14,11 @@ export function WorkspaceShell() {
   const [moreOpen, setMoreOpen] = useState(false);
   const [paletteOpen, setPaletteOpen] = useState(false);
   const health = useResource(() => system.health(), []);
+  // Ends the session on the server too, so the token cannot be reused.
+  const signOut = () => {
+    if (session.token) void auth.signOut().catch(() => undefined);
+    reset();
+  };
   const tenant = useResource(() => identity.ownManufacturer(), [credential]);
   const tenantMissing = Boolean(tenant.error?.startsWith("404"));
   const { pathname } = useLocation();
@@ -106,7 +111,7 @@ export function WorkspaceShell() {
               <span className="ws-sidebar__actor-org">{session.manufacturerName || "Workspace"}</span>
             </span>
           </div>
-          <button type="button" className="button button--ghost ws-signout" onClick={reset}>
+          <button type="button" className="button button--ghost ws-signout" onClick={signOut}>
             <Icon name="signout" size={18} />
             Sign out
           </button>
@@ -151,7 +156,7 @@ export function WorkspaceShell() {
                 This workspace points at a manufacturer that does not exist, so nothing can be
                 saved. The database may have been reset.
               </span>
-              <button type="button" className="button button--secondary" onClick={reset}>
+              <button type="button" className="button button--secondary" onClick={signOut}>
                 Sign in again
               </button>
             </div>
@@ -202,7 +207,7 @@ export function WorkspaceShell() {
                 {link.label}
               </NavLink>
             ))}
-            <button type="button" className="button button--ghost ws-signout" onClick={reset}>
+            <button type="button" className="button button--ghost ws-signout" onClick={signOut}>
               <Icon name="signout" size={18} />
               Sign out
             </button>

@@ -1,8 +1,11 @@
+import base64
+
 import pytest
 
 from app.core.config import Settings
 from app.domains.identity import (
     DevelopmentOnlySigner,
+    MasterKeyDerivedSigner,
     NoProductionSignerConfiguredError,
     Signer,
     get_signer,
@@ -89,3 +92,30 @@ def test_development_signer_never_exposes_private_key_as_raw_bytes_attribute():
     assert set(state.keys()) == {"_private_keys"}
     for value in state["_private_keys"].values():
         assert not isinstance(value, bytes | bytearray | str)
+
+
+MASTER = base64.b64encode(b"m" * 32).decode()
+
+
+def test_get_signer_derives_keys_when_a_master_key_is_configured():
+    for environment in ("development", "production"):
+        settings = Settings(_env_file=None, environment=environment, signing_master_key=MASTER)
+        assert isinstance(get_signer(settings), MasterKeyDerivedSigner)
+
+
+def test_derived_keys_survive_a_new_signer_instance():
+    first = MasterKeyDerivedSigner(b"m" * 32)
+    key = first.generate_key()
+    signature = MasterKeyDerivedSigner(b"m" * 32).sign(key.key_handle, b"payload")
+    assert Signer.verify(key.public_key, b"payload", signature)
+
+
+def test_a_different_master_key_cannot_sign_for_an_existing_key():
+    key = MasterKeyDerivedSigner(b"m" * 32).generate_key()
+    signature = MasterKeyDerivedSigner(b"x" * 32).sign(key.key_handle, b"payload")
+    assert not Signer.verify(key.public_key, b"payload", signature)
+
+
+def test_a_short_master_key_is_refused():
+    with pytest.raises(ValueError):
+        MasterKeyDerivedSigner(b"short")

@@ -32,33 +32,38 @@ vocabulary.
 
 ---
 
-## 2. Authentication, and what it is not
+## 2. Authentication
 
-> **This is not authentication yet, and must not be described as such.**
+Every internal route takes a bearer token:
 
-The roadmap places tenant authentication and RBAC in M8. The frontend needs
-authenticated, tenant-scoped endpoints before then. Rather than either
-blocking the frontend or quietly building M8's authentication early, the API
-resolves a credential into an actor through a `PrincipalResolver` interface
-whose only current implementation reads the actor straight out of the
-credential and verifies nothing.
+```
+Authorization: Bearer bt_...
+```
 
-This mirrors the signer abstraction exactly, including the factory-level
-guard: requesting a resolver in a production environment raises rather than
-falling back. The interface is what routes depend on, so replacing the
-implementation with real authentication changes no calling code.
+Tokens come from the account routes below and last two weeks. The account that
+registered a manufacturer is its owner and holds every capability.
 
-### Credential format
+| Method | Path | Body | Returns |
+|---|---|---|---|
+| `POST` | `/auth/register` | `company_name`, `email`, `password` (10+ characters), optional `display_name` | `201` with `token`, `expires_at`, `account`, `manufacturer`; `409` if the email is taken |
+| `POST` | `/auth/sign-in` | `email`, `password` | `200` with the same shape; `401` for a wrong email or password, with one message for both |
+| `POST` | `/auth/sign-out` | none, uses the bearer token | `204`; the token stops working |
+
+Registration and sign-in are rate-limited per client and answer `429` when
+exceeded.
+
+### Development credential
+
+In `development` and `test` only, a development credential stands in for an
+account:
 
 ```
 Authorization: Bearer dev:<manufacturer_id>:<actor_id>:<CAPABILITY,CAPABILITY>
 ```
 
-`*` in the capability position grants every capability. Example:
-
-```
-Authorization: Bearer dev:3f1c...:alice:CREATE_PRODUCTION_ORDER,AUTHORIZE_SIGNING
-```
+`*` in the capability position grants every capability. It verifies nothing,
+which is the point: tests and local tools can act as any actor. Any other
+environment answers it with `401`.
 
 ### Capabilities
 
@@ -140,6 +145,7 @@ drive unbounded writes through a public endpoint.
 | Method | Path | Capability |
 |---|---|---|
 | `GET` | `/me` | any |
+| `GET` | `/manufacturer` | any; the caller's own manufacturer, `404` if it does not exist |
 | `POST` | `/manufacturers` | none — non-production only |
 | `POST` | `/keys` | `MANAGE_KEYS` |
 | `GET` | `/keys` | any |

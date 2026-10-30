@@ -83,6 +83,10 @@ class CrossManufacturerKeyMismatchError(ValueError):
         )
 
 
+class KeyHandleMismatchError(ValueError):
+    """The key handle given does not produce signatures for this key."""
+
+
 class KeyNotEligibleForSigningError(ValueError):
     def __init__(self, key_version: int, status: KeyStatus) -> None:
         self.key_version = key_version
@@ -415,7 +419,16 @@ def sign_identity(
         issued_at=signed_at.date(),
     )
     canonical_payload = build_canonical_payload(fields)
-    signature = signer.sign(key_handle, canonical_payload)
+    # A handle that is unknown, or that belongs to another key, must not leave
+    # an identity carrying a signature its own key cannot verify.
+    try:
+        signature = signer.sign(key_handle, canonical_payload)
+    except ValueError as exc:
+        raise KeyHandleMismatchError("This key handle is not recognised.") from exc
+    if not signer.verify(manufacturer_key.public_key, canonical_payload, signature):
+        raise KeyHandleMismatchError(
+            "This key handle does not belong to the selected signing key."
+        )
 
     previous_state = identity.lifecycle_state
     identity.manufacturer_key_id = manufacturer_key.id

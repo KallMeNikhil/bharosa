@@ -396,3 +396,17 @@ export interface SimulationRunDetailView extends SimulationRunView {
   ground_truth: GroundTruthEntryView[];
   latest_evaluation: SimulationEvaluationView | null;
 }
+
+export interface AccountView {
+  id: string;
+  email: string;
+  display_name: string | null;
+  role: string;
+}
+
+export interface SessionView {
+  token: string;
+  expires_at: string;
+  account: AccountView;
+  manufacturer: ManufacturerView;
+}

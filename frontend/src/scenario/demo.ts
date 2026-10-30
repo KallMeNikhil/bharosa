@@ -46,6 +46,7 @@ export async function runDemoScenario(
   step("Onboarding a manufacturer");
   const manufacturer = await identity.createManufacturer(manufacturerName);
   const session: Session = {
+    token: "",
     manufacturerId: manufacturer.id,
     manufacturerName,
     actorId: ACTOR_ID,

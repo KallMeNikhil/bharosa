@@ -50,10 +50,9 @@ export function Settings() {
 
         <Card title="Authentication" wide>
           <p className="muted">
-            This workspace currently uses development credential resolution as a stand-in for
-            authentication — the server verifies nothing about who you claim to be, but
-            capability checks are real and enforced server-side. A production authentication
-            provider replaces this in a later milestone.
+            {session.token
+              ? "You are signed in with your account. Each session lasts two weeks, and signing out ends it on the server as well as on this device. Every capability check is enforced server-side."
+              : "This development session acts as a manufacturer without an account. Development sessions are refused by the public deployment."}
           </p>
         </Card>
       </div>

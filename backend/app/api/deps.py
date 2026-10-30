@@ -10,18 +10,16 @@ from app.core.authorization import ActorContext, Capability, CapabilityNotHeldEr
 from app.core.config import Settings, get_settings
 from app.core.database import get_db
 from app.core.principal import (
+    DEVELOPMENT_CREDENTIAL_PREFIX,
+    DEVELOPMENT_ENVIRONMENTS,
     MalformedCredentialError,
     Principal,
-    PrincipalResolver,
     get_principal_resolver,
 )
 from app.core.tenancy import set_tenant_context
+from app.domains.accounts import resolve_session
 
 BEARER_PREFIX = "bearer "
-
-
-def principal_resolver(settings: Settings = Depends(get_settings)) -> PrincipalResolver:
-    return get_principal_resolver(settings)
 
 
 def _credential(request: Request) -> str | None:
@@ -35,19 +33,41 @@ def _credential(request: Request) -> str | None:
 
 def current_principal(
     request: Request,
-    resolver: PrincipalResolver = Depends(principal_resolver),
+    settings: Settings = Depends(get_settings),
+    db: Session = Depends(get_db),
 ) -> Principal:
-    try:
-        principal = resolver.resolve(_credential(request))
-    except MalformedCredentialError as exc:
+    """The actor behind this request.
+
+    A session token from signing in is accepted everywhere. A development
+    credential is accepted only in development and test, where it lets the
+    console and the test suite act as any actor without an account.
+    """
+    credential = _credential(request)
+    if not credential:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail=str(exc)
-        ) from exc
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="This endpoint requires an authenticated actor.",
+        )
+
+    if credential.startswith(f"{DEVELOPMENT_CREDENTIAL_PREFIX}:"):
+        if settings.environment not in DEVELOPMENT_ENVIRONMENTS:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Development credentials are not accepted here. Sign in instead.",
+            )
+        try:
+            principal = get_principal_resolver(settings).resolve(credential)
+        except MalformedCredentialError as exc:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED, detail=str(exc)
+            ) from exc
+    else:
+        principal = resolve_session(db, credential)
 
     if principal is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="This endpoint requires an authenticated actor.",
+            detail="Your session has ended or is not valid. Sign in again.",
         )
     return principal
 

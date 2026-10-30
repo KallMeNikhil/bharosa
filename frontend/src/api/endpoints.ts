@@ -26,6 +26,7 @@ import type {
   ScenarioType,
   SimulationEvaluationView,
   SimulationRunDetailView,
+  SessionView,
   SimulationRunView,
   SupplyChainEventType,
   SupplyChainEventView,
@@ -38,6 +39,14 @@ import type {
 export const system = {
   health: () => request<{ status: string }>("/health", { anonymous: true }),
   ready: () => request<{ status: string }>("/ready", { anonymous: true }),
+};
+
+export const auth = {
+  register: (body: { company_name: string; email: string; password: string; display_name?: string }) =>
+    request<SessionView>("/auth/register", { method: "POST", body, anonymous: true }),
+  signIn: (body: { email: string; password: string }) =>
+    request<SessionView>("/auth/sign-in", { method: "POST", body, anonymous: true }),
+  signOut: () => request<void>("/auth/sign-out", { method: "POST" }),
 };
 
 export interface VerifyRequestBody {
@@ -55,7 +64,7 @@ export const publicSurface = {
 };
 
 export const identity = {
-  me: () => request<ActorView>("/me"),
+  me: (credential?: string) => request<ActorView>("/me", { credential }),
 
   ownManufacturer: (credential?: string) =>
     request<ManufacturerView>("/manufacturer", { credential }),

@@ -115,4 +115,63 @@ describe("App", () => {
       expect(body.digital_link).toContain("/01/09506000134352/21/A1?bhs=abcd");
     });
   });
+
+  describe("accounts", () => {
+    afterEach(() => {
+      vi.unstubAllGlobals();
+      window.localStorage.clear();
+    });
+
+    const sessionView = {
+      token: "bt_test",
+      expires_at: new Date(Date.now() + 86_400_000).toISOString(),
+      account: { id: "a-1", email: "owner@example.com", display_name: null, role: "OWNER" },
+      manufacturer: { id: "mfr-1", name: "Kisan Crop Sciences", status: "ACTIVE", created_at: "" },
+    };
+
+    function stubApi() {
+      const calls: { url: string; init?: RequestInit }[] = [];
+      vi.stubGlobal(
+        "fetch",
+        vi.fn(async (url: string, init?: RequestInit) => {
+          calls.push({ url, init });
+          if (url.includes("/auth/")) return new Response(JSON.stringify(sessionView), { status: 200 });
+          if (url.endsWith("/me")) {
+            return new Response(
+              JSON.stringify({ actor_id: "owner@example.com", manufacturer_id: "mfr-1", capabilities: ["MANAGE_KEYS"] }),
+              { status: 200 },
+            );
+          }
+          return new Response(JSON.stringify([]), { status: 200 });
+        }),
+      );
+      return calls;
+    }
+
+    it("signs in with an email and password and keeps the session token", async () => {
+      const calls = stubApi();
+      await renderAt("/app/login");
+
+      fireEvent.change(screen.getByPlaceholderText("you@company.com"), { target: { value: "owner@example.com" } });
+      fireEvent.change(document.querySelector('input[type="password"]') as HTMLInputElement, {
+        target: { value: "correct horse 42" },
+      });
+      await act(async () => {
+        fireEvent.click(screen.getByRole("button", { name: "Sign in" }));
+      });
+
+      expect(await screen.findAllByText("Kisan Crop Sciences")).not.toHaveLength(0);
+      expect(calls.some((call) => call.url.endsWith("/auth/sign-in"))).toBe(true);
+      const stored = JSON.parse(window.localStorage.getItem("bharosa.session") ?? "{}");
+      expect(stored.token).toBe("bt_test");
+      const workspaceCall = calls.find((call) => call.url.includes("/products"));
+      expect((workspaceCall?.init?.headers as Record<string, string>).Authorization).toBe("Bearer bt_test");
+    });
+
+    it("offers registration from the sign-in page", async () => {
+      await renderAt("/app/register");
+      expect(screen.getByRole("heading", { name: "Create your company's account" })).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: "Create account" })).toBeDisabled();
+    });
+  });
 });

@@ -1,0 +1,41 @@
+# The Bharosa API on Render. Connect this repository in Render
+# (New > Blueprint), then fill in the values marked sync: false.
+#
+# The database is not defined here: it is a managed Postgres with PostGIS (Neon
+# is the tested choice), bootstrapped once with infra/production/*.sql.
+
+services:
+  - type: web
+    name: bharosa-api
+    runtime: docker
+    rootDir: backend
+    dockerfilePath: ./Dockerfile
+    # The free plan sleeps after a while idle, so the first request after that
+    # takes about a minute. Move to "starter" to keep it always on.
+    plan: free
+    healthCheckPath: /api/v1/health
+    # Migrations run as bharosa_owner before the API starts, so a deploy can
+    # never serve code against an older schema. Forwarded headers are trusted
+    # because the API is only reached through Render's proxy, and the rate
+    # limiters key on the visitor's address rather than the proxy's.
+    dockerCommand: >-
+      sh -c "alembic upgrade head &&
+      uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}
+      --proxy-headers --forwarded-allow-ips='*'"
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: LOG_LEVEL
+        value: INFO
+      - key: DATABASE_URL
+        sync: false
+      - key: MIGRATION_DATABASE_URL
+        sync: false
+      - key: VERIFICATION_DATABASE_URL
+        sync: false
+      - key: SIGNING_MASTER_KEY
+        sync: false
+      - key: CLIENT_REFERENCE_SALT
+        generateValue: true
+      - key: DIGITAL_LINK_HOST
+        sync: false

@@ -14,6 +14,7 @@ import { Keys as WsKeys } from "./routes/app/Keys";
 import { Login } from "./routes/app/Login";
 import { Overview } from "./routes/app/Overview";
 import { Products } from "./routes/app/Products";
+import { Register } from "./routes/app/Register";
 import { Risk } from "./routes/app/Risk";
 import { Settings } from "./routes/app/Settings";
 import { Simulation as WsSimulation } from "./routes/app/Simulation";
@@ -63,6 +64,7 @@ function App() {
 
         <Route element={<AuthShell />}>
           <Route path="app/login" element={<Login />} />
+          <Route path="app/register" element={<Register />} />
         </Route>
 
         <Route path="app" element={<RequireSession />}>
@@ -83,6 +85,8 @@ function App() {
           <Route path="help" element={<Help />} />
         </Route>
 
+        {/* The internal test console exists in development builds only. */}
+        {import.meta.env.DEV && (
         <Route path="dev" element={<DevLayout />}>
           <Route index element={<Dashboard />} />
           <Route path="session" element={<SessionRoute />} />
@@ -97,6 +101,7 @@ function App() {
           <Route path="simulation" element={<Simulation />} />
           <Route path="console" element={<ApiConsole />} />
         </Route>
+        )}
 
         <Route path="*" element={<NotFound />} />
       </Routes>

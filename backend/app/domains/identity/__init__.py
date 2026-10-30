@@ -48,6 +48,7 @@ from app.domains.identity.service import (
     AuthenticityResult,
     CrossManufacturerKeyMismatchError,
     IssuedKey,
+    KeyHandleMismatchError,
     KeyNotEligibleForSigningError,
     UndatedBatchError,
     issue_manufacturer_key,
@@ -62,7 +63,12 @@ from app.domains.identity.service import (
     transition_identity,
     verify_cryptographic_authenticity,
 )
-from app.domains.identity.signer import DevelopmentOnlySigner, GeneratedKey, Signer
+from app.domains.identity.signer import (
+    DevelopmentOnlySigner,
+    GeneratedKey,
+    MasterKeyDerivedSigner,
+    Signer,
+)
 
 __all__ = [
     "Manufacturer",
@@ -94,6 +100,7 @@ __all__ = [
     "SERIAL_LENGTH",
     "Signer",
     "DevelopmentOnlySigner",
+    "MasterKeyDerivedSigner",
     "GeneratedKey",
     "get_signer",
     "NoProductionSignerConfiguredError",
@@ -117,6 +124,7 @@ __all__ = [
     "verify_cryptographic_authenticity",
     "AuthenticityResult",
     "CrossManufacturerKeyMismatchError",
+    "KeyHandleMismatchError",
     "KeyNotEligibleForSigningError",
     "UndatedBatchError",
     "revoke_manufacturer_key",

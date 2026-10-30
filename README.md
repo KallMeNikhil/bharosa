@@ -102,8 +102,8 @@ hardening is not yet started.
 Bharosa operates at whatever assurance level has actually been implemented,
 never one implied by its design. Today that is **Level 1 (cryptographic
 identity)** plus behavioural evidence collection. Physical binding, real
-KMS/HSM signing, tenant authentication, and external anchoring of evidence
-hashes are all designed and none are built, so no evidence-integrity or
+KMS/HSM signing, and external anchoring of evidence hashes are all designed and
+none are built, so no evidence-integrity or
 physical-authenticity claim should be made on the platform's behalf yet.
 
 ### Running it
@@ -118,17 +118,13 @@ docker compose -f infra/docker-compose.yml up
 The console is then at `http://localhost:5173` and proxies `/api` to the backend
 on port 8000, so nothing needs CORS.
 
-[`docs/how_to_setup_on_docker.md`](docs/how_to_setup_on_docker.md) covers what each service does,
-how to run the tests and a psql shell, how to reset the database, and how to
-point the mobile apps at the API. It also describes running the backend
-directly on your machine if you prefer that to a container.
-
-Nothing in the console is reachable until a manufacturer exists, so start at
-**Tenant and actor** and run the demonstration scenario. It drives the whole
-platform through the public API — production, custody, four scans of a diverted
-pack seconds apart, detection, risk correlation and an investigation — and
-leaves every screen with real data on it. Every request the client makes is
-recorded in the **API console**, with the exact body sent and returned.
+To get in, create a company account from the sign-in page. Locally there is a
+quicker route: open **Development tools** on the sign-in page and seed the
+demonstration tenant. It drives the whole platform through the public API —
+production, custody, four scans of a diverted pack seconds apart, detection,
+risk correlation and an investigation — and leaves every screen with real data
+on it. The development tools and the internal `/dev` console exist only in
+development builds.
 
 The API surface is documented in [`docs/api-spec.md`](docs/api-spec.md), which
 is the authority the web client is written against. Interactive docs are at

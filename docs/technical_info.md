@@ -3,9 +3,8 @@
 Everything an engineer needs to understand how this platform is put together,
 what it currently does, and — just as importantly — what it does not do yet.
 
-For getting it running, see
-[`how_to_setup_on_docker.md`](how_to_setup_on_docker.md). For the exact request
-and response shapes, see [`api-spec.md`](api-spec.md).
+For getting it running, see the README. For the exact request and response
+shapes, see [`api-spec.md`](api-spec.md).
 
 ---
 
@@ -174,7 +173,10 @@ line.
 
 Signing uses Ed25519 over a canonical payload (BHIP1). Key handles are returned
 **once**, at issue or rotation, and never again — so anything that needs to sign
-must hold a handle it was given, not one it can look up.
+must hold a handle it was given, not one it can look up. Outside development,
+each key is derived from `SIGNING_MASTER_KEY` and its handle, so keys survive
+restarts and nothing secret is stored; the API will not start in production
+without that key.
 
 Pack codes are published as GS1 Digital Links. The serial travels in a `bhs`
 extension parameter because it is longer than GS1's own serial component
@@ -316,29 +318,30 @@ different people. The distributor scanner, for instance, holds exactly one:
 `RECORD_SUPPLY_CHAIN_EVENT`. A scanner stolen from a loading bay is worth no
 more than the movements it can fabricate.
 
-### ⚠ There is no authentication
+### Authentication
 
-`DevelopmentOnlyPrincipalResolver` reads the actor **straight out of the
-credential string**:
+People sign in with an email and password. Registering creates a manufacturer
+and makes the person who registered its owner, with every capability; there is
+no way yet to invite others into an existing manufacturer. Passwords are stored
+as scrypt hashes.
 
-```
-dev:<manufacturer_id>:<actor_id>:<CAPABILITY,CAPABILITY>
-```
+Signing in returns a session token (`bt_…`) that lasts two weeks. Only a hash of
+it is stored, it is checked on every request, and signing out revokes it on the
+server. Accounts and sessions are platform tables rather than tenant ones,
+since an account has to be found before its tenant is known; each account
+names the one manufacturer its sessions are scoped to.
 
-This is not weak authentication. It is a stand-in that exists so the API
-surface and the clients could be built against a real actor and a real tenant
-scope before authentication itself is built. A factory-level guard makes it
-unreachable outside `development` and `test`; requesting it in any other
-environment raises rather than falling through.
-
-**Anyone who can reach the API can claim to be any actor in any tenant.** Do not
-expose this build to an untrusted network.
+In `development` and `test` the API also accepts a development credential,
+`dev:<manufacturer_id>:<actor_id>:<CAPABILITY,CAPABILITY>`, which is read
+straight off the string and verifies nothing. It lets the test suite and the
+local tools act as any actor without an account. Every other environment
+refuses it.
 
 ---
 
 ## 14. API surface
 
-49 endpoints under `/api/v1` (27 `GET`, 22 `POST`), excluding FastAPI's own
+53 endpoints under `/api/v1` (28 `GET`, 25 `POST`), excluding FastAPI's own
 documentation routes:
 
 | Group | Count |
@@ -349,7 +352,8 @@ documentation routes:
 | `keys` | 5 |
 | `investigations` | 5 |
 | `products`, `batches` | 4 |
-| `health`, `ready`, `verify`, `me`, `manufacturers`, `custody-graph` | 6 |
+| `auth` | 3 |
+| `health`, `ready`, `verify`, `me`, `manufacturer`, `manufacturers`, `custody-graph` | 7 |
 
 Interactive documentation is at `/docs` while the server runs.
 [`api-spec.md`](api-spec.md) is the authority the web console is written
@@ -365,9 +369,9 @@ React 18 + TypeScript + Vite, hand-written CSS, no component library.
 Fourteen route modules covering every area of the platform. Vite proxies `/api` to the backend, so the
 browser makes same-origin requests and the backend needs no CORS middleware.
 
-Every request is recorded in an in-app **API console** showing the exact body
-sent and returned — the console doubles as the tool for exercising the backend
-by hand.
+Development builds add an internal console at `/dev` that records every
+request with the exact body sent and returned, for exercising the backend by
+hand. Production builds leave it out.
 
 ### Consumer app — `consumer_app/`
 
@@ -426,8 +430,8 @@ deterministic simulation and evaluation, and three clients.
 
 | Gap | Consequence |
 | --- | --- |
-| Tenant authentication | The dev principal resolver is not authentication |
-| KMS / HSM signing | Keys are handled in software |
+| Team accounts | One owner per manufacturer; no invitations, roles, password reset or email verification yet |
+| KMS / HSM signing | Keys are derived in software from one master secret |
 | Physical binding | Nothing ties a digital identity to a specific physical object beyond a printed code |
 | External evidence anchoring | Hash chains are tamper-evident within this database only |
 | Distributed rate limiting | The token bucket is per process |

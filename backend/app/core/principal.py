@@ -23,6 +23,7 @@ real tenant scope before authentication itself is built.
 """
 
 _DEVELOPMENT_ENVIRONMENTS = frozenset({"development", "test"})
+DEVELOPMENT_ENVIRONMENTS = _DEVELOPMENT_ENVIRONMENTS
 
 DEVELOPMENT_CREDENTIAL_PREFIX = "dev"
 

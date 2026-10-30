@@ -6,6 +6,9 @@ import { CAPABILITIES } from "../api/types";
 import type { Capability } from "../api/types";
 
 export interface Session {
+  // Set by signing in. Without it, development builds fall back to a
+  // development credential built from the fields below.
+  token: string;
   manufacturerId: string;
   manufacturerName: string;
   actorId: string;
@@ -15,6 +18,7 @@ export interface Session {
 const STORAGE_KEY = "bharosa.session";
 
 const EMPTY_SESSION: Session = {
+  token: "",
   manufacturerId: "",
   manufacturerName: "",
   actorId: "",
@@ -22,6 +26,8 @@ const EMPTY_SESSION: Session = {
 };
 
 function buildCredential(session: Session): string | null {
+  if (session.token) return session.token;
+  if (!import.meta.env.DEV) return null;
   if (!session.manufacturerId || !session.actorId) return null;
   const capabilities = session.capabilities.length === CAPABILITIES.length
     ? "*"
@@ -35,6 +41,7 @@ function readStoredSession(): Session {
     if (!raw) return EMPTY_SESSION;
     const parsed = JSON.parse(raw) as Partial<Session>;
     return {
+      token: parsed.token ?? "",
       manufacturerId: parsed.manufacturerId ?? "",
       manufacturerName: parsed.manufacturerName ?? "",
       actorId: parsed.actorId ?? "",

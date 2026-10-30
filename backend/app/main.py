@@ -9,6 +9,7 @@ from app.domains.identity import (
     CanonicalPayloadError,
     CrossManufacturerKeyMismatchError,
     IllegalLifecycleTransitionError,
+    KeyHandleMismatchError,
     KeyNotEligibleForSigningError,
     MalformedSerialError,
     UndatedBatchError,
@@ -29,6 +30,9 @@ from app.domains.verification import InvalidCoordinateError, MalformedDigitalLin
 
 settings = get_settings()
 
+if problems := settings.production_problems():
+    raise RuntimeError("Refusing to start in production: " + " ".join(problems))
+
 app = FastAPI(title=settings.app_name, version="0.1.0")
 
 app.include_router(api_router, prefix=settings.api_v1_prefix)
@@ -47,6 +51,7 @@ BAD_REQUEST_ERRORS = (
     InvalidAuthorizationValidityError,
     InvalidCoordinateError,
     InvalidTerritoryGeometryError,
+    KeyHandleMismatchError,
     MalformedDigitalLinkError,
     MalformedSerialError,
     NoEvidenceToAssessError,
