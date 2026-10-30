@@ -1,5 +1,3 @@
-/* Reset, element defaults and layout utilities. */
-
 *,
 *::before,
 *::after {
@@ -145,8 +143,6 @@ hr {
   top: var(--space-3);
 }
 
-/* Text helpers */
-
 .muted {
   color: var(--color-text-muted);
 }
@@ -177,8 +173,6 @@ hr {
   font: var(--text-display);
   letter-spacing: var(--tracking-tight);
 }
-
-/* Layout */
 
 .container {
   width: 100%;

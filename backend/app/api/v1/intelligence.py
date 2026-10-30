@@ -243,11 +243,6 @@ def custody_graph(
     actor: ActorContext = Depends(current_actor),
     db: Session = Depends(tenant_db),
 ) -> schemas.CustodyGraphView:
-    """A custody graph derived from the event log at request time.
-
-    Nothing is cached or stored. Asking twice recomputes it, which is the
-    point: the event log stays the only account of what happened.
-    """
     for identity_id in identity_ids:
         _identity(db, actor, identity_id)
 

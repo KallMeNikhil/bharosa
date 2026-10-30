@@ -72,7 +72,7 @@ class IssuedKey:
 
 
 class CrossManufacturerKeyMismatchError(ValueError):
-    def __init__(self, identity_manufacturer_id, key_manufacturer_id) -> None:  # noqa: ANN001
+    def __init__(self, identity_manufacturer_id, key_manufacturer_id) -> None:
         self.identity_manufacturer_id = identity_manufacturer_id
         self.key_manufacturer_id = key_manufacturer_id
         super().__init__(
@@ -84,7 +84,7 @@ class CrossManufacturerKeyMismatchError(ValueError):
 
 
 class KeyHandleMismatchError(ValueError):
-    """The key handle given does not produce signatures for this key."""
+    pass
 
 
 class KeyNotEligibleForSigningError(ValueError):
@@ -205,14 +205,6 @@ def _record_key_event(
 def register_manufacturer(
     db: Session, *, name: str, manufacturer_id: uuid.UUID | None = None
 ) -> Manufacturer:
-    """Onboard a manufacturer.
-
-    The identifier is accepted rather than generated so that the caller can
-    establish the tenant scope before the row exists. Row-level security
-    filters the row a RETURNING clause reads back, so a session that inserts a
-    manufacturer it is not scoped to cannot read back even the row it just
-    wrote.
-    """
     manufacturer = Manufacturer(
         id=manufacturer_id or uuid.uuid4(),
         name=name,
@@ -419,8 +411,6 @@ def sign_identity(
         issued_at=signed_at.date(),
     )
     canonical_payload = build_canonical_payload(fields)
-    # A handle that is unknown, or that belongs to another key, must not leave
-    # an identity carrying a signature its own key cannot verify.
     try:
         signature = signer.sign(key_handle, canonical_payload)
     except ValueError as exc:

@@ -1,5 +1,3 @@
-# Host modules are built for the host's platform and must never reach a Linux
-# image; the container installs its own from the lockfile.
 node_modules/
 
 dist/

@@ -26,12 +26,6 @@ class EvaluationResult:
 
 
 def evaluate(db: Session, *, generated: list[GeneratedIdentity]) -> EvaluationResult:
-    """Compare independently-recorded ground truth against the real pipeline's output.
-
-    Ground truth is read from what the generator/injector deliberately did,
-    never from detector output, so a detector that fails to fire cannot
-    retroactively make its own miss disappear from the count.
-    """
     true_positive = false_positive = true_negative = false_negative = 0
     investigation_true_positive = investigation_false_positive = 0
     detector_breakdown: dict[str, dict[str, int]] = {}

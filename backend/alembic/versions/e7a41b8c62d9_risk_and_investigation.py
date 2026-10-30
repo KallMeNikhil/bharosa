@@ -1,29 +1,3 @@
-"""risk assessment and investigation
-
-Revision ID: e7a41b8c62d9
-Revises: d5b93c1a7e08
-Create Date: 2026-08-18 14:47:19.554023
-
-risk_assessment stores the accumulated log-odds together with the prior it
-started from and the ruleset version that produced it, so an old assessment
-can always be read back on the terms it was made under. Re-assessing under a
-new ruleset writes a new row; nothing here is ever recomputed in place.
-
-risk_assessment_contribution records what each piece of evidence actually
-contributed after within-family discounting, alongside the benign explanation
-for that signal type. Investigators are shown the alternative reading of the
-evidence next to the incriminating one by construction, rather than it being
-left to a UI to remember.
-
-investigation_fraud_incident carries a deferred constraint trigger requiring
-at least one evidence citation, mirroring detection_evidence. The service
-already refuses to build one without evidence; this makes the same statement
-to anything that writes to the database directly.
-
-Incident status is a projection over investigation_incident_event, which is
-append-only and hash-chained like every other event table, so the history of
-who moved an incident to which state and why cannot be quietly rewritten.
-"""
 from __future__ import annotations
 
 from collections.abc import Sequence

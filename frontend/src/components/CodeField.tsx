@@ -1,12 +1,3 @@
-// The home hero's background: pack codes moving through custody.
-//
-// Four-character groups from the serial alphabet drift along lanes, the way
-// packs move from manufacturer to retailer. A checkpoint sweeps across and
-// marks what it reads. A few codes exist twice; when either copy is read, both
-// flare clay at once, which is the thing Bharosa looks for: one code, two
-// places. The pointer is an inspection lens, a click runs a check
-// outward from where it lands, and scrolling gives the lanes depth and pace.
-
 import { useEffect, useRef } from "react";
 
 const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
@@ -113,7 +104,6 @@ export function CodeField({ className = "" }: { className?: string }) {
         })),
       }));
 
-      // Seed the copies: one code placed on two different lanes.
       links.clear();
       for (let pair = 0; pair < CLONE_PAIRS && lanes.length > 4; pair++) {
         const a = lanes[2 + ((pair * 5) % (lanes.length - 3))].tokens;
@@ -166,7 +156,6 @@ export function CodeField({ className = "" }: { className?: string }) {
         lane.shift = (lane.shift + lane.speed * (1 + scrollBoost) * dt + span) % span;
         lane.tokens.forEach((token, index) => {
           const x = ((index * pitch + lane.shift) % span) - pitch;
-          // Re-entering at the edge: a fresh pack, unless it is one of a pair.
           if (Math.abs(x - token.x) > pitch * 2 && token.pair < 0) {
             token.text = group();
             token.read = 0;
@@ -209,7 +198,6 @@ export function CodeField({ className = "" }: { className?: string }) {
       ctx.font = FONT;
       ctx.textBaseline = "middle";
 
-      // A broad, slow light the codes are read under.
       const lx = width * (0.78 + 0.07 * Math.sin(time * 0.13));
       const ly = height * (0.4 + 0.12 * Math.sin(time * 0.09 + 1));
       const sigma = Math.max(width, height) * 0.34;
@@ -220,7 +208,6 @@ export function CodeField({ className = "" }: { className?: string }) {
       ctx.fillStyle = glow;
       ctx.fillRect(0, 0, width, height);
 
-      // The checkpoint: a soft, uneven smear of light rather than a ruled line.
       const scan = scanX();
       if (scan >= 0) {
         const slice = 24;
@@ -264,11 +251,8 @@ export function CodeField({ className = "" }: { className?: string }) {
             color = mix(color, CLAY, flare);
             alpha = Math.max(alpha, 0.85 * flare * intro);
           }
-          // The headline sits on the left and the navigation along the top, so
-          // everything quietens there.
           alpha *= quiet(cx) * clearTop(token.y);
 
-          // The lens nudges codes aside, as if they were being looked at.
           const push = lens * lens * 7 * Math.sign(token.y - pointer.sy || 1);
           const text =
             token.scramble > 0 && !reduce

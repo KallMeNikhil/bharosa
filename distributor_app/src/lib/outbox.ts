@@ -35,8 +35,6 @@ export interface FlushResult {
   sent: number;
   rejected: number;
   offline: boolean;
-  // The session has ended. Nothing is rejected for it: the movements wait,
-  // like they do offline, until someone signs the device in again.
   signedOut: boolean;
 }
 
@@ -53,7 +51,6 @@ async function writeOutbox(entries: OutboxEntry[]): Promise<void> {
   try {
     await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
   } catch {
-    // A non-JSON error body tells us nothing better than the status did.
   }
 }
 

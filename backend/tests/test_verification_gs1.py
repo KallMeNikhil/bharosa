@@ -99,10 +99,4 @@ def test_build_digital_link_rejects_an_invalid_gtin():
 
 
 def test_bharosa_serial_exceeds_the_gs1_serial_component_limit():
-    """The frozen 128-bit serial cannot live in AI 21, which caps at 20 characters.
-
-    This is why the serial rides in an extension parameter instead. If this
-    assertion ever fails, the serial has been shortened below the entropy floor
-    the architecture freezes.
-    """
     assert len(SERIAL) > 20

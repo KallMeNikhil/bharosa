@@ -95,7 +95,6 @@ def register(
     settings: Settings = Depends(get_settings),
     limiter: RateLimiter = Depends(get_auth_rate_limiter),
 ) -> SessionView:
-    """Create a manufacturer and its owner account, and sign the owner in."""
     _throttle(request, limiter)
     try:
         signed_in = register_account(

@@ -54,7 +54,6 @@ export interface SupplyChainEvent {
 
 export interface Connection {
   baseUrl: string;
-  // A session token from signing in. Empty only for the sign-in call itself.
   credential: string;
 }
 
@@ -106,13 +105,11 @@ async function request<T>(
   }
 
   if (!response.ok) {
-
     let detail = `The server refused that (${response.status}).`;
     try {
       const body = (await response.json()) as { detail?: unknown };
       if (typeof body.detail === "string") detail = body.detail;
     } catch {
-      // A non-JSON error body tells us nothing better than the status did.
     }
     throw new ApiError(response.status, detail);
   }

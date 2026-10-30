@@ -55,14 +55,6 @@ def whoami(principal: Principal = Depends(current_principal)) -> schemas.ActorVi
 
 @router.get("/manufacturer", response_model=schemas.ManufacturerView)
 def own_manufacturer(db: Session = Depends(tenant_db)) -> schemas.ManufacturerView:
-    """The caller's own manufacturer, or 404 if the credential names one that
-    does not exist.
-
-    The development resolver accepts any manufacturer identifier, so this is
-    how a client confirms the tenant is real before writing to it; a write
-    against a missing tenant would otherwise fail on a foreign key. Row-level
-    security limits the read to the caller's own row.
-    """
     manufacturer = db.execute(select(Manufacturer)).scalar_one_or_none()
     if manufacturer is None:
         raise HTTPException(
@@ -82,16 +74,6 @@ def own_manufacturer(db: Session = Depends(tenant_db)) -> schemas.ManufacturerVi
 def create_manufacturer(
     body: schemas.ManufacturerCreate, db: Session = Depends(get_db)
 ) -> schemas.ManufacturerView:
-    """Onboarding is a platform action, not a tenant action.
-
-    It necessarily happens before any tenant context for the new manufacturer
-    can exist, so it takes no principal. The scope is established here, from
-    the identifier the new manufacturer is about to be given, because
-    row-level security applies to the row this request reads back as much as
-    to the row it writes. Production onboarding belongs to the administrative
-    surface built during production hardening, and this endpoint is
-    unavailable there.
-    """
     manufacturer_id = uuid.uuid4()
     set_tenant_context(db, manufacturer_id)
     manufacturer = register_manufacturer(
@@ -306,13 +288,6 @@ def list_identities(
     limit: int = 100,
     db: Session = Depends(tenant_db),
 ) -> list[ProductIdentity]:
-    """Identities in the caller's tenant, optionally narrowed to one serial.
-
-    The serial filter exists because a scanner reads a serial off a pack but
-    every custody route is keyed by identity id. It is an exact match rather
-    than a search: a partial serial that matched several packs would let a
-    mistyped code be recorded against the wrong one.
-    """
     statement = select(ProductIdentity).order_by(ProductIdentity.created_at).limit(
         min(limit, 500)
     )

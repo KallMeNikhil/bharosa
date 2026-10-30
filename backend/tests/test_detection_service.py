@@ -110,14 +110,6 @@ def test_evidence_rows_form_an_unbroken_hash_chain(postgres_db_session):
 
 @pytest.mark.db_privilege
 def test_evidence_without_any_source_is_rejected_at_the_database_level():
-    """The uncited-evidence constraint is deferred, so it needs a real commit.
-
-    The rest of this module runs inside a savepoint that is never really
-    committed, and a deferred constraint trigger only fires at the end of an
-    actual transaction. Asserting it there would pass whether the trigger
-    existed or not, so this one test drives a real connection and commits for
-    real.
-    """
     import os
     import uuid as uuid_module
 

@@ -32,7 +32,6 @@ export async function recordScan(
   try {
     await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(next));
   } catch {
-    // A full disk must not lose the person the result they just asked for.
   }
   return next;
 }

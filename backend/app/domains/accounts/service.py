@@ -80,7 +80,6 @@ def register_account(
     display_name: str | None,
     session_ttl: timedelta,
 ) -> SignedIn:
-    """Create a manufacturer and the account that owns it, and sign it in."""
     company_name = company_name.strip()
     if not 2 <= len(company_name) <= 255:
         raise AccountError("Enter the company name, 2 to 255 characters.")
@@ -130,8 +129,6 @@ def sign_in(db: Session, *, email: str, password: str, session_ttl: timedelta) -
 
 
 def resolve_session(db: Session, token: str) -> Principal | None:
-    """The principal a session token stands for, or None if it is unknown,
-    expired or signed out."""
     if not token.startswith(SESSION_TOKEN_PREFIX):
         return None
     row = db.execute(

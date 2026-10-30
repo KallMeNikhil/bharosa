@@ -30,7 +30,6 @@ export function Section({
   return <section className={tight ? "section section--tight" : "section"}>{children}</section>;
 }
 
-// Fades and lifts its content in the first time it scrolls into view.
 export function Reveal({
   children,
   as: Tag = "div",

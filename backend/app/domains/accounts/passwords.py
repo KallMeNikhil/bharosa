@@ -1,10 +1,3 @@
-"""Password hashing with scrypt from the standard library.
-
-scrypt is memory-hard, so guessing at scale costs memory as well as time, and
-using hashlib's implementation avoids a native dependency. Each stored hash
-carries its own parameters, so they can be raised later without invalidating
-existing accounts.
-"""
 from __future__ import annotations
 
 import base64
@@ -53,6 +46,4 @@ def verify_password(password: str, stored: str) -> bool:
     return hmac.compare_digest(actual, expected)
 
 
-# Verified against when an email is unknown, so a failed sign-in takes the same
-# time whether or not the account exists.
 DUMMY_HASH = hash_password(secrets.token_urlsafe(16))

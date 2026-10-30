@@ -1,7 +1,7 @@
 # Bharosa API Specification
 
-The roadmap's M7 gate requires that no endpoint the frontend consumes exists
-without first being written down here. This document is that record. The
+No endpoint a client consumes should exist without first being written down
+here. This document is that record. The
 generated OpenAPI schema at `/openapi.json` describes the same surface in
 machine-readable form, but this file is the one that states intent, and it is
 the one to change first when the surface changes.

@@ -5,8 +5,6 @@ import { identity } from "../api/endpoints";
 import type { SessionView } from "../api/types";
 import { useSession } from "./SessionContext";
 
-// Turns a successful sign-in or registration into a workspace session: the
-// capabilities come from the server rather than being assumed.
 export function useStartSession() {
   const { update } = useSession();
   const navigate = useNavigate();

@@ -16,14 +16,6 @@ class AccountRole(str, enum.Enum):
 
 
 class Account(Base):
-    """A person who signs in to a manufacturer's workspace.
-
-    Accounts are platform-level rather than tenant-scoped: signing in has to
-    find the account before any tenant is known. Each account belongs to
-    exactly one manufacturer, and it is that manufacturer the session is then
-    scoped to.
-    """
-
     __tablename__ = "auth_account"
     __table_args__ = (Index("ix_auth_account_manufacturer_id", "manufacturer_id"),)
 
@@ -44,9 +36,6 @@ class Account(Base):
 
 
 class AccountSession(Base):
-    """A signed-in session. Only a hash of the token is stored, so a copy of
-    this table cannot be replayed as a credential."""
-
     __tablename__ = "auth_session"
     __table_args__ = (Index("ix_auth_session_account_id", "account_id"),)
 

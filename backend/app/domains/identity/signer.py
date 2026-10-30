@@ -60,16 +60,6 @@ class DevelopmentOnlySigner(Signer):
 
 
 class MasterKeyDerivedSigner(Signer):
-    """Derives each signing key from one master secret and the key's handle.
-
-    Nothing secret is stored: the handle is random and public-safe on its own,
-    and the private key is recomputed from the master secret whenever it is
-    needed, so keys survive restarts and work across instances. The master
-    secret is therefore the single thing to protect. A KMS-backed signer is
-    still the stronger arrangement and can replace this behind the same
-    interface.
-    """
-
     _SALT = b"bharosa-signer-v1"
 
     def __init__(self, master_secret: bytes) -> None:

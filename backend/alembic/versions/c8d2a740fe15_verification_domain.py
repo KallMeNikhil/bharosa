@@ -1,29 +1,3 @@
-"""verification domain
-
-Revision ID: c8d2a740fe15
-Revises: b3f1e60c94ad
-Create Date: 2026-08-18 11:24:36.905112
-
-verification_event is the system's first location-bearing table. Precise
-coordinates are captured for internal detection use only and never leave the
-internal boundary; coarse_cell carries the rounded grid cell that anything
-surfaced to a dashboard, export or public response is derived from.
-
-The table is append-only at the database level like every other event table,
-and its GiST index exists from this first migration because the velocity and
-impossible-travel detectors query it spatially.
-
-bharosa_verifier receives INSERT and SELECT here -- SELECT because the event
-hash chain has to read the previous link before writing the next one -- plus
-INSERT and UPDATE on the unresolved-scan tally, which is a current-state
-projection rather than an event log and is therefore mutable by design.
-
-verification_unresolved_scan_tally deliberately holds no manufacturer_id and
-carries no row-level security policy: a scan that resolves to no identity
-cannot be attributed to a tenant. Counting those scans per day and per coarse
-cell, rather than writing a row per attempt, keeps an enumeration attack from
-turning the public endpoint into an unbounded write amplifier.
-"""
 from __future__ import annotations
 
 from collections.abc import Sequence

@@ -1,10 +1,3 @@
-"""supply chain domain foundation
-
-Revision ID: 180e3f030a6f
-Revises: f48d588d67a7
-Create Date: 2026-08-16 16:44:41.606865
-
-"""
 from collections.abc import Sequence
 
 import sqlalchemy as sa

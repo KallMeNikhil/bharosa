@@ -1,10 +1,4 @@
 #!/bin/sh
-# Production start: bring the schema up to date as bharosa_owner, then serve.
-# A deploy therefore never runs code against an older schema.
-#
-# Forwarded headers are trusted because the API is only reached through the
-# host's proxy, so the rate limiters key on the visitor's address rather than
-# the proxy's.
 set -e
 
 alembic upgrade head

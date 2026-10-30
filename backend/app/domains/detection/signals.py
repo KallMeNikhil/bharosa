@@ -75,15 +75,6 @@ class UncitedSignalError(ValueError):
 
 @dataclass(frozen=True)
 class Signal:
-    """One detector observation.
-
-    `log_likelihood_ratio` is the natural log of "how many times more likely
-    this observation is under fraud than under legitimate use". Logs are what
-    the correlation layer accumulates additively, so detectors emit them
-    directly rather than a score that would have to be reinterpreted later.
-    A detector never emits a verdict, and never emits a boolean.
-    """
-
     signal_type: SignalType
     log_likelihood_ratio: float
     explanation: str

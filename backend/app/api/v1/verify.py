@@ -98,12 +98,6 @@ def verify_product(
     settings: Settings = Depends(get_settings),
     rate_limiter: RateLimiter = Depends(get_rate_limiter),
 ) -> VerifyResponse:
-    """Public verification.
-
-    Every response carries the same field set, and every request is held to a
-    minimum duration, so that the time and shape of a reply reveal nothing
-    about whether the scanned code resolved to a real identity.
-    """
     started_at = time.monotonic()
     checked_at = datetime.now(UTC)
 

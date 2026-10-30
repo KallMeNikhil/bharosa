@@ -132,12 +132,6 @@ def build_custody_graph(
 def common_divergence_point(
     db: Session, *, identity_ids: Sequence[uuid.UUID]
 ) -> str | None:
-    """The most specific custody node every flagged identity passed through.
-
-    Investigators want the deepest shared point, not the shallowest: knowing
-    that a set of suspect packs all came from the manufacturer says nothing,
-    while knowing they all passed through one distributor says a great deal.
-    """
     paths = [custody_path(db, identity_id=identity_id) for identity_id in identity_ids]
     paths = [path for path in paths if path]
     if not paths:

@@ -21,14 +21,6 @@ def _metrics(evaluation):
 
 
 def test_the_same_seed_reproduces_the_same_scenario_structure(postgres_db_session):
-    """Serials are deterministic from the seed, and globally unique in the schema.
-
-    Reproducing the same seed twice therefore has to happen as two
-    non-overlapping database states, not two rows coexisting at once — this
-    is a property of the identity domain's global serial uniqueness, not a
-    determinism gap. A nested savepoint gives each run a clean slate while
-    keeping the manufacturer itself (created before the savepoint) shared.
-    """
     manufacturer = make_simulation_manufacturer(postgres_db_session, name="Determinism")
     actor = simulation_test_actor(manufacturer.id)
 

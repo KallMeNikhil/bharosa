@@ -269,11 +269,6 @@ def current_custodian(
     actor: ActorContext = Depends(current_actor),
     db: Session = Depends(tenant_db),
 ) -> schemas.CurrentCustodianView:
-    """Current custodian, re-derived from the event log on every request.
-
-    There is no stored custodian column. The projection is computed here so
-    that it cannot drift away from the events it is supposed to summarise.
-    """
     owned_or_404(
         db.get(ProductIdentity, identity_id), actor.manufacturer_id, name="Identity"
     )

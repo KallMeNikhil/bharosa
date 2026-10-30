@@ -13,7 +13,6 @@ dist/
 dist-ssr/
 *.local
 
-# Expo / React Native
 .expo/
 web-build/
 *.jks

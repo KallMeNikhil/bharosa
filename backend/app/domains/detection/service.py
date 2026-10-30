@@ -132,11 +132,6 @@ def build_context(
         row.id: (float(row.longitude), float(row.latitude))
         for row in db.execute(_SCAN_COORDINATES, parameters)
     }
-    # A manufacturer that has authorized no territory at all has not thereby
-    # declared every scan to be outside its distribution area. Leaving the map
-    # empty reports the containment of those scans as unknown rather than as
-    # false, so the diversion detector stays silent instead of firing on every
-    # located scan of every tenant that has not yet entered reference data.
     has_territories = db.execute(
         _HAS_AUTHORIZED_TERRITORY, {"manufacturer_id": identity.manufacturer_id}
     ).scalar()

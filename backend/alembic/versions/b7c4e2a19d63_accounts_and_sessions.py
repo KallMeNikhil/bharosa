@@ -1,21 +1,3 @@
-"""accounts and sessions
-
-Revision ID: b7c4e2a19d63
-Revises: a2f5c918e34b
-Create Date: 2026-10-30 12:00:00.000000
-
-auth_account and auth_session back real sign-in, replacing the development
-credential outside development. They are platform tables rather than
-tenant-scoped ones: signing in has to look an account up by email before any
-tenant is known, and resolving a session token has to happen before the
-request's tenant scope can be set. Row-level security is therefore not
-enabled on them; each account instead names the one manufacturer its sessions
-are scoped to.
-
-bharosa_app receives its privileges on both through the default privileges
-granted for bharosa_owner. bharosa_verifier is granted nothing on either.
-Only a SHA-256 hash of each session token is stored.
-"""
 from __future__ import annotations
 
 from collections.abc import Sequence

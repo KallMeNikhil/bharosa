@@ -12,14 +12,6 @@ from tests.simulation_fixtures import make_simulation_manufacturer, simulation_t
 
 
 def _fresh_view(db):
-    """A second Session on the same connection/transaction, with an empty identity map.
-
-    Session.get() short-circuits through the identity map for an object the
-    session already holds, which would make a cross-tenant read look
-    RLS-safe even when it isn't. A fresh Session sharing the same
-    transaction forces a real SELECT to be evaluated against whatever tenant
-    GUC is currently set on that connection.
-    """
     return SQLAlchemySession(bind=db.connection(), autoflush=False, expire_on_commit=False)
 
 

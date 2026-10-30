@@ -1,36 +1,3 @@
-"""m1 m2 baseline correction: denormalized tenant scoping, event hash chaining, key events
-
-Revision ID: a1c7d4e9b230
-Revises: 180e3f030a6f
-Create Date: 2026-08-18 09:12:04.118273
-
-This is an M1/M2 baseline correction, not M3 functionality. It closes four
-gaps against decisions the Architecture Source of Truth already froze:
-
-  * Denormalized tenant scoping (Architecture Section 13) was applied to
-    identity_product_identity but not to identity_batch or
-    identity_issuance_event, so neither table can carry an RLS policy keyed
-    on manufacturer_id.
-  * Per-event hash chaining (Level 4, Section 11.3) was specified as a
-    schema decision to be made at each event table's first migration, and
-    was not present on identity_issuance_event or supply_chain_event.
-  * Key status changes (revocation, rotation, compromise) mutated
-    identity_manufacturer_key with no append-only audit record, despite
-    Section 3.5 making key compromise the architecture's most consequential
-    failure mode.
-  * identity_product had no GTIN column, which the GS1 Digital Link
-    resolution path added in M3 requires.
-
-The hash algorithm is inlined here rather than imported from application
-code so that this migration's output can never change as a side effect of
-a later refactor.
-
-Signatures issued before this revision were produced under a BHIP1 layout
-that omitted manufacturer_id and issued_at and is no longer generated.
-Those signatures remain byte-verifiable against their stored payloads but
-no longer match a payload rebuilt from current field values; pre-existing
-development identities must be re-issued.
-"""
 from __future__ import annotations
 
 import hashlib
@@ -64,7 +31,7 @@ def _event_hash(previous_event_hash: bytes, event_kind: str, fields: list[str | 
     return digest.digest()
 
 
-def _text(value) -> str | None:  # noqa: ANN001
+def _text(value) -> str | None:
     return None if value is None else str(value)
 
 

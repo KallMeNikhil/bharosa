@@ -6,8 +6,6 @@ import { CAPABILITIES } from "../api/types";
 import type { Capability } from "../api/types";
 
 export interface Session {
-  // Set by signing in. Without it, development builds fall back to a
-  // development credential built from the fields below.
   token: string;
   manufacturerId: string;
   manufacturerName: string;

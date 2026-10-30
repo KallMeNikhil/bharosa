@@ -1,7 +1,5 @@
 import "@testing-library/jest-dom/vitest";
 
-// Node 26 defines its own global localStorage, which is undefined unless Node is started
-// with --localstorage-file and which hides jsdom's. Give the tests an in-memory one.
 if (typeof window !== "undefined" && !window.localStorage) {
   const store = new Map<string, string>();
   const memoryStorage: Storage = {

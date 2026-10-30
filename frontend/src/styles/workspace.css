@@ -1,7 +1,3 @@
-/* The operator workspace (/app) and its sign-in page. */
-
-/* Shell */
-
 .ws {
   display: flex;
   min-height: 100%;
@@ -379,8 +375,6 @@
   gap: var(--space-5);
 }
 
-/* Mobile navigation */
-
 .ws-bottom-nav {
   position: fixed;
   bottom: 0;
@@ -483,8 +477,6 @@
   }
 }
 
-/* Command palette */
-
 .palette {
   position: fixed;
   inset: 0;
@@ -576,8 +568,6 @@
   font: var(--text-small);
 }
 
-/* Page header */
-
 .page-header {
   display: flex;
   align-items: flex-end;
@@ -603,8 +593,6 @@
   color: var(--color-text-muted);
   max-width: 68ch;
 }
-
-/* Overview */
 
 .overview-hero {
   display: flex;
@@ -699,8 +687,6 @@
   border-color: rgba(224, 135, 21, 0.5);
 }
 
-/* Detail lists (settings) */
-
 .detail-list {
   display: flex;
   flex-direction: column;
@@ -723,8 +709,6 @@
 .help-footnote {
   padding-top: var(--space-2);
 }
-
-/* Lifecycle pipeline */
 
 .pipeline {
   display: flex;
@@ -761,8 +745,6 @@
   color: var(--color-text-faint);
   font-size: 0.7rem;
 }
-
-/* Evidence */
 
 .evidence {
   border: 1px solid var(--color-border);
@@ -825,8 +807,6 @@
   font: var(--text-small);
   color: var(--color-text);
 }
-
-/* Supply flow */
 
 .supply-flow {
   border-radius: var(--radius-lg);
@@ -903,8 +883,6 @@
   }
 }
 
-/* Custody edges */
-
 .custody-edges {
   display: flex;
   flex-direction: column;
@@ -948,8 +926,6 @@
   opacity: var(--weight, 1);
 }
 
-/* Simulation */
-
 .confusion-matrix {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -961,8 +937,6 @@
     grid-template-columns: repeat(4, 1fr);
   }
 }
-
-/* Sign-in */
 
 .auth-shell {
   min-height: 100%;
@@ -1079,7 +1053,6 @@
   margin-top: var(--space-2);
 }
 
-/* Shown when the saved session names a manufacturer the database lacks. */
 .ws-alert {
   display: flex;
   flex-wrap: wrap;

@@ -1,21 +1,11 @@
-# The Bharosa API on Render. Connect this repository in Render
-# (New > Blueprint), then fill in the values marked sync: false.
-#
-# The database is not defined here: it is a managed Postgres with PostGIS (Neon
-# is the tested choice), bootstrapped once with infra/production/*.sql.
-
 services:
   - type: web
     name: bharosa-api
     runtime: docker
     rootDir: backend
     dockerfilePath: ./Dockerfile
-    # The free plan sleeps after a while idle, so the first request after that
-    # takes about a minute. Move to "starter" to keep it always on.
     plan: free
     healthCheckPath: /api/v1/health
-    # bin/start.sh migrates, then serves. A script avoids the start command
-    # needing shell quoting, which Render passes through literally.
     dockerCommand: sh bin/start.sh
     envVars:
       - key: ENVIRONMENT

@@ -112,8 +112,6 @@ export function Login() {
   );
 }
 
-// Development builds only: act as any manufacturer without an account, onboard
-// one directly, or seed a demonstration tenant.
 function DevelopmentTools() {
   const { session, update } = useSession();
   const navigate = useNavigate();
@@ -125,8 +123,6 @@ function DevelopmentTools() {
   const [scenarioRunning, setScenarioRunning] = useState(false);
 
   const enter = useAction(async () => {
-    // The development credential accepts any identifier, so confirm the
-    // manufacturer is real first; otherwise every write would fail.
     let found;
     try {
       found = await identity.ownManufacturer(`dev:${manufacturerId.trim()}:${actorId.trim()}:*`);

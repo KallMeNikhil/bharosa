@@ -30,7 +30,7 @@ class CapabilityNotHeldError(PermissionError):
 
 
 class TenantScopeViolationError(PermissionError):
-    def __init__(self, actor_id: str, actor_manufacturer_id, resource_manufacturer_id) -> None:  # noqa: ANN001
+    def __init__(self, actor_id: str, actor_manufacturer_id, resource_manufacturer_id) -> None:
         self.actor_id = actor_id
         self.actor_manufacturer_id = actor_manufacturer_id
         self.resource_manufacturer_id = resource_manufacturer_id

@@ -1,7 +1,3 @@
-// The public check, kept in step with the consumer app (consumer_app/src/lib/code.ts,
-// consumer_app/src/api/client.ts and consumer_app/src/theme.ts) so that the same pack
-// reads the same way whichever surface checked it.
-
 import { ApiError } from "../api/client";
 import { publicSurface } from "../api/endpoints";
 import type { VerificationState, VerifyResponse } from "../api/types";
@@ -12,12 +8,9 @@ const BHAROSA_SERIAL_PARAM = "bhs";
 export interface PreparedCode {
   serial?: string;
   digital_link?: string;
-  // What the result screen shows as "Code checked".
   shown: string;
 }
 
-// A Digital Link goes to the server as scanned. Anything else is a typed serial, which
-// the server compares exactly, so spacing and case are removed here as the app does.
 export function prepareCode(raw: string): PreparedCode {
   const payload = raw.trim();
   if (/^https?:\/\//i.test(payload)) {
@@ -94,8 +87,6 @@ async function currentLocation(): Promise<GeolocationPosition | null> {
   }
 }
 
-// Never throws. A failed request becomes an UNAVAILABLE result, as it does in the app,
-// rather than a developer-facing error on a public page.
 export async function checkCode(raw: string): Promise<CheckOutcome> {
   const prepared = prepareCode(raw);
   const position = await currentLocation();

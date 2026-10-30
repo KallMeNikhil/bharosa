@@ -4,7 +4,6 @@ import { useNavigate } from "react-router-dom";
 import { Icon } from "../icons";
 import { ALL_LINKS } from "./workspaceNav";
 
-// Jump to any workspace page by name. Opens with Ctrl+K / Cmd+K.
 export function CommandPalette({ open, onClose }: { open: boolean; onClose: () => void }) {
   const navigate = useNavigate();
   const [query, setQuery] = useState("");

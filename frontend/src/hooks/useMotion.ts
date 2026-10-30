@@ -6,8 +6,6 @@ export function prefersReducedMotion(): boolean {
     && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
-// Marks an element visible the first time it scrolls into view. Without
-// IntersectionObserver (old browsers, tests) it is visible from the start.
 export function useInView<T extends Element>(): [RefObject<T>, boolean] {
   const ref = useRef<T>(null);
   const [inView, setInView] = useState(() => typeof IntersectionObserver === "undefined");
@@ -31,7 +29,6 @@ export function useInView<T extends Element>(): [RefObject<T>, boolean] {
   return [ref, inView];
 }
 
-// Eases from zero to the target once, then follows the target directly.
 export function useCountUp(target: number, durationMs = 700): number {
   const [value, setValue] = useState(() => (prefersReducedMotion() ? target : 0));
   const started = useRef(false);

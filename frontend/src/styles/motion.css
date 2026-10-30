@@ -1,6 +1,3 @@
-/* Keyframes and entrance behaviour. Everything here is switched off for
-   people who ask the system for reduced motion. */
-
 @keyframes spin {
   to {
     transform: rotate(360deg);
@@ -118,13 +115,9 @@
   }
 }
 
-/* Page change */
-
 .page-enter {
   animation: rise-in var(--motion-enter) var(--motion-ease-out) both;
 }
-
-/* Scroll reveal */
 
 .reveal {
   opacity: 0;

@@ -14,7 +14,6 @@ export function WorkspaceShell() {
   const [moreOpen, setMoreOpen] = useState(false);
   const [paletteOpen, setPaletteOpen] = useState(false);
   const health = useResource(() => system.health(), []);
-  // Ends the session on the server too, so the token cannot be reused.
   const signOut = () => {
     if (session.token) void auth.signOut().catch(() => undefined);
     reset();
@@ -24,7 +23,6 @@ export function WorkspaceShell() {
   const { pathname } = useLocation();
   const navRef = useRef<HTMLElement>(null);
 
-  // Slides the single active marker to whichever link the route lit up.
   useLayoutEffect(() => {
     const nav = navRef.current;
     const active = nav?.querySelector<HTMLElement>(".ws-nav__link.is-active");

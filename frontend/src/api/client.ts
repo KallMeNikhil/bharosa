@@ -59,8 +59,6 @@ export interface RequestOptions {
   body?: unknown;
   query?: Record<string, string | number | string[] | undefined>;
   anonymous?: boolean;
-  // Sends this credential instead of the session one, for checking a tenant
-  // before signing in to it.
   credential?: string;
 }
 

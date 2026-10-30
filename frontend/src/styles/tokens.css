@@ -1,13 +1,6 @@
-/*
- * Design tokens. The palette and type follow the consumer and distributor apps
- * (consumer_app/src/theme.ts, distributor_app/src/theme.ts) so the web, the
- * scanner and the distributor tool read as one product.
- */
-
 :root {
   color-scheme: light;
 
-  /* Paper and surfaces */
   --color-bg: #f4f6f1;
   --color-surface: #ffffff;
   --color-surface-sunken: #eef1eb;
@@ -15,13 +8,11 @@
   --color-border: #dde3da;
   --color-border-strong: #c3cdc1;
 
-  /* Text */
   --color-text: #0b1410;
   --color-text-soft: #33453d;
   --color-text-muted: #5f7169;
   --color-text-faint: #77887f;
 
-  /* Pine: the brand's dark ground (consumer app "pine") */
   --color-ink: #0b3326;
   --color-ink-deep: #072219;
   --color-night: #05140f;
@@ -36,13 +27,11 @@
   --color-accent-on-ink: #0f9d63;
   --color-accent-on-ink-hover: #13b170;
 
-  /* Ledger: the operator workspace's ground (distributor app "ledger") */
   --color-ledger: #082a1f;
   --color-ledger-deep: #051a13;
   --color-ledger-raised: #0f3a2b;
   --color-ledger-border: #1a4a38;
 
-  /* Interactive accent */
   --color-accent: #0b7f50;
   --color-accent-hover: #096b43;
   --color-accent-text: #0c7a4c;
@@ -53,7 +42,6 @@
   --color-soil-soft: rgba(156, 90, 46, 0.12);
   --color-soil-border: rgba(156, 90, 46, 0.36);
 
-  /* Result colours: fills match the apps; text shades are darkened for contrast */
   --color-verdant: #0f9d63;
   --color-marigold: #e08715;
   --color-clay: #c9403d;
@@ -75,7 +63,6 @@
   --color-neutral-soft: rgba(95, 113, 105, 0.11);
   --color-neutral-border: rgba(95, 113, 105, 0.32);
 
-  /* Shape and depth */
   --radius-sm: 8px;
   --radius: 12px;
   --radius-lg: 20px;
@@ -86,7 +73,6 @@
   --shadow-elevated: 0 24px 56px -16px rgba(11, 20, 16, 0.32);
   --ring: 0 0 0 3px rgba(15, 157, 99, 0.22);
 
-  /* Spacing (8pt) */
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
@@ -97,7 +83,6 @@
   --space-8: 64px;
   --space-9: 96px;
 
-  /* Type */
   --font-sans: "Plus Jakarta Sans Variable", "Plus Jakarta Sans", -apple-system, "Segoe UI",
     system-ui, sans-serif;
   --font-mono: "JetBrains Mono Variable", "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo,
@@ -117,7 +102,6 @@
   --tracking-tight: -0.03em;
   --tracking-caps: 0.1em;
 
-  /* Motion */
   --motion-micro: 160ms;
   --motion-layout: 280ms;
   --motion-enter: 560ms;

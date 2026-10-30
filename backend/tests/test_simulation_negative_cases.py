@@ -84,7 +84,7 @@ def test_a_failed_run_records_its_status_and_error_rather_than_leaving_a_partial
 
     import app.domains.simulation.service as service_module
 
-    def _boom(*args, **kwargs):  # noqa: ARG001
+    def _boom(*args, **kwargs):
         raise RuntimeError("synthetic failure for test coverage")
 
     monkeypatch.setattr(service_module, "generate_population", _boom)

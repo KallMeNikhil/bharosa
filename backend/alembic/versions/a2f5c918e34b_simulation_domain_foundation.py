@@ -1,32 +1,3 @@
-"""simulation domain foundation
-
-Revision ID: a2f5c918e34b
-Revises: e7a41b8c62d9
-Create Date: 2026-08-21 00:00:00.000000
-
-simulation_run is a mutable operational record, not evidence: it tracks a
-scenario's status (PENDING/RUNNING/COMPLETED/FAILED) the way Batch or
-ProductIdentity track operational state elsewhere, paired with an append-only
-event log living in a different table. It is never deleted, so a run's
-history is never silently lost, but its status/error/completion columns are
-ordinary mutable state.
-
-simulation_ground_truth_entry records, independently of any detector, what
-the simulator actually generated or injected for each identity in a run. It
-is append-only and hash-chained per run, exactly like every other event
-table in the system, so a ground-truth row can never be edited to match
-whatever a detector happened to find.
-
-simulation_evaluation stores a versioned comparison of that ground truth
-against the real detection/investigation pipeline's output. Re-running
-evaluation against the same run writes a new sequenced row; nothing here is
-ever recomputed in place.
-
-Both tables denormalize manufacturer_id and reuse the identity domain's
-composite-FK tenant-scoping pattern rather than re-deriving it. Simulation
-runs inside the caller's own existing tenant like every other domain; the
-tables carry no separate tenancy model of their own.
-"""
 from __future__ import annotations
 
 from collections.abc import Sequence

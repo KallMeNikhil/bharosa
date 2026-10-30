@@ -12,14 +12,6 @@ from app.domains.verification import VerificationEvent
 
 @dataclass(frozen=True)
 class DetectionContext:
-    """Everything a detector is allowed to see.
-
-    Detectors are pure functions of this structure. Spatial and authorization
-    lookups are resolved by the service before a detector runs, so that
-    detector logic stays independently testable and a detector can never widen
-    its own view of the data by issuing a query of its own.
-    """
-
     identity: ProductIdentity
     now: datetime
     verification_events: tuple[VerificationEvent, ...] = ()

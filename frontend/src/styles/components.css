@@ -1,7 +1,3 @@
-/* Shared building blocks used by the public site, the workspace and the dev console. */
-
-/* Buttons */
-
 .button {
   position: relative;
   display: inline-flex;
@@ -126,8 +122,6 @@
   flex-shrink: 0;
 }
 
-/* Badges */
-
 .badge {
   display: inline-flex;
   align-items: center;
@@ -178,8 +172,6 @@
   color: var(--color-invalid);
   border-color: var(--color-invalid-border);
 }
-
-/* Cards */
 
 .card {
   background: var(--color-surface);
@@ -247,8 +239,6 @@
   }
 }
 
-/* Forms */
-
 .field {
   display: flex;
   flex-direction: column;
@@ -256,7 +246,6 @@
   min-width: 0;
 }
 
-/* Fields share a row evenly; stacked fields keep their natural height. */
 .row > .field,
 .cluster > .field {
   flex: 1 1 180px;
@@ -356,8 +345,6 @@ textarea::placeholder {
   align-items: flex-end;
 }
 
-/* Notes and empty states */
-
 .note {
   margin: 0;
   display: flex;
@@ -425,8 +412,6 @@ textarea::placeholder {
   width: 55%;
 }
 
-/* Tables */
-
 .table-wrap {
   overflow-x: auto;
   border: 1px solid var(--color-border);
@@ -478,8 +463,6 @@ textarea::placeholder {
 .table td a {
   font-weight: 600;
 }
-
-/* Values */
 
 .mono {
   font-family: var(--font-mono);
@@ -585,8 +568,6 @@ textarea::placeholder {
   color: var(--color-invalid);
 }
 
-/* Disclosure */
-
 .disclosure {
   border: 1px solid var(--color-border);
   border-radius: var(--radius);
@@ -654,8 +635,6 @@ textarea::placeholder {
   animation: drop-in var(--motion-layout) var(--motion-ease-out);
 }
 
-/* Brand */
-
 .brand-mark {
   object-fit: contain;
   flex-shrink: 0;
@@ -690,8 +669,6 @@ textarea::placeholder {
   color: var(--color-text-faint);
 }
 
-/* Health indicator */
-
 .health {
   display: inline-flex;
   align-items: center;
@@ -723,8 +700,6 @@ textarea::placeholder {
   background: var(--color-clay);
 }
 
-/* Lifecycle track */
-
 .lifecycle-track {
   display: inline-flex;
   align-items: center;
@@ -754,8 +729,6 @@ textarea::placeholder {
   color: var(--color-text-muted);
   margin-left: 6px;
 }
-
-/* Severity rail */
 
 .severity-rail {
   display: flex;
@@ -787,8 +760,6 @@ textarea::placeholder {
   color: var(--color-text-muted);
   font-variant-numeric: tabular-nums;
 }
-
-/* Timeline */
 
 .timeline {
   display: flex;
@@ -860,8 +831,6 @@ textarea::placeholder {
   color: var(--color-text-faint);
 }
 
-/* Capability chips (sign-in and dev console) */
-
 .capability-picker {
   display: flex;
   flex-wrap: wrap;
@@ -894,8 +863,6 @@ textarea::placeholder {
   color: var(--color-genuine);
   background: var(--color-accent-soft);
 }
-
-/* Scenario log */
 
 .scenario-log {
   font-family: var(--font-mono);

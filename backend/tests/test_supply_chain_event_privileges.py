@@ -24,13 +24,6 @@ def real_postgres_connection():
 
 
 def _scope(cur, manufacturer_id) -> None:
-    """Establish the tenant scope for this connection.
-
-    These tests bypass the application entirely and write through raw SQL, so
-    nothing sets the scope for them. Row-level security applies to the row a
-    RETURNING clause reads back as much as to the row being written, and the
-    session setting is not transaction-local here because these helpers commit.
-    """
     cur.execute("SELECT set_config('bharosa.manufacturer_id', %s, false)", (str(manufacturer_id),))
 
 

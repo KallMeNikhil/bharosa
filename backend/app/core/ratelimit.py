@@ -21,14 +21,6 @@ class _Bucket:
 
 
 class InProcessTokenBucketRateLimiter(RateLimiter):
-    """Token bucket held in this process's memory only.
-
-    A multi-process or multi-instance deployment needs a shared store for this
-    to be a real limit rather than a per-worker one. Replacing this
-    implementation is a production-hardening concern; the interface is what
-    callers depend on.
-    """
-
     def __init__(
         self,
         *,

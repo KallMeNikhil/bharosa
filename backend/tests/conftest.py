@@ -67,15 +67,11 @@ def identity_db_session():
     engine = create_engine("sqlite:///:memory:", connect_args={"check_same_thread": False})
 
     @event.listens_for(engine, "connect")
-    def _enable_sqlite_fk(dbapi_connection, connection_record):  # noqa: ARG001
+    def _enable_sqlite_fk(dbapi_connection, connection_record):
         cursor = dbapi_connection.cursor()
         cursor.execute("PRAGMA foreign_keys=ON")
         cursor.close()
 
-    # SQLite has no PostGIS support, so only the identity domain's tables are
-    # created here. Domains carrying geometry columns, database grants or
-    # row-level security policies are exercised against real PostgreSQL via
-    # `postgres_db_session` instead.
     Base.metadata.create_all(engine, tables=_identity_only_tables())
     Session = sessionmaker(bind=engine, autoflush=False, autocommit=False)
     session = Session()
@@ -135,14 +131,6 @@ def supply_chain_db_session(postgres_db_session):
 
 @pytest.fixture()
 def api_client(postgres_db_session):
-    """A TestClient sharing the test transaction.
-
-    Both the tenant session and the public verification session are bound to
-    the same connection so that a request can see data the test just wrote and
-    the whole thing rolls back afterwards. The separation between the two
-    database roles is a property of deployment, and is asserted directly by
-    the privilege tests rather than through this client.
-    """
     from app.core.database import get_verification_db
 
     def _session():

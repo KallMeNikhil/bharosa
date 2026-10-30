@@ -36,12 +36,6 @@ def current_principal(
     settings: Settings = Depends(get_settings),
     db: Session = Depends(get_db),
 ) -> Principal:
-    """The actor behind this request.
-
-    A session token from signing in is accepted everywhere. A development
-    credential is accepted only in development and test, where it lets the
-    console and the test suite act as any actor without an account.
-    """
     credential = _credential(request)
     if not credential:
         raise HTTPException(
@@ -80,11 +74,6 @@ def tenant_db(
     principal: Principal = Depends(current_principal),
     db: Session = Depends(get_db),
 ) -> Generator[Session, None, None]:
-    """A session scoped to the caller's tenant for the life of the request.
-
-    The scope is a transaction-local setting, so a route that commits midway
-    would drop it. Routes commit once, at the end, for that reason.
-    """
     set_tenant_context(db, principal.manufacturer_id)
     yield db
 

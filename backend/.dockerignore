@@ -1,5 +1,3 @@
-# A Windows or macOS virtualenv copied into a Linux image is both large and
-# broken, so it never enters the build context.
 .venv/
 venv/
 
@@ -12,7 +10,6 @@ __pycache__/
 .coverage
 htmlcov/
 
-# Secrets are supplied by compose, never baked into a layer.
 .env
 .env.*
 !.env.example

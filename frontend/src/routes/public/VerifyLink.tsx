@@ -4,9 +4,6 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { Container, Loading } from "../../components/ui";
 import { checkCode } from "../../lib/verification";
 
-// A GS1 Digital Link printed on a pack (https://<host>/01/<gtin>/...?bhs=<serial>)
-// opens here when the pack is scanned with an ordinary phone camera. The whole link is
-// sent for checking, exactly as the consumer app sends a scanned QR code.
 export function VerifyLink() {
   const location = useLocation();
   const navigate = useNavigate();

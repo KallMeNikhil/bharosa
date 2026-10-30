@@ -40,8 +40,6 @@ export function PublicShell() {
     window.scrollTo?.({ top: 0 });
   }, [pathname]);
 
-  // The header steps aside while reading down the page and returns on the
-  // first scroll up. Its bottom edge doubles as a reading-progress line.
   useEffect(() => {
     let lastY = window.scrollY;
     let frame = 0;

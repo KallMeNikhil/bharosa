@@ -106,9 +106,6 @@ export default function App() {
   const [busy, setBusy] = useState(false);
   const [connectNotice, setConnectNotice] = useState<string | null>(null);
 
-  // Scan resolution is asynchronous and a storeman scans faster than a round
-  // trip completes, so dedupe reads this rather than the state a closure
-  // happened to capture.
   const consignmentRef = useRef<Consignment | null>(null);
   consignmentRef.current = consignment;
 
@@ -131,8 +128,6 @@ export default function App() {
       setScreen(stored ? "home" : "connect");
       setRestored(true);
 
-      // Anything left over from the last shift goes out as soon as the app is
-      // opened somewhere with a signal, without anyone having to remember.
       if (stored && pendingCount(entries) > 0) {
         const result = await flush(connectionFor(stored));
         setOutbox(await readOutbox());
@@ -141,8 +136,6 @@ export default function App() {
     })();
   }, [sessionEnded]);
 
-  // The participant list is fetched once per launch so the setup screen has
-  // somewhere to send stock even if the depot loses signal mid-shift.
   useEffect(() => {
     if (!device) return;
     listParticipants(connectionFor(device))
@@ -208,7 +201,6 @@ export default function App() {
         updatePack(serial, { identityId: identity.id, status });
         if (status === "held") notify(Haptics.NotificationFeedbackType.Warning);
       } catch {
-        // Offline, or the server refused the lookup. The pack stays pending and is resolved again when the outbox drains.
       }
 
       return "added";
@@ -259,8 +251,6 @@ export default function App() {
       const entries = await readOutbox();
       setOutbox(entries);
 
-      // An entry every event of which was accepted is dropped by the flush, so
-      // its absence here is what "all sent" looks like.
       const remaining = entries.find((entry) => entry.id === consignment.id);
       const total = consignment.packs.length;
       const queued = remaining?.events.filter((e) => e.state === "queued").length ?? 0;
@@ -308,8 +298,6 @@ export default function App() {
           text: "Unbind",
           style: "destructive",
           onPress: async () => {
-            // End the session on the server too, so the token is useless
-            // even if it was copied off the device. Offline, it simply lapses.
             if (device) await signOut(connectionFor(device)).catch(() => undefined);
             await forgetDevice();
             setDevice(null);

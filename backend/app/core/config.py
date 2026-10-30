@@ -33,8 +33,6 @@ class Settings(BaseSettings):
 
     client_reference_salt: str = Field(default=_DEVELOPMENT_SALT)
 
-    # Base64 for at least 32 random bytes. When set, signing keys are derived
-    # from it and survive restarts; production refuses to sign without it.
     signing_master_key: str | None = Field(default=None)
 
     session_ttl_hours: int = Field(default=24 * 14)
@@ -46,8 +44,6 @@ class Settings(BaseSettings):
         return self.environment == "production"
 
     def production_problems(self) -> list[str]:
-        """Settings that must not be left at their development values in
-        production. The API refuses to start while any remain."""
         if not self.is_production:
             return []
         problems = []

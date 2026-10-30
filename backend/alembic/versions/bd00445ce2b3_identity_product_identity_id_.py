@@ -1,10 +1,3 @@
-"""identity product identity id manufacturer uniqueness
-
-Revision ID: bd00445ce2b3
-Revises: f4ae5d07fe85
-Create Date: 2026-08-16 12:02:56.922741
-
-"""
 from collections.abc import Sequence
 
 from alembic import op

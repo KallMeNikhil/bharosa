@@ -111,13 +111,6 @@ def open_incident(
     summary: str,
     actor: ActorContext,
 ) -> FraudIncident:
-    """Open an incident against a risk assessment.
-
-    The evidence list is not optional and is not a convenience. An incident is
-    the point at which the system asserts something about a real business, so
-    the citation is checked here, before the row exists, rather than being
-    left to a caller to remember.
-    """
     actor.require(Capability.MANAGE_INVESTIGATION)
 
     if not evidence:

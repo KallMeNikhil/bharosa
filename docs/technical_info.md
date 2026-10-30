@@ -74,9 +74,9 @@ physical pack → digital identity → custody lifecycle
 | `backend/app/domains/` | All business logic, one package per bounded domain |
 | `backend/app/api/v1/` | HTTP routing only — thin, no domain logic |
 | `backend/app/core/` | Cross-cutting: config, database, authorization, tenancy, event chaining, signing |
-| `backend/alembic/versions/` | 13 migrations; **all** grants and RLS policies live here |
-| `backend/tests/` | 42 test modules |
-| `frontend/` | Manufacturer web console (React + TypeScript + Vite) |
+| `backend/alembic/versions/` | 14 migrations; **all** grants and RLS policies live here |
+| `backend/tests/` | 43 test modules |
+| `frontend/` | Public site, web verification and manufacturer console (React + TypeScript + Vite) |
 | `consumer_app/` | Farmer-facing verification app (Expo / React Native) |
 | `distributor_app/` | Custody scanner for depots, distributors, retailers |
 | `infra/` | Compose stack and database provisioning SQL |
@@ -85,11 +85,11 @@ Approximate size:
 
 | Area | Files | Lines |
 | --- | ---: | ---: |
-| `backend/app` | 69 | 8,787 |
-| `backend/tests` | 50 | 6,313 |
-| `frontend/src` | 30 | 4,566 |
-| `distributor_app/src` | 21 | 3,670 |
-| `consumer_app/src` | 14 | 1,996 |
+| `backend/app` | 74 | 9,208 |
+| `backend/tests` | 51 | 6,474 |
+| `frontend/src` | 85 | 14,956 |
+| `distributor_app/src` | 21 | 3,388 |
+| `consumer_app/src` | 14 | 1,864 |
 
 ---
 
@@ -366,9 +366,15 @@ against.
 
 ### Web console — `frontend/`
 
-React 18 + TypeScript + Vite, hand-written CSS, no component library.
-Fourteen route modules covering every area of the platform. Vite proxies `/api` to the backend, so the
-browser makes same-origin requests and the backend needs no CORS middleware.
+React 18 + TypeScript + Vite, hand-written CSS, no component library. It is two
+things in one build. The public side is the landing pages and a web verify flow
+that mirrors the consumer app, including `/01/...` Digital Links opened straight
+from a pack. The console under `/app` covers every area of the platform for a
+signed-in manufacturer.
+
+Requests always go to `/api` on the same origin: Vite proxies them locally and
+the hosting layer rewrites them in production, so the backend needs no CORS
+middleware.
 
 Development builds add an internal console at `/dev` that records every
 request with the exact body sent and returned, for exercising the backend by
@@ -410,7 +416,7 @@ Expo Go supports. Expo Go only runs the current SDK, so the apps have to move wi
 
 ## 16. Testing
 
-42 test modules covering domain logic, API flow, architecture boundaries, and
+43 test modules covering domain logic, API flow, architecture boundaries, and
 database privilege enforcement.
 
 Tests marked `db_privilege` require a **real PostgreSQL with migrations

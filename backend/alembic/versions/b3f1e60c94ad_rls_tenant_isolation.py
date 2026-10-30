@@ -1,36 +1,3 @@
-"""row level security tenant isolation across identity and supply chain
-
-Revision ID: b3f1e60c94ad
-Revises: a1c7d4e9b230
-Create Date: 2026-08-18 09:41:52.607914
-
-Architectural Invariant 3 requires manufacturer/tenant isolation to be
-enforced at the database level, not by application code alone. No table
-carried a row-level security policy before this revision.
-
-Every policy compares the row's manufacturer_id against the
-bharosa.manufacturer_id session setting. current_setting(..., true) returns
-NULL when the setting is absent, and a NULL comparison excludes the row, so
-an application session that never establishes a tenant context sees nothing
-and can write nothing. The behaviour is fail-closed by construction rather
-than by a default value that could be forgotten.
-
-identity_manufacturer is the one deliberate asymmetry: its USING clause
-scopes reads and updates to the caller's own tenant row, while its WITH
-CHECK clause permits insertion, because onboarding a new manufacturer
-necessarily happens before any tenant context for it can exist.
-
-bharosa_owner owns these tables and is therefore exempt from row-level
-security by PostgreSQL's normal ownership rules, which is what allows
-migrations and backfills to run. FORCE ROW LEVEL SECURITY is deliberately
-not set for that reason.
-
-bharosa_verifier receives read access to exactly two tables: the identity it
-resolves a scanned serial against, and the key registry it checks that
-identity's signature with. It is granted nothing on products, batches,
-participants, territories, channel authorizations or supply-chain events, so
-a compromise of the public endpoint cannot read manufacturer business data.
-"""
 from __future__ import annotations
 
 from collections.abc import Sequence

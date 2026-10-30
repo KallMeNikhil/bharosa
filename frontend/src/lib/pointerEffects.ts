@@ -1,10 +1,3 @@
-// Pointer-driven surface effects, wired once for the whole app.
-//
-// Surfaces matching GLOW get --mx/--my, the pointer position inside them, which
-// the stylesheet turns into a soft light that follows the cursor. Surfaces
-// matching TILT also get --rx/--ry for a slight 3D lean. Using one delegated
-// listener keeps every page interactive without per-component wiring.
-
 const GLOW = [
   ".card",
   ".stat",

@@ -58,7 +58,6 @@ function App() {
           <Route path="legal/terms" element={<LegalTerms />} />
           <Route path="verify" element={<Verify />} />
           <Route path="verify/result" element={<VerifyResult />} />
-          {/* A printed GS1 Digital Link, opened from a phone camera. */}
           <Route path="01/*" element={<VerifyLink />} />
         </Route>
 
@@ -85,7 +84,6 @@ function App() {
           <Route path="help" element={<Help />} />
         </Route>
 
-        {/* The internal test console exists in development builds only. */}
         {import.meta.env.DEV && (
         <Route path="dev" element={<DevLayout />}>
           <Route index element={<Dashboard />} />

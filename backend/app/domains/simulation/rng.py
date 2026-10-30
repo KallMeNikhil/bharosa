@@ -9,17 +9,6 @@ _SERIAL_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567"
 
 
 class SimulationRandom:
-    """A scenario's sole source of randomness, scoped to one seed.
-
-    Cryptographic material (signing keys, BHIP1 serial entropy in production)
-    is deliberately never sourced from here — those stay on the platform's
-    real CSPRNG, exactly as they would for a genuine manufacturer. What this
-    class controls is scenario shape: which identities receive which
-    treatment, event timing, geography, and the serial strings used to look
-    identities up, so that the same seed reproduces the same scenario
-    structure and ground truth every time it is generated.
-    """
-
     def __init__(self, seed: int) -> None:
         self.seed = seed
         self._random = random.Random(seed)

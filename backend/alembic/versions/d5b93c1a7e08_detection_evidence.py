@@ -1,33 +1,3 @@
-"""detection evidence
-
-Revision ID: d5b93c1a7e08
-Revises: c8d2a740fe15
-Create Date: 2026-08-18 13:02:47.331908
-
-detection_evidence records what a detector observed, never what it concluded.
-There is deliberately no verdict, score or boolean column: the numeric field
-is a log likelihood ratio, which is what the correlation layer accumulates
-additively, and the explanation is the human-auditable account of the same
-observation.
-
-detector_id and detector_version are stored on every row so that a detector
-change produces new evidence going forward rather than reinterpreting past
-evidence. Nothing here is ever updated in place, and the table's grants
-enforce that rather than relying on the application to respect it.
-
-The source link table carries one real foreign key per cited event, with a
-check constraint that exactly one of the three event kinds is set, so
-provenance is followed through the schema rather than through narrative
-text. A deferred constraint trigger rejects, at commit time, any evidence row
-that cites nothing -- the invariant is that evidence cannot exist without the
-events it came from, and enforcing it only in the service would leave direct
-database writes free to violate it.
-
-(identity_id, signal_fingerprint) is unique so that re-running the same
-detector version over the same source events is idempotent. A new detector
-version yields a different fingerprint and therefore new, separately
-versioned evidence, which is the intended behaviour.
-"""
 from __future__ import annotations
 
 from collections.abc import Sequence

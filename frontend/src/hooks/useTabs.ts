@@ -1,7 +1,6 @@
 import { useRef, useState } from "react";
 import type { KeyboardEvent } from "react";
 
-// Roving selection for a row of tabs: arrow keys, Home and End move between them.
 export function useTabs(count: number) {
   const [active, setActive] = useState(0);
   const refs = useRef<(HTMLButtonElement | null)[]>([]);

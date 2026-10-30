@@ -41,8 +41,6 @@ export function ScanScreen({
 
   const handleBarcode = useCallback(
     ({ data }: { data: string }) => {
-      // The camera fires continuously while a code is in view; the first read
-      // wins and the rest are dropped until the screen is shown again.
       if (claimed.current || busy) return;
       claimed.current = true;
       onCode(data);

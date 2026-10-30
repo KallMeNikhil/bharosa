@@ -76,16 +76,16 @@ Bharosa is organized around a set of clearly bounded domains — identity,
 supply chain, verification, detection, investigation, risk, simulation, and
 analytics — built on a Python/FastAPI backend, a React and TypeScript
 frontend, and PostgreSQL with PostGIS for geospatial reasoning about product
-movement. Detailed engineering and security documentation is maintained
-separately and will be published as the project matures.
+movement. The engineering and security detail lives in
+[`docs/technical_info.md`](docs/technical_info.md).
 
 ```
 backend/          Application, domain logic, and data layer
-frontend/         Web console for manufacturers
+frontend/         Public site, web verification and the manufacturer console
 consumer_app/     Mobile app for the person holding the pack
 distributor_app/  Mobile scanner for depots, distributors and retailers
-infra/            Local infrastructure configuration
-docs/             Product, architecture, and process documentation
+infra/            Local Docker stack and database provisioning
+docs/             Technical reference and API specification
 .github/          Continuous integration
 ```
 
@@ -96,8 +96,9 @@ supply-chain custody log, public verification, the four fraud-family detectors,
 likelihood-ratio evidence correlation, the investigation workflow and
 deterministic simulation all exist, along with the manufacturer-facing API the
 clients consume. Three clients are built: the manufacturer console, the
-consumer verification app, and the distributor custody scanner. Production
-hardening is not yet started.
+consumer verification app, and the distributor custody scanner. The platform
+runs live at [bharosa.whynikhil.xyz](https://bharosa.whynikhil.xyz); production
+hardening beyond that is still ahead.
 
 Bharosa operates at whatever assurance level has actually been implemented,
 never one implied by its design. Today that is **Level 1 (cryptographic
@@ -115,8 +116,8 @@ needs nothing installed beyond Docker:
 docker compose -f infra/docker-compose.yml up
 ```
 
-The console is then at `http://localhost:5173` and proxies `/api` to the backend
-on port 8000, so nothing needs CORS.
+The site is then at `http://localhost:5173`, with the manufacturer console under
+`/app`. Vite proxies `/api` to the backend on port 8000, so nothing needs CORS.
 
 To get in, create a company account from the sign-in page. Locally there is a
 quicker route: open **Development tools** on the sign-in page and seed the
@@ -125,6 +126,10 @@ production, custody, four scans of a diverted pack seconds apart, detection,
 risk correlation and an investigation — and leaves every screen with real data
 on it. The development tools and the internal `/dev` console exist only in
 development builds.
+
+The mobile apps run with Expo. Copy `.env.example` to `.env` in `consumer_app/`
+or `distributor_app/`, point `EXPO_PUBLIC_API_BASE_URL` at your machine's LAN
+address, then run `npm install` and `npx expo start` and open it in Expo Go.
 
 The API surface is documented in [`docs/api-spec.md`](docs/api-spec.md), which
 is the authority the web client is written against. Interactive docs are at
