@@ -37,6 +37,12 @@
             "DEFAULT"
           ]
         }
+      ],
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION"
       ]
     },
     "web": {
@@ -67,6 +73,11 @@
           "backgroundColor": "#123D31"
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "4d0ae2c6-dff3-4c1f-bd02-998f680de7d2"
+      }
+    }
   }
 }
