@@ -8,11 +8,6 @@
     "userInterfaceStyle": "light",
     "backgroundColor": "#F4F6F1",
     "icon": "./assets/icon.png",
-    "splash": {
-      "image": "./assets/splash-icon.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#123D31"
-    },
     "assetBundlePatterns": [
       "**/*"
     ],
@@ -26,7 +21,6 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#123D31"
       },
-      "edgeToEdgeEnabled": true,
       "intentFilters": [
         {
           "action": "VIEW",
@@ -60,6 +54,17 @@
         "expo-location",
         {
           "locationAlwaysAndWhenInUsePermission": "Location makes a check more accurate. Bharosa works without it."
+        }
+      ],
+      "expo-font",
+      "expo-status-bar",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#123D31"
         }
       ]
     ]

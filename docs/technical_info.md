@@ -376,7 +376,7 @@ hand. Production builds leave it out.
 
 ### Consumer app — `consumer_app/`
 
-Expo SDK 54 / React Native. Calls one public endpoint and needs no credential.
+Expo SDK 58 / React Native 0.88. Calls one public endpoint and needs no credential.
 
 Built around a single verdict word readable at arm's length in direct sun.
 Every state carries its own silhouette as well as its own colour, so the answer
@@ -385,7 +385,7 @@ the device and is never uploaded.
 
 ### Distributor app — `distributor_app/`
 
-Expo SDK 54 / React Native. The custody scanner. Without it the correlation
+Expo SDK 58 / React Native 0.88. The custody scanner. Without it the correlation
 engine has no movement data, so diversion and refill detection run on nothing.
 
 Modelled on a delivery challan: packs accumulate into a consignment while the
@@ -403,8 +403,8 @@ hold. Scanner credentials that can only record movements, revocable per device,
 are the planned replacement. An expired session pauses the outbox instead of
 rejecting what is queued, and unbinding the device ends its session.
 
-Both apps are pinned to **Expo SDK 54**, which is what the Play Store build of
-Expo Go supports. Later SDKs will not open in it.
+Both apps are pinned to **Expo SDK 58**, which is what the Play Store build of
+Expo Go supports. Expo Go only runs the current SDK, so the apps have to move with it.
 
 ---
 

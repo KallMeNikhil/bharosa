@@ -274,7 +274,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   frameArea: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     alignItems: "center",
     justifyContent: "center",
   },

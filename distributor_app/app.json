@@ -8,11 +8,6 @@
     "userInterfaceStyle": "light",
     "backgroundColor": "#E8EDEE",
     "icon": "./assets/icon.png",
-    "splash": {
-      "image": "./assets/splash-icon.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#0E3A45"
-    },
     "assetBundlePatterns": [
       "**/*"
     ],
@@ -25,8 +20,7 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#0E3A45"
-      },
-      "edgeToEdgeEnabled": true
+      }
     },
     "web": {
       "favicon": "./assets/favicon.png",
@@ -37,6 +31,15 @@
         "expo-camera",
         {
           "cameraPermission": "Bharosa Consign uses the camera to read the code on each pack as stock moves."
+        }
+      ],
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#0E3A45"
         }
       ]
     ]
