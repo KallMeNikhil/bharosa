@@ -1,3 +1,7 @@
+import type { CSSProperties } from "react";
+
+import { Reveal } from "./ui";
+
 interface FraudPattern {
   name: string;
   body: string;
@@ -44,7 +48,7 @@ function describeSequence(pattern: FraudPattern) {
 
 export function FraudPatterns() {
   return (
-    <div className="stack" style={{ gap: "var(--space-4)" }}>
+    <div className="fraud-patterns">
       <div className="fraud-pattern__legend" aria-hidden="true">
         <span className="fraud-pattern__legend-item">
           <span className="fraud-pattern__legend-swatch fraud-pattern__legend-swatch--ok" />
@@ -59,40 +63,42 @@ export function FraudPatterns() {
           Detection point
         </span>
       </div>
-      <div className="grid-2">
-      {PATTERNS.map((pattern) => (
-        <div className="fraud-pattern" key={pattern.name}>
-          <div className="fraud-pattern__head">
-            <h3>{pattern.name}</h3>
-            <p className="muted" style={{ marginTop: "4px" }}>
-              {pattern.body}
-            </p>
-          </div>
-          <div
-            className="fraud-pattern__diagram"
-            role="img"
-            aria-label={describeSequence(pattern)}
-          >
-            {pattern.sequence.map((step, index) => (
-              <span key={index} aria-hidden="true" style={{ display: "flex", alignItems: "center", flex: 1 }}>
+      <div className="grid-2 grid-2--stretch">
+        {PATTERNS.map((pattern, patternIndex) => (
+          <Reveal className="fraud-pattern" key={pattern.name} delay={patternIndex % 2 === 0 ? 0 : 1}>
+            <div className="fraud-pattern__head">
+              <span className="fraud-pattern__index">{String(patternIndex + 1).padStart(2, "0")}</span>
+              <h3>{pattern.name}</h3>
+              <p className="muted">{pattern.body}</p>
+            </div>
+            <div
+              className="fraud-pattern__diagram"
+              role="img"
+              aria-label={describeSequence(pattern)}
+            >
+              {pattern.sequence.map((step, index) => (
                 <span
-                  className={`fraud-pattern__dot${step === "flag" ? " fraud-pattern__dot--flag" : ""}`}
-                />
-                {index < pattern.sequence.length - 1 && (
+                  key={index}
+                  aria-hidden="true"
+                  className="fraud-pattern__step"
+                  style={{ "--i": index } as CSSProperties}
+                >
                   <span
-                    className={`fraud-pattern__link${
-                      pattern.sequence[index + 1] === "flag" || step === "break" ? " fraud-pattern__link--break" : ""
-                    }`}
+                    className={`fraud-pattern__dot${step === "flag" ? " fraud-pattern__dot--flag" : ""}`}
                   />
-                )}
-              </span>
-            ))}
-          </div>
-          <p className="muted" style={{ padding: "0 var(--space-4) var(--space-4)", fontSize: "0.82rem" }}>
-            {pattern.caption}
-          </p>
-        </div>
-      ))}
+                  {index < pattern.sequence.length - 1 && (
+                    <span
+                      className={`fraud-pattern__link${
+                        pattern.sequence[index + 1] === "flag" || step === "break" ? " fraud-pattern__link--break" : ""
+                      }`}
+                    />
+                  )}
+                </span>
+              ))}
+            </div>
+            <p className="fraud-pattern__caption">{pattern.caption}</p>
+          </Reveal>
+        ))}
       </div>
     </div>
   );

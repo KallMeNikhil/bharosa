@@ -87,28 +87,28 @@ function RunResult({
             <div className="stat stat--good">
               <span className="stat__label">Predicted fraud · actually fraud</span>
               <span className="stat__value">{evaluation.true_positive_count}</span>
-              <span className="muted" style={{ fontSize: "0.72rem" }}>
+              <span className="stat__note">
                 True positive
               </span>
             </div>
             <div className="stat stat--bad">
               <span className="stat__label">Predicted fraud · actually clean</span>
               <span className="stat__value">{evaluation.false_positive_count}</span>
-              <span className="muted" style={{ fontSize: "0.72rem" }}>
+              <span className="stat__note">
                 False positive
               </span>
             </div>
             <div className="stat stat--bad">
               <span className="stat__label">Predicted clean · actually fraud</span>
               <span className="stat__value">{evaluation.false_negative_count}</span>
-              <span className="muted" style={{ fontSize: "0.72rem" }}>
+              <span className="stat__note">
                 False negative — missed fraud
               </span>
             </div>
             <div className="stat stat--good">
               <span className="stat__label">Predicted clean · actually clean</span>
               <span className="stat__value">{evaluation.true_negative_count}</span>
-              <span className="muted" style={{ fontSize: "0.72rem" }}>
+              <span className="stat__note">
                 True negative
               </span>
             </div>

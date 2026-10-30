@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+import { ApiError } from "../../api/client";
 import { identity } from "../../api/endpoints";
 import { CAPABILITIES } from "../../api/types";
 import type { Capability } from "../../api/types";
@@ -60,9 +61,22 @@ export function Login() {
   const [scenarioRunning, setScenarioRunning] = useState(false);
 
   const enter = useAction(async () => {
+    // The server accepts any identifier here, so confirm the manufacturer is
+    // real first; otherwise every write in the workspace would fail.
+    let found;
+    try {
+      found = await identity.ownManufacturer(`dev:${manufacturerId.trim()}:${actorId.trim()}:*`);
+    } catch (cause) {
+      if (cause instanceof ApiError && (cause.status === 404 || cause.status === 401)) {
+        throw new Error(
+          "No manufacturer exists with this id. Onboard one or seed a demonstration tenant under Development tools.",
+        );
+      }
+      throw cause;
+    }
     update({
-      manufacturerId: manufacturerId.trim(),
-      manufacturerName: manufacturerName.trim(),
+      manufacturerId: found.id,
+      manufacturerName: manufacturerName.trim() || found.name,
       actorId: actorId.trim(),
       capabilities: [...CAPABILITIES],
     });
@@ -93,8 +107,8 @@ export function Login() {
   });
 
   return (
-    <div className="stack" style={{ width: "100%", maxWidth: "440px", gap: "var(--space-5)" }}>
-      <div className="stack" style={{ gap: "6px", textAlign: "center" }}>
+    <div className="auth-form">
+      <div className="auth-form__intro">
         <h1>Sign in to your workspace</h1>
         <p className="muted">Enter the manufacturer and actor you're operating as.</p>
       </div>
@@ -180,7 +194,7 @@ export function Login() {
               Seed a demonstration tenant
             </Button>
             {lines.length > 0 && (
-              <div className="scenario-log" style={{ marginTop: "var(--space-2)" }}>
+              <div className="scenario-log auth-form__log">
                 {lines.map((line, index) => (
                   <span key={index} className={`scenario-log__line--${line.kind}`}>
                     {line.kind === "done" ? "\u2713 " : line.kind === "fail" ? "\u2717 " : "\u00b7 "}

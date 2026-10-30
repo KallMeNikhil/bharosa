@@ -1,4 +1,6 @@
-import { Fragment, useState } from "react";
+import { Fragment } from "react";
+
+import { useTabs } from "../hooks/useTabs";
 
 const NODES = [
   { label: "Product", detail: "A physical pack, made real to Bharosa the moment it's reserved." },
@@ -10,25 +12,29 @@ const NODES = [
 ];
 
 export function TrustChain() {
-  const [active, setActive] = useState(0);
+  const { active, onKeyDown, tabProps } = useTabs(NODES.length);
   const current = NODES[active];
 
   return (
     <div className="chain">
-      <div className="chain__rail" role="tablist" aria-label="How a product becomes a trust result">
+      <div
+        className="chain__rail"
+        role="tablist"
+        aria-label="How a product becomes a trust result"
+        onKeyDown={onKeyDown}
+      >
         {NODES.map((node, index) => (
           <Fragment key={node.label}>
             <button
-              type="button"
-              role="tab"
-              aria-selected={active === index}
-              className={`chain__node${active === index ? " is-active" : ""}`}
-              onClick={() => setActive(index)}
+              {...tabProps(index)}
+              className={`chain__node${active === index ? " is-active" : ""}${index < active ? " is-passed" : ""}`}
             >
               <span className="chain__index">{String(index + 1).padStart(2, "0")}</span>
               <span className="chain__label">{node.label}</span>
             </button>
-            {index < NODES.length - 1 && <span className="chain__connector" aria-hidden="true" />}
+            {index < NODES.length - 1 && (
+              <span className={`chain__connector${index < active ? " is-passed" : ""}`} aria-hidden="true" />
+            )}
           </Fragment>
         ))}
       </div>
@@ -37,7 +43,9 @@ export function TrustChain() {
         <span className="chain__panel-index">
           {String(active + 1).padStart(2, "0")}/{NODES.length}
         </span>
-        <p className="chain__panel-detail">{current.detail}</p>
+        <p key={active} className="chain__panel-detail">
+          {current.detail}
+        </p>
       </div>
     </div>
   );

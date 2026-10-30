@@ -4,11 +4,16 @@ import { defineConfig } from "vite";
 
 const backend = process.env.BHAROSA_API_ORIGIN ?? "http://127.0.0.1:8000";
 
+// File events from a Windows or macOS host do not cross into a container's
+// bind mount, so inside Docker the dev server polls for changes instead.
+const polling = process.env.BHAROSA_WATCH_POLLING === "true";
+
 export default defineConfig({
   plugins: [react()],
   server: {
     port: 5173,
     strictPort: true,
+    watch: polling ? { usePolling: true, interval: 300 } : undefined,
     proxy: {
       "/api": { target: backend, changeOrigin: true },
     },

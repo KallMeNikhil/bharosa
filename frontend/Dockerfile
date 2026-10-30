@@ -17,6 +17,10 @@ COPY . .
 
 EXPOSE 5173
 
+# Compose keeps node_modules in a named volume, which outlives image rebuilds,
+# so a dependency added to package.json would otherwise never reach it. Syncing
+# against the mounted lockfile on start is a no-op when nothing has changed.
+#
 # --host binds beyond the container's loopback, without which the published
 # port accepts a connection and then answers nothing.
-CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
+CMD ["sh", "-c", "npm install --no-audit --no-fund && exec npm run dev -- --host 0.0.0.0"]

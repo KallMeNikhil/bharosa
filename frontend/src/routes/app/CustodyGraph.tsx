@@ -1,4 +1,5 @@
 import { useState } from "react";
+import type { CSSProperties } from "react";
 
 import { identity, intelligence, supplyChain } from "../../api/endpoints";
 import { Badge, Button, Card, Empty, ErrorNote, InfoNote, Loading, Mono, PageHeader, Table } from "../../components/ui";
@@ -65,7 +66,6 @@ export function CustodyGraph() {
                 <td>
                   <input
                     type="checkbox"
-                    style={{ width: "auto" }}
                     checked={selected.includes(row.id)}
                     onChange={() =>
                       setSelected((current) =>
@@ -116,7 +116,7 @@ export function CustodyGraph() {
                     </span>
                     <span
                       className="custody-edges__link"
-                      style={{ opacity: Math.min(0.35 + edge.identity_count * 0.15, 1) }}
+                      style={{ "--weight": Math.min(0.35 + edge.identity_count * 0.15, 1) } as CSSProperties}
                     />
                     <span
                       className={`custody-edges__node${

@@ -1,0 +1,131 @@
+/* Pointer-driven surface effects. src/lib/pointerEffects.ts sets --mx/--my
+   (pointer position) and --rx/--ry (lean) on the surfaces listed there. */
+
+.card,
+.stat,
+.fraud-class-strip__item,
+.fraud-pattern,
+.layer-model__panel,
+.layer-model__item,
+.verify-form,
+.verify-steps__step,
+.not-list li,
+.evidence,
+.honesty,
+.verdict-explainer,
+.palette__panel {
+  background-image: radial-gradient(
+    360px circle at var(--mx, -400px) var(--my, -400px),
+    rgba(15, 157, 99, 0.075),
+    transparent 62%
+  );
+}
+
+.chain__panel {
+  background-image: radial-gradient(
+    420px circle at var(--mx, -400px) var(--my, -400px),
+    rgba(95, 211, 160, 0.1),
+    transparent 60%
+  );
+}
+
+.layer-model__item.is-active {
+  background-image: radial-gradient(
+    260px circle at var(--mx, -400px) var(--my, -400px),
+    rgba(95, 211, 160, 0.16),
+    transparent 62%
+  );
+}
+
+/* A sheen follows the pointer across primary buttons. */
+.button--primary {
+  background-image: radial-gradient(
+    120px circle at var(--mx, -200px) var(--my, -200px),
+    rgba(255, 255, 255, 0.2),
+    transparent 70%
+  );
+}
+
+/* Cards that lean toward the pointer. Spelled out against .reveal so the
+   scroll-in transform does not override the lean once it has played. */
+.role-card,
+.reveal.is-in.role-card {
+  transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+}
+
+.card--lift:hover,
+.role-card:hover {
+  box-shadow: var(--shadow-raised);
+  border-color: var(--color-border-strong);
+}
+
+/* Inline links underline from left to right. */
+.section-intro a,
+.prose a,
+.card__body p a,
+.card__actions a,
+.help-footnote a,
+.table td a,
+.empty a {
+  text-decoration: none;
+  background-image: linear-gradient(currentColor, currentColor);
+  background-size: 0% 1.5px;
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  transition: background-size var(--motion-layout) var(--motion-ease-out), color var(--motion-micro);
+}
+
+.section-intro a:hover,
+.prose a:hover,
+.card__body p a:hover,
+.card__actions a:hover,
+.help-footnote a:hover,
+.table td a:hover,
+.empty a:hover {
+  background-size: 100% 1.5px;
+}
+
+/* Rows lean in slightly from the edge. */
+.table tbody td:first-child {
+  transition: box-shadow var(--motion-micro) var(--motion-ease);
+}
+
+.table tbody tr:hover td:first-child {
+  box-shadow: inset 3px 0 0 var(--color-verdant);
+}
+
+/* Steps and stats respond to a hover as well as to data. */
+.verify-steps__step {
+  transition: border-color var(--motion-micro) var(--motion-ease),
+    transform var(--motion-layout) var(--motion-ease-out);
+}
+
+.verify-steps__step:hover {
+  border-color: var(--color-accent-border);
+  transform: translateY(-2px);
+}
+
+.verify-steps__step:hover .verify-steps__dot {
+  border-color: var(--color-verdant);
+  color: var(--color-genuine);
+}
+
+.verify-steps__dot {
+  transition: border-color var(--motion-micro), color var(--motion-micro);
+}
+
+/* Badges and chips settle into place when they change. */
+.badge {
+  transition: transform var(--motion-micro) var(--motion-ease);
+}
+
+.badge:hover {
+  transform: translateY(-1px);
+}
+
+@media (hover: none) {
+  .role-card,
+  .reveal.is-in.role-card {
+    transform: none;
+  }
+}

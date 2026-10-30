@@ -125,7 +125,7 @@ export function IncidentDetail() {
                   {event.previous_status && <span className="muted">{event.previous_status} →</span>}
                   <Badge>{event.new_status}</Badge>
                 </div>
-                {event.note && <p style={{ margin: "4px 0 0" }}>{event.note}</p>}
+                {event.note && <p>{event.note}</p>}
                 <div className="timeline__meta">
                   {event.actor} · <Timestamp value={event.occurred_at} />
                 </div>

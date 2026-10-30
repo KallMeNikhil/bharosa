@@ -98,5 +98,21 @@ describe("App", () => {
       expect(await screen.findByRole("heading", { name: "Registered" })).toBeInTheDocument();
       expect(screen.queryByText(/risk score|detector|confidence/i)).not.toBeInTheDocument();
     });
+
+    it("checks a printed Digital Link opened from a phone camera", async () => {
+      const fetchMock = vi.fn(async () =>
+        new Response(
+          JSON.stringify({ state: "CAUTION", message: "look closer", checked_at: new Date().toISOString() }),
+          { status: 200 },
+        ),
+      );
+      vi.stubGlobal("fetch", fetchMock);
+
+      await renderAt("/01/09506000134352/21/A1?bhs=abcd");
+
+      expect(await screen.findByRole("heading", { name: "Check first" })).toBeInTheDocument();
+      const body = JSON.parse((fetchMock.mock.calls[0] as unknown as [string, RequestInit])[1].body as string);
+      expect(body.digital_link).toContain("/01/09506000134352/21/A1?bhs=abcd");
+    });
   });
 });

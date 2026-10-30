@@ -86,6 +86,8 @@ services:
       # Vite proxies /api here, so the browser makes same-origin requests and
       # the backend needs no CORS middleware.
       BHAROSA_API_ORIGIN: http://api:8000
+      # Host file changes do not reach a bind-mounted container as events.
+      BHAROSA_WATCH_POLLING: "true"
     volumes:
       - ../frontend:/app
       # Keeps the container's Linux node_modules from being shadowed by the

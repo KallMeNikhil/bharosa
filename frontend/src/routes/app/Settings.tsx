@@ -16,7 +16,7 @@ export function Settings() {
 
       <div className="grid-2">
         <Card title="Organization">
-          <div className="stack" style={{ gap: "var(--space-2)" }}>
+          <div className="detail-list">
             <div>
               <span className="field__label">Name</span>
               <div>{session.manufacturerName || "\u2014"}</div>
@@ -35,7 +35,7 @@ export function Settings() {
         </Card>
 
         <Card title="Access">
-          <div className="stack" style={{ gap: "var(--space-3)" }}>
+          <div className="stack stack--md">
             <div className="cluster">
               {session.capabilities.length === 0 && <span className="muted">No capabilities granted.</span>}
               {session.capabilities.map((capability) => (
@@ -44,14 +44,14 @@ export function Settings() {
                 </Badge>
               ))}
             </div>
-            <Link to="/app/keys">Manage signing keys \u2192</Link>
+            <Link to="/app/keys">Manage signing keys →</Link>
           </div>
         </Card>
 
         <Card title="Authentication" wide>
           <p className="muted">
             This workspace currently uses development credential resolution as a stand-in for
-            authentication \u2014 the server verifies nothing about who you claim to be, but
+            authentication — the server verifies nothing about who you claim to be, but
             capability checks are real and enforced server-side. A production authentication
             provider replaces this in a later milestone.
           </p>

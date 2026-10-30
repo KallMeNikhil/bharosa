@@ -1,3 +1,5 @@
+import type { CSSProperties } from "react";
+
 import type { ContributionView, EvidenceView, RiskAssessmentView } from "../api/types";
 import { Badge, Empty, Timestamp } from "./ui";
 
@@ -38,7 +40,6 @@ export function EvidenceList({
               {selectable && (
                 <input
                   type="checkbox"
-                  style={{ width: "auto" }}
                   checked={selected?.includes(item.id) ?? false}
                   onChange={() => onToggle?.(item.id)}
                 />
@@ -52,7 +53,7 @@ export function EvidenceList({
                 log LR {item.log_likelihood_ratio.toFixed(2)}
                 {contribution && ` · weighted ${contribution.contributed_log_odds.toFixed(2)}`}
               </span>
-              <span style={{ marginLeft: "auto" }}>
+              <span className="push-right">
                 <Timestamp value={item.generated_at} />
               </span>
             </header>
@@ -103,7 +104,7 @@ export function AssessmentSummary({ assessment }: { assessment: RiskAssessmentVi
           prior {assessment.prior_log_odds.toFixed(2)} → posterior{" "}
           {assessment.posterior_log_odds.toFixed(2)} log-odds
         </span>
-        <span style={{ marginLeft: "auto" }}>
+        <span className="push-right">
           <Timestamp value={assessment.generated_at} />
         </span>
       </header>
@@ -111,10 +112,10 @@ export function AssessmentSummary({ assessment }: { assessment: RiskAssessmentVi
         <span className="severity-rail__bar">
           <span
             className="severity-rail__fill"
-            style={{ width: `${fill}%`, background: color }}
+            style={{ "--fill": `${fill}%`, "--fill-color": color } as CSSProperties}
           />
         </span>
-        <span className="muted" style={{ fontSize: "0.8rem" }}>
+        <span className="severity-rail__caption">
           {fill}% implied likelihood
         </span>
       </div>

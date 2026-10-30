@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import { Link } from "react-router-dom";
 
 import { identity, intelligence, supplyChain } from "../../api/endpoints";
@@ -5,6 +6,7 @@ import { LifecycleTrack } from "../../components/LifecycleTrack";
 import {
   Badge,
   Card,
+  CountUp,
   Empty,
   ErrorNote,
   Loading,
@@ -42,41 +44,30 @@ export function Overview() {
         description="Everything below is scoped to this manufacturer by the database itself, not by the queries on this page."
       />
 
-      <div
-        className="ink-surface card--wide"
-        style={{
-          borderRadius: "var(--radius)",
-          padding: "var(--space-5)",
-          display: "flex",
-          flexWrap: "wrap",
-          gap: "var(--space-6)",
-          alignItems: "center",
-          justifyContent: "space-between",
-        }}
-      >
-        <div>
-          <span className="eyebrow" style={{ color: "var(--color-ink-accent)" }}>
-            Identity activation
-          </span>
-          <div style={{ display: "flex", alignItems: "baseline", gap: "var(--space-2)", marginTop: "4px" }}>
-            <span style={{ fontSize: "2.2rem", fontWeight: 700 }}>
-              {activationRate === null ? "—" : `${activationRate}%`}
+      <div className="ink-surface overview-hero">
+        <div className="overview-hero__metric">
+          <span className="eyebrow">Identity activation</span>
+          <div className="overview-hero__figure">
+            <span className="overview-hero__value">
+              {activationRate === null ? "—" : <><CountUp value={activationRate} />%</>}
             </span>
             <span className="muted">
               {activated} of {rows.length || 0} identities activated
             </span>
           </div>
+          <span className="overview-hero__meter" aria-hidden="true">
+            <span
+              className="overview-hero__meter-fill"
+              style={{ "--fill": `${activationRate ?? 0}%` } as CSSProperties}
+            />
+          </span>
         </div>
 
-        <div style={{ textAlign: "right" }}>
-          <span className="eyebrow" style={{ color: "var(--color-ink-accent)" }}>
-            Trust status
-          </span>
-          <div style={{ marginTop: "4px" }}>
-            <Badge tone={trustClear ? "good" : "warn"}>
-              {trustClear ? "Clear — nothing under investigation" : `${open.length} live investigation${open.length === 1 ? "" : "s"}`}
-            </Badge>
-          </div>
+        <div className="overview-hero__status">
+          <span className="eyebrow">Trust status</span>
+          <Badge tone={trustClear ? "good" : "warn"}>
+            {trustClear ? "Clear — nothing under investigation" : `${open.length} live investigation${open.length === 1 ? "" : "s"}`}
+          </Badge>
         </div>
       </div>
 

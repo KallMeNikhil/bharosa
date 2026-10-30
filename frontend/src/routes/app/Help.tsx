@@ -18,9 +18,9 @@ export function Help() {
         description="Quick reference for the concepts used throughout the workspace."
       />
 
-      <div className="grid-2" style={{ marginTop: "var(--space-2)" }}>
+      <div className="grid-2 grid-2--stretch">
         {TERMS.map((item) => (
-          <div className="card" key={item.term}>
+          <div className="card card--lift" key={item.term}>
             <div className="card__body">
               <h3>{item.term}</h3>
               <p className="muted">{item.body}</p>
@@ -29,7 +29,7 @@ export function Help() {
         ))}
       </div>
 
-      <p className="muted" style={{ marginTop: "var(--space-5)" }}>
+      <p className="muted help-footnote">
         For the full trust model, see <Link to="/how-it-works">How it works</Link>. For anything
         else, see <Link to="/contact">Contact</Link>.
       </p>

@@ -1,5 +1,8 @@
 import { useState } from "react";
-import type { ButtonHTMLAttributes, ReactNode } from "react";
+import type { ButtonHTMLAttributes, ElementType, ReactNode } from "react";
+
+import { useCountUp, useInView } from "../hooks/useMotion";
+import { Icon } from "./icons";
 
 export function Container({ children }: { children: ReactNode }) {
   return <div className="container">{children}</div>;
@@ -8,7 +11,7 @@ export function Container({ children }: { children: ReactNode }) {
 export function BrandMark({ size = 26 }: { size?: number }) {
   return (
     <img
-      src="/bharosa.png"
+      src="/bharosa-mark.png"
       alt="Bharosa"
       width={size}
       height={size}
@@ -27,6 +30,50 @@ export function Section({
   return <section className={tight ? "section section--tight" : "section"}>{children}</section>;
 }
 
+// Fades and lifts its content in the first time it scrolls into view.
+export function Reveal({
+  children,
+  as: Tag = "div",
+  className,
+  delay = 0,
+}: {
+  children: ReactNode;
+  as?: ElementType;
+  className?: string;
+  delay?: 0 | 1 | 2 | 3;
+}) {
+  const [ref, inView] = useInView<HTMLElement>();
+  return (
+    <Tag
+      ref={ref}
+      className={`reveal reveal--d${delay}${inView ? " is-in" : ""}${className ? ` ${className}` : ""}`}
+    >
+      {children}
+    </Tag>
+  );
+}
+
+export function SectionIntro({
+  eyebrow,
+  title,
+  children,
+  level = 2,
+}: {
+  eyebrow?: ReactNode;
+  title: ReactNode;
+  children?: ReactNode;
+  level?: 1 | 2;
+}) {
+  const Heading = level === 1 ? "h1" : "h2";
+  return (
+    <div className={`section-intro${level === 1 ? " section-intro--page" : ""}`}>
+      {eyebrow && <span className="eyebrow">{eyebrow}</span>}
+      <Heading>{title}</Heading>
+      {children && <div className="section-intro__body">{children}</div>}
+    </div>
+  );
+}
+
 export function PageHeader({
   eyebrow,
   title,
@@ -40,7 +87,7 @@ export function PageHeader({
 }) {
   return (
     <div className="page-header">
-      <div>
+      <div className="page-header__text">
         {eyebrow && <span className="eyebrow">{eyebrow}</span>}
         <h1>{title}</h1>
         {description && <p>{description}</p>}
@@ -59,7 +106,7 @@ export function TechnicalDisclosure({
 }) {
   const [open, setOpen] = useState(false);
   return (
-    <div className="disclosure">
+    <div className={`disclosure${open ? " is-open" : ""}`}>
       <button
         type="button"
         className="disclosure__trigger"
@@ -67,7 +114,7 @@ export function TechnicalDisclosure({
         aria-expanded={open}
       >
         {label}
-        <span aria-hidden="true">{open ? "\u2212" : "+"}</span>
+        <span className="disclosure__sign" aria-hidden="true" />
       </button>
       {open && <div className="disclosure__body">{children}</div>}
     </div>
@@ -177,21 +224,39 @@ export function Button({ variant = "secondary", pending, children, ...rest }: Bu
     <button
       type={rest.type ?? "button"}
       {...rest}
-      className={`button button--${variant}${rest.className ? ` ${rest.className}` : ""}`}
+      className={`button button--${variant}${pending ? " is-pending" : ""}${rest.className ? ` ${rest.className}` : ""}`}
       disabled={rest.disabled || pending}
+      aria-busy={pending || undefined}
     >
-      {pending ? "Working…" : children}
+      {pending ? (
+        <>
+          <span className="spinner" aria-hidden="true" />
+          Working…
+        </>
+      ) : (
+        children
+      )}
     </button>
   );
 }
 
 export function ErrorNote({ children }: { children: ReactNode }) {
   if (!children) return null;
-  return <p className="note note--error">{children}</p>;
+  return (
+    <p className="note note--error" role="alert">
+      <Icon name="alert" size={18} />
+      <span>{children}</span>
+    </p>
+  );
 }
 
 export function InfoNote({ children }: { children: ReactNode }) {
-  return <p className="note note--info">{children}</p>;
+  return (
+    <p className="note note--info">
+      <Icon name="info" size={18} />
+      <span>{children}</span>
+    </p>
+  );
 }
 
 export function Empty({ children }: { children: ReactNode }) {
@@ -199,7 +264,14 @@ export function Empty({ children }: { children: ReactNode }) {
 }
 
 export function Loading({ label = "Loading" }: { label?: string }) {
-  return <p className="empty">{label}…</p>;
+  return (
+    <div className="skeleton" role="status">
+      <span className="sr-only">{label}…</span>
+      <span className="skeleton__line" />
+      <span className="skeleton__line" />
+      <span className="skeleton__line skeleton__line--short" />
+    </div>
+  );
 }
 
 export function Mono({ value, short }: { value: string | null | undefined; short?: boolean }) {
@@ -211,7 +283,7 @@ export function Mono({ value, short }: { value: string | null | undefined; short
   return (
     <button
       type="button"
-      className="mono"
+      className={`mono${copied ? " is-copied" : ""}`}
       title={`${value} — click to copy`}
       onClick={() => {
         void navigator.clipboard.writeText(value);
@@ -224,10 +296,14 @@ export function Mono({ value, short }: { value: string | null | undefined; short
   );
 }
 
+export function CountUp({ value }: { value: number }) {
+  return <>{useCountUp(value)}</>;
+}
+
 export function Stat({ label, value, tone }: { label: string; value: ReactNode; tone?: Tone }) {
   return (
     <div className={`stat${tone ? ` stat--${tone}` : ""}`}>
-      <span className="stat__value">{value}</span>
+      <span className="stat__value">{typeof value === "number" ? <CountUp value={value} /> : value}</span>
       <span className="stat__label">{label}</span>
     </div>
   );

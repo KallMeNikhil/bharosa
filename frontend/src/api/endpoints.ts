@@ -57,6 +57,9 @@ export const publicSurface = {
 export const identity = {
   me: () => request<ActorView>("/me"),
 
+  ownManufacturer: (credential?: string) =>
+    request<ManufacturerView>("/manufacturer", { credential }),
+
   createManufacturer: (name: string) =>
     request<ManufacturerView>("/manufacturers", {
       method: "POST",

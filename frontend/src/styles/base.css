@@ -1,0 +1,294 @@
+/* Reset, element defaults and layout utilities. */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font: var(--text-body);
+  font-feature-settings: "ss01", "cv11";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: rgba(15, 157, 99, 0.22);
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  color: var(--color-text);
+  text-wrap: balance;
+}
+
+h1 {
+  font: var(--text-h1);
+  letter-spacing: -0.022em;
+}
+
+h2 {
+  font: var(--text-h2);
+  letter-spacing: -0.018em;
+}
+
+h3 {
+  font: var(--text-h3);
+  letter-spacing: -0.008em;
+}
+
+p {
+  margin: 0;
+  text-wrap: pretty;
+}
+
+ul,
+ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+img,
+svg {
+  display: block;
+}
+
+a {
+  color: var(--color-accent-text);
+  text-decoration: none;
+  text-underline-offset: 3px;
+  transition: color var(--motion-micro) var(--motion-ease);
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+  color: inherit;
+}
+
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-verdant);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+hr {
+  margin: 0;
+}
+
+.icon {
+  flex-shrink: 0;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.skip-link {
+  position: absolute;
+  left: var(--space-4);
+  top: -48px;
+  z-index: 100;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text);
+  box-shadow: var(--shadow-raised);
+  transition: top var(--motion-micro) var(--motion-ease);
+}
+
+.skip-link:focus {
+  top: var(--space-3);
+}
+
+/* Text helpers */
+
+.muted {
+  color: var(--color-text-muted);
+}
+
+.small {
+  font: var(--text-small);
+}
+
+.lede {
+  font: var(--text-lede);
+  color: var(--color-text-muted);
+  max-width: 62ch;
+}
+
+.measure {
+  max-width: 68ch;
+}
+
+.eyebrow {
+  display: inline-block;
+  font: 500 0.72rem / 1.4 var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--color-accent-text);
+}
+
+.page-title {
+  font: var(--text-display);
+  letter-spacing: var(--tracking-tight);
+}
+
+/* Layout */
+
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--space-4);
+}
+
+@media (min-width: 640px) {
+  .container {
+    padding: 0 var(--space-5);
+  }
+}
+
+@media (min-width: 1024px) {
+  .container {
+    padding: 0 var(--space-6);
+  }
+}
+
+.section {
+  padding: var(--space-8) 0;
+}
+
+.section--tight {
+  padding: var(--space-6) 0;
+}
+
+@media (min-width: 1024px) {
+  .section {
+    padding: var(--space-9) 0;
+  }
+
+  .section--tight {
+    padding: var(--space-7) 0;
+  }
+}
+
+.rule {
+  border: none;
+  border-top: 1px solid var(--color-border);
+  margin: 0;
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.stack--sm {
+  gap: var(--space-2);
+}
+
+.stack--md {
+  gap: var(--space-3);
+}
+
+.cluster {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: center;
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+  gap: var(--space-4);
+  align-items: start;
+}
+
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
+  gap: var(--space-3);
+}
+
+.grid-2--stretch {
+  align-items: stretch;
+}
+
+.push-right {
+  margin-left: auto;
+}
+
+.section-intro {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  max-width: 68ch;
+  margin-bottom: var(--space-6);
+}
+
+.section-intro__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  color: var(--color-text-muted);
+}
+
+.section-intro--page {
+  margin-bottom: 0;
+}
+
+.section-intro--page h1 {
+  font: var(--text-display);
+  letter-spacing: var(--tracking-tight);
+}
+
+.section-intro--page .section-intro__body {
+  font: var(--text-lede);
+}

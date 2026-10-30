@@ -1,6 +1,7 @@
-import { useState } from "react";
-import { NavLink, Outlet } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
+import { NavLink, Outlet, useLocation } from "react-router-dom";
 
+import { Icon } from "../icons";
 import { BrandMark } from "../ui";
 
 const NAV_LINKS = [
@@ -28,13 +29,65 @@ const FOOTER_LEGAL_LINKS = [
 
 export function PublicShell() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const [tucked, setTucked] = useState(false);
+  const headerRef = useRef<HTMLElement>(null);
+  const { pathname } = useLocation();
+  const isHome = pathname === "/";
+
+  useEffect(() => {
+    setMenuOpen(false);
+    window.scrollTo?.({ top: 0 });
+  }, [pathname]);
+
+  // The header steps aside while reading down the page and returns on the
+  // first scroll up. Its bottom edge doubles as a reading-progress line.
+  useEffect(() => {
+    let lastY = window.scrollY;
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      const y = window.scrollY;
+      const room = document.documentElement.scrollHeight - window.innerHeight;
+      setScrolled(y > 8);
+      setTucked(y > 320 && y > lastY + 2 ? true : y < lastY - 2 ? false : (value) => value);
+      headerRef.current?.style.setProperty("--progress", room > 0 ? String(Math.min(y / room, 1)) : "0");
+      lastY = y;
+    };
+    const onScroll = () => {
+      if (!frame) frame = requestAnimationFrame(update);
+    };
+    update();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", onScroll);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setMenuOpen(false);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [menuOpen]);
 
   return (
-    <div className="pub">
-      <header className="pub-header">
+    <div className={`pub${isHome ? " pub--home" : ""}`}>
+      <a className="skip-link" href="#main">
+        Skip to content
+      </a>
+      <header
+        ref={headerRef}
+        className={`pub-header${scrolled ? " is-scrolled" : ""}${menuOpen ? " is-menu-open" : ""}${
+          tucked && !menuOpen ? " is-tucked" : ""
+        }`}
+      >
         <div className="container pub-header__row">
-          <NavLink to="/" className="pub-header__brand brand-lockup" onClick={() => setMenuOpen(false)}>
-            <BrandMark />
+          <NavLink to="/" className="pub-header__brand brand-lockup">
+            <BrandMark size={30} />
             <span className="brand-lockup__text">
               <span className="brand-lockup__name">BHAROSA</span>
             </span>
@@ -64,7 +117,7 @@ export function PublicShell() {
               aria-label={menuOpen ? "Close menu" : "Open menu"}
               onClick={() => setMenuOpen((value) => !value)}
             >
-              {menuOpen ? "\u2715" : "\u2630"}
+              <Icon name={menuOpen ? "close" : "menu"} size={22} />
             </button>
           </div>
         </div>
@@ -73,8 +126,15 @@ export function PublicShell() {
           <div className="container">
             <nav className="pub-header__mobile-nav" aria-label="Primary mobile">
               {NAV_LINKS.map((link) => (
-                <NavLink key={link.to} to={link.to} end={link.end} onClick={() => setMenuOpen(false)}>
+                <NavLink
+                  key={link.to}
+                  to={link.to}
+                  end={link.end}
+                  className={({ isActive }) => (isActive ? "is-active" : undefined)}
+                  onClick={() => setMenuOpen(false)}
+                >
                   {link.label}
+                  <Icon name="arrow" size={18} />
                 </NavLink>
               ))}
             </nav>
@@ -82,20 +142,20 @@ export function PublicShell() {
         )}
       </header>
 
-      <main>
-        <Outlet />
+      <main id="main" className="pub-main">
+        <div key={pathname} className="page-enter">
+          <Outlet />
+        </div>
       </main>
 
       <footer className="pub-footer">
         <div className="container pub-footer__grid">
-          <div className="stack pub-footer__brand" style={{ gap: "var(--space-3)" }}>
+          <div className="pub-footer__brand">
             <span className="brand-lockup">
-              <BrandMark size={22} />
-              <span className="brand-lockup__name" style={{ color: "var(--color-ink-text)" }}>
-                Bharosa
-              </span>
+              <BrandMark size={28} />
+              <span className="brand-lockup__name">Bharosa</span>
             </span>
-            <p className="muted" style={{ fontSize: "0.85rem", maxWidth: "36ch" }}>
+            <p className="pub-footer__blurb">
               Behavioral integrity for physical goods — proving not just that a code is valid, but
               that the product carrying it behaves like one genuine object.
             </p>
@@ -130,9 +190,7 @@ export function PublicShell() {
         </div>
 
         <div className="container pub-footer__base">
-          <span className="muted" style={{ fontSize: "0.78rem" }}>
-            © {new Date().getFullYear()} Bharosa. Behavioral integrity for physical goods.
-          </span>
+          <span>© {new Date().getFullYear()} Bharosa. Behavioral integrity for physical goods.</span>
         </div>
       </footer>
     </div>

@@ -1,0 +1,137 @@
+/*
+ * Design tokens. The palette and type follow the consumer and distributor apps
+ * (consumer_app/src/theme.ts, distributor_app/src/theme.ts) so the web, the
+ * scanner and the distributor tool read as one product.
+ */
+
+:root {
+  color-scheme: light;
+
+  /* Paper and surfaces */
+  --color-bg: #f4f6f1;
+  --color-surface: #ffffff;
+  --color-surface-sunken: #eef1eb;
+  --color-surface-hover: #e6ebe3;
+  --color-border: #dde3da;
+  --color-border-strong: #c3cdc1;
+
+  /* Text */
+  --color-text: #0b1410;
+  --color-text-soft: #33453d;
+  --color-text-muted: #5f7169;
+  --color-text-faint: #77887f;
+
+  /* Pine: the brand's dark ground (consumer app "pine") */
+  --color-ink: #0b3326;
+  --color-ink-deep: #072219;
+  --color-night: #05140f;
+  --color-ink-raised: #10402f;
+  --color-ink-border: #1f5a44;
+  --color-ink-text: #eaf2ec;
+  --color-ink-text-muted: rgba(234, 242, 236, 0.68);
+  --color-ink-heading: #ffffff;
+  --color-ink-lede: rgba(234, 242, 236, 0.84);
+  --color-ink-accent: #5fd3a0;
+  --color-ink-accent-strong: #8fe3bd;
+  --color-accent-on-ink: #0f9d63;
+  --color-accent-on-ink-hover: #13b170;
+
+  /* Ledger: the operator workspace's ground (distributor app "ledger") */
+  --color-ledger: #082a1f;
+  --color-ledger-deep: #051a13;
+  --color-ledger-raised: #0f3a2b;
+  --color-ledger-border: #1a4a38;
+
+  /* Interactive accent */
+  --color-accent: #0b7f50;
+  --color-accent-hover: #096b43;
+  --color-accent-text: #0c7a4c;
+  --color-accent-soft: rgba(15, 157, 99, 0.1);
+  --color-accent-border: rgba(15, 157, 99, 0.38);
+
+  --color-soil: #9c5a2e;
+  --color-soil-soft: rgba(156, 90, 46, 0.12);
+  --color-soil-border: rgba(156, 90, 46, 0.36);
+
+  /* Result colours: fills match the apps; text shades are darkened for contrast */
+  --color-verdant: #0f9d63;
+  --color-marigold: #e08715;
+  --color-clay: #c9403d;
+  --color-slate: #5f7169;
+
+  --color-genuine: #0b7a4b;
+  --color-genuine-soft: rgba(15, 157, 99, 0.11);
+  --color-genuine-border: rgba(15, 157, 99, 0.38);
+
+  --color-caution: #a35f08;
+  --color-caution-soft: rgba(224, 135, 21, 0.13);
+  --color-caution-border: rgba(224, 135, 21, 0.42);
+
+  --color-invalid: #b23633;
+  --color-invalid-soft: rgba(201, 64, 61, 0.11);
+  --color-invalid-border: rgba(201, 64, 61, 0.38);
+
+  --color-neutral: #5f7169;
+  --color-neutral-soft: rgba(95, 113, 105, 0.11);
+  --color-neutral-border: rgba(95, 113, 105, 0.32);
+
+  /* Shape and depth */
+  --radius-sm: 8px;
+  --radius: 12px;
+  --radius-lg: 20px;
+  --radius-pill: 999px;
+
+  --shadow-card: 0 1px 2px rgba(11, 20, 16, 0.04), 0 1px 1px rgba(11, 20, 16, 0.03);
+  --shadow-raised: 0 2px 4px rgba(11, 20, 16, 0.04), 0 10px 24px -8px rgba(11, 20, 16, 0.12);
+  --shadow-elevated: 0 24px 56px -16px rgba(11, 20, 16, 0.32);
+  --ring: 0 0 0 3px rgba(15, 157, 99, 0.22);
+
+  /* Spacing (8pt) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+  --space-9: 96px;
+
+  /* Type */
+  --font-sans: "Plus Jakarta Sans Variable", "Plus Jakarta Sans", -apple-system, "Segoe UI",
+    system-ui, sans-serif;
+  --font-mono: "JetBrains Mono Variable", "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo,
+    Consolas, monospace;
+
+  --text-hero: 800 clamp(2.5rem, 1.55rem + 3.6vw, 4.25rem) / 1.02 var(--font-sans);
+  --text-display: 800 clamp(2rem, 1.5rem + 2vw, 3rem) / 1.08 var(--font-sans);
+  --text-h1: 750 clamp(1.5rem, 1.3rem + 0.8vw, 1.9rem) / 1.18 var(--font-sans);
+  --text-h2: 700 clamp(1.25rem, 1.12rem + 0.5vw, 1.55rem) / 1.25 var(--font-sans);
+  --text-h3: 650 1.02rem / 1.35 var(--font-sans);
+  --text-lede: 450 clamp(1.05rem, 1rem + 0.25vw, 1.2rem) / 1.6 var(--font-sans);
+  --text-body: 450 0.975rem / 1.6 var(--font-sans);
+  --text-small: 450 0.86rem / 1.5 var(--font-sans);
+  --text-caption: 650 0.72rem / 1.4 var(--font-sans);
+  --text-numeric: 550 0.9rem / 1.3 var(--font-mono);
+
+  --tracking-tight: -0.03em;
+  --tracking-caps: 0.1em;
+
+  /* Motion */
+  --motion-micro: 160ms;
+  --motion-layout: 280ms;
+  --motion-enter: 560ms;
+  --motion-ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --motion-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+
+  --header-height: 68px;
+  --sidebar-width: 256px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion-micro: 0ms;
+    --motion-layout: 0ms;
+    --motion-enter: 0ms;
+  }
+}

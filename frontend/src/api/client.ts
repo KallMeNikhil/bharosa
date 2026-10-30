@@ -59,6 +59,9 @@ export interface RequestOptions {
   body?: unknown;
   query?: Record<string, string | number | string[] | undefined>;
   anonymous?: boolean;
+  // Sends this credential instead of the session one, for checking a tenant
+  // before signing in to it.
+  credential?: string;
 }
 
 function buildPath(path: string, query: RequestOptions["query"]): string {
@@ -98,7 +101,8 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
   const headers: Record<string, string> = { Accept: "application/json" };
 
   if (options.body !== undefined) headers["Content-Type"] = "application/json";
-  if (!options.anonymous && credential) headers.Authorization = `Bearer ${credential}`;
+  const bearer = options.credential ?? credential;
+  if (!options.anonymous && bearer) headers.Authorization = `Bearer ${bearer}`;
 
   const startedAt = new Date();
   const startedTicks = performance.now();

@@ -1,22 +1,28 @@
-import { Container, Section } from "../../components/ui";
+import { Container, InfoNote, Section, SectionIntro } from "../../components/ui";
 
 export function Contact() {
   return (
-    <Container>
-      <Section tight>
-        <div className="stack" style={{ maxWidth: "60ch" }}>
-          <span className="eyebrow">Contact</span>
-          <h1>Get in touch</h1>
-          <p className="muted">
-            For manufacturer onboarding, partnership, or press inquiries, reach the Bharosa team
-            through your existing point of contact.
-          </p>
-          <div className="note note--info">
-            Placeholder — a dedicated contact channel (email, form, or support desk) has not
-            yet been finalized and will replace this note once available.
+    <>
+      <div className="page-hero">
+        <Container>
+          <SectionIntro level={1} eyebrow="Contact" title="Get in touch">
+            <p>
+              For manufacturer onboarding, partnership, or press inquiries, reach the Bharosa team
+              through your existing point of contact.
+            </p>
+          </SectionIntro>
+        </Container>
+      </div>
+      <Container>
+        <Section tight>
+          <div className="prose">
+            <InfoNote>
+              Placeholder — a dedicated contact channel (email, form, or support desk) has not
+              yet been finalized and will replace this note once available.
+            </InfoNote>
           </div>
-        </div>
-      </Section>
-    </Container>
+        </Section>
+      </Container>
+    </>
   );
 }

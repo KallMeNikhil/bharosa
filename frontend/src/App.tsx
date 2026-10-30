@@ -40,6 +40,7 @@ import { HowItWorks } from "./routes/public/HowItWorks";
 import { LegalPrivacy } from "./routes/public/LegalPrivacy";
 import { LegalTerms } from "./routes/public/LegalTerms";
 import { Verify } from "./routes/public/Verify";
+import { VerifyLink } from "./routes/public/VerifyLink";
 import { VerifyResult } from "./routes/public/VerifyResult";
 import { SessionProvider } from "./session/SessionContext";
 
@@ -56,6 +57,8 @@ function App() {
           <Route path="legal/terms" element={<LegalTerms />} />
           <Route path="verify" element={<Verify />} />
           <Route path="verify/result" element={<VerifyResult />} />
+          {/* A printed GS1 Digital Link, opened from a phone camera. */}
+          <Route path="01/*" element={<VerifyLink />} />
         </Route>
 
         <Route element={<AuthShell />}>
