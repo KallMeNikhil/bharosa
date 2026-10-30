@@ -18,10 +18,10 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "example.bharosa.consumer"
+      "bundleIdentifier": "xyz.whynikhil.bharosa.consumer"
     },
     "android": {
-      "package": "example.bharosa.consumer",
+      "package": "xyz.whynikhil.bharosa.consumer",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#123D31"
@@ -34,7 +34,8 @@
           "data": [
             {
               "scheme": "https",
-              "host": "id.bharosa.example"
+              "host": "bharosa.whynikhil.xyz",
+              "pathPrefix": "/01"
             }
           ],
           "category": [

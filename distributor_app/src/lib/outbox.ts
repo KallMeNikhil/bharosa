@@ -35,6 +35,9 @@ export interface FlushResult {
   sent: number;
   rejected: number;
   offline: boolean;
+  // The session has ended. Nothing is rejected for it: the movements wait,
+  // like they do offline, until someone signs the device in again.
+  signedOut: boolean;
 }
 
 export async function readOutbox(): Promise<OutboxEntry[]> {
@@ -92,7 +95,7 @@ export function rejectedCount(entries: OutboxEntry[]): number {
 
 export async function flush(connection: Connection): Promise<FlushResult> {
   const entries = await readOutbox();
-  const result: FlushResult = { sent: 0, rejected: 0, offline: false };
+  const result: FlushResult = { sent: 0, rejected: 0, offline: false, signedOut: false };
 
   for (const entry of entries) {
     for (const event of entry.events) {
@@ -122,6 +125,11 @@ export async function flush(connection: Connection): Promise<FlushResult> {
       } catch (cause) {
         if (cause instanceof OfflineError) {
           result.offline = true;
+          await writeOutbox(entries);
+          return result;
+        }
+        if (cause instanceof ApiError && cause.status === 401) {
+          result.signedOut = true;
           await writeOutbox(entries);
           return result;
         }

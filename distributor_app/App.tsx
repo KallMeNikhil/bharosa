@@ -17,9 +17,11 @@ import { Alert, Platform, StyleSheet, View } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import {
+  ApiError,
   currentCustodian,
   listParticipants,
   resolveSerial,
+  signOut,
   type Participant,
 } from "./src/api/client";
 import { readScannedCode } from "./src/lib/code";
@@ -102,12 +104,24 @@ export default function App() {
   const [outbox, setOutbox] = useState<OutboxEntry[]>([]);
   const [summary, setSummary] = useState<RecordedSummary | null>(null);
   const [busy, setBusy] = useState(false);
+  const [connectNotice, setConnectNotice] = useState<string | null>(null);
 
   // Scan resolution is asynchronous and a storeman scans faster than a round
   // trip completes, so dedupe reads this rather than the state a closure
   // happened to capture.
   const consignmentRef = useRef<Consignment | null>(null);
   consignmentRef.current = consignment;
+
+  const sessionEnded = useCallback(async () => {
+    await forgetDevice();
+    setDevice(null);
+    setParticipants([]);
+    setDraft(null);
+    setConnectNotice(
+      "Your session has ended. Sign in again; anything not yet sent is still on this device.",
+    );
+    setScreen("connect");
+  }, []);
 
   useEffect(() => {
     (async () => {
@@ -120,11 +134,12 @@ export default function App() {
       // Anything left over from the last shift goes out as soon as the app is
       // opened somewhere with a signal, without anyone having to remember.
       if (stored && pendingCount(entries) > 0) {
-        await flush(connectionFor(stored));
+        const result = await flush(connectionFor(stored));
         setOutbox(await readOutbox());
+        if (result.signedOut) await sessionEnded();
       }
     })();
-  }, []);
+  }, [sessionEnded]);
 
   // The participant list is fetched once per launch so the setup screen has
   // somewhere to send stock even if the depot loses signal mid-shift.
@@ -132,8 +147,10 @@ export default function App() {
     if (!device) return;
     listParticipants(connectionFor(device))
       .then(setParticipants)
-      .catch(() => undefined);
-  }, [device]);
+      .catch((cause) => {
+        if (cause instanceof ApiError && cause.status === 401) void sessionEnded();
+      });
+  }, [device, sessionEnded]);
 
   const updatePack = useCallback(
     (serial: string, patch: Partial<Consignment["packs"][number]>) => {
@@ -232,7 +249,12 @@ export default function App() {
     try {
       const connection = connectionFor(device);
       await enqueue(consignment);
-      await flush(connection);
+      const result = await flush(connection);
+      if (result.signedOut) {
+        setConsignment(null);
+        await sessionEnded();
+        return;
+      }
 
       const entries = await readOutbox();
       setOutbox(entries);
@@ -268,8 +290,9 @@ export default function App() {
     if (!device) return;
     setBusy(true);
     try {
-      await flush(connectionFor(device));
+      const result = await flush(connectionFor(device));
       setOutbox(await readOutbox());
+      if (result.signedOut) await sessionEnded();
     } finally {
       setBusy(false);
     }
@@ -285,6 +308,9 @@ export default function App() {
           text: "Unbind",
           style: "destructive",
           onPress: async () => {
+            // End the session on the server too, so the token is useless
+            // even if it was copied off the device. Offline, it simply lapses.
+            if (device) await signOut(connectionFor(device)).catch(() => undefined);
             await forgetDevice();
             setDevice(null);
             setParticipants([]);
@@ -308,7 +334,9 @@ export default function App() {
       <View style={styles.root}>
         {screen === "connect" && (
           <ConnectScreen
+            notice={connectNotice}
             onConnected={(nextDraft, found) => {
+              setConnectNotice(null);
               setDraft(nextDraft);
               setParticipants(found);
               setScreen("identify");

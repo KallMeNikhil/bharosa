@@ -314,9 +314,10 @@ RECORD_SUPPLY_CHAIN_EVENT
 
 Holding one never implies another. Issuing identities, authorising signing and
 authorising print are separate powers because in a real plant they belong to
-different people. The distributor scanner, for instance, holds exactly one:
-`RECORD_SUPPLY_CHAIN_EVENT`. A scanner stolen from a loading bay is worth no
-more than the movements it can fabricate.
+different people. A custody scanner should hold exactly one:
+`RECORD_SUPPLY_CHAIN_EVENT`, so that one stolen from a loading bay is worth no
+more than the movements it can fabricate. Today the distributor app signs in
+with the company account instead; see section 15.
 
 ### Authentication
 
@@ -395,6 +396,12 @@ connectivity would simply not be used, losing exactly the events detection
 depends on. The outbox queues per event rather than per consignment, because
 acceptance is per event: one unregistered pack must not block the other
 thirty-nine.
+
+For now the scanner signs in with the company's email and password, so it
+carries the owner's capabilities rather than the single one a scanner should
+hold. Scanner credentials that can only record movements, revocable per device,
+are the planned replacement. An expired session pauses the outbox instead of
+rejecting what is queued, and unbinding the device ends its session.
 
 Both apps are pinned to **Expo SDK 54**, which is what the Play Store build of
 Expo Go supports. Later SDKs will not open in it.

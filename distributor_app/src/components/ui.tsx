@@ -112,6 +112,8 @@ export function Field({
   autoCapitalize = "none",
   mono,
   keyboardType,
+  secureTextEntry,
+  autoComplete,
   onSubmitEditing,
 }: {
   label: string;
@@ -121,7 +123,9 @@ export function Field({
   placeholder?: string;
   autoCapitalize?: "none" | "characters";
   mono?: boolean;
-  keyboardType?: "default" | "url";
+  keyboardType?: "default" | "url" | "email-address";
+  secureTextEntry?: boolean;
+  autoComplete?: "email" | "password";
   onSubmitEditing?: () => void;
 }) {
   return (
@@ -135,6 +139,8 @@ export function Field({
         autoCapitalize={autoCapitalize}
         autoCorrect={false}
         keyboardType={keyboardType}
+        secureTextEntry={secureTextEntry}
+        autoComplete={autoComplete}
         onSubmitEditing={onSubmitEditing}
         returnKeyType="done"
         style={[styles.input, mono && styles.inputMono]}

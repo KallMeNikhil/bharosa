@@ -12,6 +12,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   DEFAULT_BASE_URL,
   listParticipants,
+  signIn,
   whoami,
   type Participant,
 } from "../api/client";
@@ -22,34 +23,42 @@ import { color, font, space, type } from "../theme";
 
 export interface Draft {
   baseUrl: string;
+  token: string;
   manufacturerId: string;
+  manufacturerName: string;
   actorId: string;
 }
 
 export function ConnectScreen({
+  notice,
   onConnected,
 }: {
+  notice?: string | null;
   onConnected: (draft: Draft, participants: Participant[]) => void;
 }) {
   const insets = useSafeAreaInsets();
   const [baseUrl, setBaseUrl] = useState(DEFAULT_BASE_URL);
-  const [manufacturerId, setManufacturerId] = useState("");
-  const [actorId, setActorId] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const ready = baseUrl.trim() !== "" && manufacturerId.trim() !== "" && actorId.trim() !== "";
+  const ready = baseUrl.trim() !== "" && email.trim() !== "" && password !== "";
 
   async function connect() {
     setBusy(true);
     setError(null);
-    const draft: Draft = {
-      baseUrl: baseUrl.trim().replace(/\/+$/, ""),
-      manufacturerId: manufacturerId.trim(),
-      actorId: actorId.trim(),
-    };
+    const address = baseUrl.trim().replace(/\/+$/, "");
 
     try {
+      const signedIn = await signIn(address, email.trim(), password);
+      const draft: Draft = {
+        baseUrl: address,
+        token: signedIn.token,
+        manufacturerId: signedIn.manufacturer.id,
+        manufacturerName: signedIn.manufacturer.name,
+        actorId: signedIn.account.email,
+      };
       const connection = connectionFor(draft);
       await whoami(connection);
       const participants = await listParticipants(connection);
@@ -88,11 +97,13 @@ export function ConnectScreen({
         <View style={styles.intro}>
           <Text style={styles.heading}>Set up this scanner</Text>
           <Text style={styles.blurb}>
-            Bind the device once. After that it stays signed in and works
-            without a connection, sending what it has recorded when the signal
-            comes back.
+            Sign in with your company's Bharosa account once. After that it
+            stays signed in and works without a connection, sending what it has
+            recorded when the signal comes back.
           </Text>
         </View>
+
+        {notice && <Notice text={notice} />}
 
         <View style={styles.form}>
           <Field
@@ -104,30 +115,32 @@ export function ConnectScreen({
             mono
           />
           <Field
-            label="Manufacturer ID"
-            hint="From the manufacturer console, under the tenant's details."
-            value={manufacturerId}
-            onChangeText={setManufacturerId}
-            placeholder="00000000-0000-0000-0000-000000000000"
-            mono
+            label="Email"
+            value={email}
+            onChangeText={setEmail}
+            placeholder="you@company.com"
+            keyboardType="email-address"
+            autoCapitalize="none"
+            autoComplete="email"
           />
           <Field
-            label="Name this device"
-            hint="Where the scanner lives, not who is holding it. For example, Bay 2 scanner."
-            value={actorId}
-            onChangeText={setActorId}
-            placeholder="bay-2-scanner"
+            label="Password"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+            autoCapitalize="none"
+            autoComplete="password"
             onSubmitEditing={ready ? connect : undefined}
           />
         </View>
 
         {error && <Notice text={error} />}
 
-        <Button label="Connect" onPress={connect} disabled={!ready} busy={busy} />
+        <Button label="Sign in" onPress={connect} disabled={!ready} busy={busy} />
 
         <Text style={styles.footnote}>
-          This device is granted one permission: recording that a pack moved.
-          It cannot register products, issue codes or touch signing keys.
+          This device signs in with your company account, so keep it with
+          staff you trust. Unbinding it in Settings ends its session.
         </Text>
       </ScrollView>
     </KeyboardAvoidingView>

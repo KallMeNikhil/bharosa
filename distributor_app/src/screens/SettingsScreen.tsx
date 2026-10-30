@@ -33,19 +33,19 @@ export function SettingsScreen({
           <Rule />
           <Row label="Place code" value={device.participant.participant_ref} mono />
           <Rule />
-          <Row label="Device name" value={device.actorId} mono />
+          <Row label="Signed in as" value={device.actorId} mono />
           <Rule />
-          <Row label="Manufacturer" value={device.manufacturerId} mono small />
+          <Row label="Company" value={device.manufacturerName} />
           <Rule />
           <Row label="Server" value={device.baseUrl} mono small />
         </Card>
 
         <View style={styles.section}>
-          <Eyebrow>What this device may do</Eyebrow>
+          <Eyebrow>Keep this device safe</Eyebrow>
           <Text style={styles.blurb}>
-            Record that a pack moved. Nothing else. It cannot create products,
-            issue pack codes, or reach signing keys, so a scanner taken from a
-            loading bay is worth no more than the movements it can fake.
+            It is signed in with your company account, which can do more than
+            record movements. If it goes missing, unbind it from here if you
+            still can; otherwise its session ends on its own within two weeks.
           </Text>
         </View>
 

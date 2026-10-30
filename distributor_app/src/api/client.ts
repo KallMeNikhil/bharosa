@@ -54,7 +54,14 @@ export interface SupplyChainEvent {
 
 export interface Connection {
   baseUrl: string;
+  // A session token from signing in. Empty only for the sign-in call itself.
   credential: string;
+}
+
+export interface SignedIn {
+  token: string;
+  account: { email: string };
+  manufacturer: { id: string; name: string };
 }
 
 export class OfflineError extends Error {
@@ -86,7 +93,7 @@ async function request<T>(
       method: init?.method ?? "GET",
       headers: {
         Accept: "application/json",
-        Authorization: `Bearer ${connection.credential}`,
+        ...(connection.credential ? { Authorization: `Bearer ${connection.credential}` } : {}),
         ...(init?.body ? { "Content-Type": "application/json" } : {}),
       },
       body: init?.body ? JSON.stringify(init.body) : undefined,
@@ -114,8 +121,15 @@ async function request<T>(
   return (await response.json()) as T;
 }
 
-export function buildCredential(manufacturerId: string, actorId: string): string {
-  return `dev:${manufacturerId.trim()}:${actorId.trim()}:RECORD_SUPPLY_CHAIN_EVENT`;
+export function signIn(baseUrl: string, email: string, password: string): Promise<SignedIn> {
+  return request<SignedIn>({ baseUrl, credential: "" }, "/auth/sign-in", {
+    method: "POST",
+    body: { email, password },
+  });
+}
+
+export function signOut(connection: Connection): Promise<void> {
+  return request<void>(connection, "/auth/sign-out", { method: "POST" });
 }
 
 export function whoami(connection: Connection): Promise<Actor> {
