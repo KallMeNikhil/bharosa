@@ -14,14 +14,9 @@ services:
     # takes about a minute. Move to "starter" to keep it always on.
     plan: free
     healthCheckPath: /api/v1/health
-    # Migrations run as bharosa_owner before the API starts, so a deploy can
-    # never serve code against an older schema. Forwarded headers are trusted
-    # because the API is only reached through Render's proxy, and the rate
-    # limiters key on the visitor's address rather than the proxy's.
-    dockerCommand: >-
-      sh -c "alembic upgrade head &&
-      uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}
-      --proxy-headers --forwarded-allow-ips='*'"
+    # bin/start.sh migrates, then serves. A script avoids the start command
+    # needing shell quoting, which Render passes through literally.
+    dockerCommand: sh bin/start.sh
     envVars:
       - key: ENVIRONMENT
         value: production
